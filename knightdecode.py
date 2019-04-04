@@ -25,18 +25,25 @@ ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
 NUM_REGISTERS = 16
 
+SIZE_UNSIGNED_CHAR = 1
+SIZE_UNSIGNED_SHORT = 2
+
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 
 def create_vm(size):
     instruction_pointer = 0
-    
+
+    # allocate registers, assert unsigned short is the size we think it is
     registers = array(ARRAY_TYPE_UNSIGNED_SHORT)
+    assert registers.itemsize == SIZE_UNSIGNED_SHORT # 2
     for i in xrange(NUM_REGISTERS):
         registers.append(0)
 
     amount_of_ram = size
-    
+
+    # allocate memory, assert unsigned char is the size we think it is
     memory = array(ARRAY_TYPE_UNSIGNED_CHAR)
+    assert memory.itemsize == SIZE_UNSIGNED_CHAR # 1
     for i in xrange(size):
         memory.append(0)
 
