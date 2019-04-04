@@ -25,7 +25,7 @@ ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
 NUM_REGISTERS = 16
 
-(IP, REG, AMTRAM, MEM, HALTED, EXCEPT, PERF_COUNT) = range(7)
+(IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 
 def create_vm(size):
     instruction_pointer = 0
@@ -44,9 +44,9 @@ def create_vm(size):
     exception = False
     performance_counter = 0
     
-    return (instruction_pointer, registers, amount_of_ram, memory,
+    return (instruction_pointer, registers, memory,
             halted, exception, performance_counter)
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
-    print "vm created %d bytes" %  vm[AMTRAM]
+    print "vm created %d bytes" %  len(vm[MEM])
