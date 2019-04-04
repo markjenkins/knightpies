@@ -28,7 +28,11 @@ NUM_REGISTERS = 16
 SIZE_UNSIGNED_CHAR = 1
 SIZE_UNSIGNED_SHORT = 2
 
+INSTRUCTION_LEN = 4
+
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
+(OP, CURIP, NEXTIP, RESTOF) = range(4)
+
 
 def create_vm(size):
     instruction_pointer = 0
@@ -54,6 +58,26 @@ def create_vm(size):
     return (instruction_pointer, registers, memory,
             halted, exception, performance_counter)
 
+def unpack_byte(a):
+    table = [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
+             0x41, 0x42, 0x43, 0x44, 0x45, 0x46]
+    assert len(table)==16
+    return (table[a / 16], table[a % 16])
+
+def read_instruction(vm):
+    current_ip = vm[IP]
+    
+    instruction_bytes = vm[MEM][current_ip:current_ip+INSTRUCTION_LEN]
+    opcode = unpack_byte(instruction_bytes[0])
+
+    return (opcode, # OP
+            current_ip, # CURIP
+            current_ip+INSTRUCTION_LEN, # NEXTIP
+            [unpack_byte(a) for a in instruction_bytes[1:]] # RESTOF
+    )
+    
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
     print "vm created %d bytes" %  len(vm[MEM])
+    print "instruction opcode unpacked (0x%02x, 0x%02x)" % \
+        read_instruction(vm)[OP]
