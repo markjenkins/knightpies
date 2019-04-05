@@ -33,7 +33,7 @@ SIZE_UNSIGNED_SHORT = 2
 INSTRUCTION_LEN = 4
 
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
-(OP, CURIP, NEXTIP, RESTOF) = range(4)
+(OP, RAW, CURIP, NEXTIP, RESTOF) = range(5)
 
 
 def create_vm(size):
@@ -79,6 +79,7 @@ def read_instruction(vm):
     opcode = unpack_byte(instruction_bytes[0])
 
     return (opcode, # OP
+            instruction_bytes, # RAW
             current_ip, # CURIP
             next_ip, # NEXTIP
             [unpack_byte(a) for a in instruction_bytes[1:]] # RESTOF
