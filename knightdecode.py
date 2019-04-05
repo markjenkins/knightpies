@@ -20,7 +20,7 @@
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
 from sys import stderr
-
+from time import sleep
 from array import array
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
@@ -31,6 +31,8 @@ SIZE_UNSIGNED_CHAR = 1
 SIZE_UNSIGNED_SHORT = 2
 
 INSTRUCTION_LEN = 4
+
+DEBUG = False
 
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 (OP, RAW, CURIP, NEXTIP, RESTOF) = range(5)
@@ -98,7 +100,120 @@ def outside_of_world(vm, place, message):
         # if TRACE: TODO
         #    pass # TODO
 	exit(message)
-    
+
+def increment_vm_perf_count(vm):
+    assert PERF_COUNT == len(vm)-1 # PERF_COUNT is end of the list
+    return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,)
+        
+def illegal_instruction(vm, current_instruction):
+    # TODO, this is a stub
+    exit(1)
+
+def eval_instruction(vm, current_instruction):
+    vm = increment_vm_perf_count(vm)
+    if DEBUG:
+        print "Executing: %s%s" % (
+            ''.join(current_instruction[OP]),
+            ''.join(''.join(rpair)
+                    for rpair in current_instruction[RESTOF]) )
+        sleep(1)
+
+    raw0 = current_instruction[RAW][0]
+        
+    if raw0 == 0: # Deal with NOPs
+        if [0,0,0,0]==current_instruction[RAW].tolist():
+            #if TRACE: # TODO
+            #    record_trace("NOP") # TODO
+            return
+        illegal_instruction(vm, current_instruction)
+
+    elif raw0 in DECODE_TABLE:
+        assert raw0 in EVAL_TABLE
+        current_instruction = DECODE_TABLE[raw0](current_instruction)
+        EVAL_TABLE[raw0](vm, current_instruction)
+    elif raw0 == 0xFF:  # Deal with HALT
+        vm = halt_vm(vm)
+        print >> stderr, \
+            "Computer Program has Halted\nAfter Executing %lu instructions" \
+            % vm[PERF_COUNT]
+        # if TRACE: # TODO
+        #     record_trance("HALT") # TODO
+        #    print_traces() # TODO
+    else:
+        illegal_instruction(vm, current_instruction)
+
+def decode_40P(vm, c):
+    pass
+
+def decode_30P(vm, c):
+    pass
+
+def decode_20P(vm, c):
+    pass
+
+def decode_10P(vm, c):
+    pass
+
+def decode_20PI(vm, c):
+    pass
+
+def decode_10PI(vm, c):
+    pass
+
+def decode_00PI(vm, c):
+    pass
+
+def decode_HALCODE(vm, c):
+    pass
+
+def eval_40P_Int(vm, c):
+    pass
+
+def eval_30P_Int(vm, c):
+    pass
+
+def eval_20P_Int(vm, c):
+    pass
+
+def eval_10P_Int(vm, c):
+    pass
+
+def eval_20PI_Int(vm, c):
+    pass
+
+def eval_Integer_10PI(vm, c):
+    pass
+
+def eval_Integer_00PI(vm, c):
+    pass
+
+def eval_HALCODE(vm, c):
+    pass
+
+DECODE_TABLE = {
+    0x01: decode_40P,
+    0x05: decode_30P,
+    0x09: decode_20P,
+    0x0D: decode_10P,
+    0xE1: decode_20PI,
+    0xE0: decode_10PI,
+    0x3C: decode_00PI,
+    0x42: decode_HALCODE,
+}
+
+EVAL_TABLE = {
+    0x01: eval_40P_Int,
+    0x05: eval_30P_Int,
+    0x09: eval_20P_Int,
+    0x0D: eval_10P_Int,
+    0xE1: eval_20PI_Int,
+    0xE0: eval_Integer_10PI,
+    0x3C: eval_Integer_00PI,
+    0x42: eval_HALCODE,
+}
+
+assert tuple(sorted(DECODE_TABLE.keys())) == tuple(sorted(EVAL_TABLE.keys()))
+
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
     print "vm created %d bytes" %  len(vm[MEM])
