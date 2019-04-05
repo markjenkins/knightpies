@@ -61,8 +61,8 @@ def create_vm(size):
             halted, exception, performance_counter)
 
 def unpack_byte(a):
-    table = [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
-             0x41, 0x42, 0x43, 0x44, 0x45, 0x46]
+    table = ['0','1', '2', '3', '4', '5', '6', '7', '8', '9',
+             'A', 'B', 'C', 'D', 'E', 'F']
     assert len(table)==16
     return (table[a / 16], table[a % 16])
 
@@ -101,5 +101,6 @@ def outside_of_world(vm, place, message):
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
     print "vm created %d bytes" %  len(vm[MEM])
-    print "instruction opcode unpacked (0x%02x, 0x%02x)" % \
-        read_instruction(vm)[OP]
+    instruction = read_instruction(vm)
+    print "instruction opcode unpacked (0x0%s, 0x0%s)" % \
+        instruction[OP]
