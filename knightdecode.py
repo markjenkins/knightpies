@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from sys import stderr
+
 from array import array
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
@@ -66,15 +68,35 @@ def unpack_byte(a):
 
 def read_instruction(vm):
     current_ip = vm[IP]
+    next_ip = current_ip+INSTRUCTION_LEN
+
+    # Why current_ip+INSTRUCTION_LEN-1 and not just current_ip ?
+    # If the end of memory isn't INSTRUCTION_LEN byte aligned, than
+    # current_ip may be in bounds but the last byte of it might not be
+    outside_of_world(vm, next_ip-1, "READ Instruction outside of World")
     
     instruction_bytes = vm[MEM][current_ip:current_ip+INSTRUCTION_LEN]
     opcode = unpack_byte(instruction_bytes[0])
 
     return (opcode, # OP
             current_ip, # CURIP
-            current_ip+INSTRUCTION_LEN, # NEXTIP
+            next_ip, # NEXTIP
             [unpack_byte(a) for a in instruction_bytes[1:]] # RESTOF
     )
+
+def halt_vm(vm):
+    # recontruct vm tuple with vm[HALTED] = True
+    return vm[0:HALTED] + (True,) + vm[HALTED+1:]
+
+def outside_of_world(vm, place, message):
+    if len(vm[MEM]) <= place:
+        print >> stderr, "Invalid state reached after: %lu instructions" \
+            % vm[PERF_COUNT]
+        print >> stderr, "%i: %s" % (place, message)
+        vm = halt_vm(vm)
+        # if TRACE: TODO
+        #    pass # TODO
+	exit(message)
     
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
