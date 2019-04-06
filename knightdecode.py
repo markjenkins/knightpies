@@ -96,9 +96,9 @@ def halt_vm(vm):
 
 def outside_of_world(vm, place, message):
     if len(vm[MEM]) <= place:
-        print >> stderr, "Invalid state reached after: %lu instructions" \
+        print >> stderr, "Invalid state reached after: %d instructions" \
             % vm[PERF_COUNT]
-        print >> stderr, "%i: %s" % (place, message)
+        print >> stderr, "%d: %s" % (place, message)
         vm = halt_vm(vm)
         # if TRACE: TODO
         #    pass # TODO
@@ -117,7 +117,7 @@ def illegal_instruction(vm, current_instruction):
         "Invalid instruction was recieved at address:%08X" % \
         current_instruction[CURIP]
     print >> stderr, \
-        "After %lu instructions" % vm[PERF_COUNT]
+        "After %d instructions" % vm[PERF_COUNT]
     print >> stderr, "Unable to execute the following instruction:\n\t%s" % \
         string_unpacked_instruction(current_instruction)
 
@@ -161,7 +161,7 @@ def eval_instruction(vm, current_instruction):
     elif raw0 == 0xFF:  # Deal with HALT
         vm = halt_vm(vm)
         print >> stderr, \
-            "Computer Program has Halted\nAfter Executing %lu instructions" \
+            "Computer Program has Halted\nAfter Executing %d instructions" \
             % vm[PERF_COUNT]
         # if TRACE: # TODO
         #     record_trance("HALT") # TODO
