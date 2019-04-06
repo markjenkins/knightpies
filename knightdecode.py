@@ -34,8 +34,10 @@ INSTRUCTION_LEN = 4
 
 DEBUG = False
 
+EXIT_FAILURE = 1
+
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
-(OP, RAW, CURIP, NEXTIP, RESTOF) = range(5)
+(OP, RAW, CURIP, NEXTIP, RESTOF, INVALID) = range(6)
 
 
 def create_vm(size):
@@ -84,7 +86,8 @@ def read_instruction(vm):
             instruction_bytes, # RAW
             current_ip, # CURIP
             next_ip, # NEXTIP
-            [unpack_byte(a) for a in instruction_bytes[1:]] # RESTOF
+            [unpack_byte(a) for a in instruction_bytes[1:]], # RESTOF
+            False # INVALID
     )
 
 def halt_vm(vm):
@@ -105,17 +108,41 @@ def increment_vm_perf_count(vm):
     assert PERF_COUNT == len(vm)-1 # PERF_COUNT is end of the list
     return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,)
         
+def invalidate_instruction(i):
+    assert INVALID == len(i)-1 # INVALID is last element
+    return i[0:INVALID] + (True,)
+
 def illegal_instruction(vm, current_instruction):
-    # TODO, this is a stub
-    exit(1)
+    print >> stderr, \
+        "Invalid instruction was recieved at address:%08X" % \
+        current_instruction[CURIP]
+    print >> stderr, \
+        "After %lu instructions" % vm[PERF_COUNT]
+    print >> stderr, "Unable to execute the following instruction:\n\t%s" % \
+        string_unpacked_instruction(current_instruction)
+
+    current_instruction = invalidate_instruction(current_instruction)
+    vm = halt_vm(vm)
+
+    if DEBUG:
+        print >> stderr, "Computer Program has Halted"
+
+    #if TRACE: # TODO
+    #    record_trace("HALT") # TODO
+    #    print_traces() # TODO
+
+    exit(EXIT_FAILURE)
+
+def string_unpacked_instruction(i):
+    return (''.join(i[OP]) +
+            ''.join(''.join(rpair)
+                    for rpair in i[RESTOF]) )
 
 def eval_instruction(vm, current_instruction):
     vm = increment_vm_perf_count(vm)
     if DEBUG:
-        print "Executing: %s%s" % (
-            ''.join(current_instruction[OP]),
-            ''.join(''.join(rpair)
-                    for rpair in current_instruction[RESTOF]) )
+        print "Executing: %s" % string_unpacked_instruction(
+            current_instruction)
         sleep(1)
 
     raw0 = current_instruction[RAW][0]
