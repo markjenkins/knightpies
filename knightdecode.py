@@ -37,7 +37,8 @@ DEBUG = False
 EXIT_FAILURE = 1
 
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
-(OP, RAW, CURIP, NEXTIP, RESTOF, INVALID) = range(6)
+(OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
+ RAW_XOP, XOP, RAW_IMMEDIATE, I_REGISTERS) = range(10)
 
 
 def create_vm(size):
@@ -109,8 +110,7 @@ def increment_vm_perf_count(vm):
     return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,)
         
 def invalidate_instruction(i):
-    assert INVALID == len(i)-1 # INVALID is last element
-    return i[0:INVALID] + (True,)
+    return i[0:INVALID] + (True,) + i[INVALID+1:]
 
 def illegal_instruction(vm, current_instruction):
     print >> stderr, \
@@ -170,7 +170,20 @@ def eval_instruction(vm, current_instruction):
         illegal_instruction(vm, current_instruction)
 
 def decode_40P(vm, c):
-    pass
+    raw_xop = c[RAW][1]
+    xop = (c[RESTOF][0], c[RESTOF][1])
+    raw_immediate = 0
+    i_registers = (
+        c[RAW][2]/16,
+        c[RAW][2]%16,
+        c[RAW][3]/16,
+        c[RAW][3]%16,
+    )
+    return c + (raw_xop, # RAW_XOP
+                xop, # XOP
+                raw_immediate, # RAW_IMMEDIATE
+                i_registers, # I_REGISTERS
+    )
 
 def decode_30P(vm, c):
     pass
@@ -194,7 +207,55 @@ def decode_HALCODE(vm, c):
     pass
 
 def eval_40P_Int(vm, c):
-    pass
+    ILLEGAL_MSG = "ILLEGAL_4OP"
+    raw_xop = c[RAW_XOP]
+    if raw_xop==0x00: # ADD.CI
+        pass
+    elif raw_xop==0x01: # ADD.CO
+        pass
+    elif raw_xop==0x02: # ADD.CIO
+        pass
+    elif raw_xop==0x03: # ADDU.CI
+        pass
+    elif raw_xop==0x04: # ADDU.CO
+        pass
+    elif raw_xop==0x05: # ADDU.CIO
+        pass
+    elif raw_xop==0x06: # SUB.BI
+        pass
+    elif raw_xop==0x07: # SUB.BO
+        pass
+    elif raw_xop==0x08: # SUB.BIO
+        pass
+    elif raw_xop==0x09: # SUBU.BI
+        pass
+    elif raw_xop==0x0A: # SUBU.BO
+        pass
+    elif raw_xop==0x0B: # SUBU.BIO
+        pass
+    elif raw_xop==0x0C: # MULTIPLY
+        pass
+    elif raw_xop==0x0D: # MULTIPLYU
+        pass
+    elif raw_xop==0x0E: # DIVIDE
+        pass
+    elif raw_xop==0x0F: # DIVIDEU
+        pass
+    elif raw_xop==0x10: # MUX
+        pass
+    elif raw_xop==0x11: # NMUX
+        pass
+    elif raw_xop==0x12: # SORT
+        pass
+    elif raw_xop==0x13: # SORTU
+        pass
+    else:
+        illegal_instruction(vm, c)
+    if DEBUG:
+        print "# %s reg%d reg%d reg%d reg%d" % (
+            "", # Name in original code
+            ) + c[I_REGISTERS][0:4]
+    return False
 
 def eval_30P_Int(vm, c):
     pass
