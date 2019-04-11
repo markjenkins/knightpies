@@ -169,7 +169,7 @@ def eval_instruction(vm, current_instruction):
     else:
         illegal_instruction(vm, current_instruction)
 
-def decode_40P(vm, c):
+def decode_4OP(vm, c):
     raw_xop = c[RAW][1]
     xop = (c[RESTOF][0], c[RESTOF][1])
     raw_immediate = 0
@@ -185,7 +185,7 @@ def decode_40P(vm, c):
                 i_registers, # I_REGISTERS
     )
 
-def decode_30P(vm, c):
+def decode_3OP(vm, c):
     raw_xop = c[RAW][1]*0x10 + c[RAW][2]/16
     xop = c[RESTOF]
     assert len(xop) == 3
@@ -201,25 +201,25 @@ def decode_30P(vm, c):
                 i_registers, # I_REGISTERS
     )
 
-def decode_20P(vm, c):
+def decode_2OP(vm, c):
     pass
 
-def decode_10P(vm, c):
+def decode_1OP(vm, c):
     pass
 
-def decode_20PI(vm, c):
+def decode_2OPI(vm, c):
     pass
 
-def decode_10PI(vm, c):
+def decode_1OPI(vm, c):
     pass
 
-def decode_00PI(vm, c):
+def decode_0OPI(vm, c):
     pass
 
 def decode_HALCODE(vm, c):
     pass
 
-def eval_40P_Int(vm, c):
+def eval_4OP_Int(vm, c):
     ILLEGAL_MSG = "ILLEGAL_4OP"
     raw_xop = c[RAW_XOP]
     if raw_xop==0x00: # ADD.CI
@@ -270,46 +270,46 @@ def eval_40P_Int(vm, c):
             ) + c[I_REGISTERS][0:4]
     return False
 
-def eval_30P_Int(vm, c):
+def eval_3OP_Int(vm, c):
     pass
 
-def eval_20P_Int(vm, c):
+def eval_2OP_Int(vm, c):
     pass
 
-def eval_10P_Int(vm, c):
+def eval_1OP_Int(vm, c):
     pass
 
-def eval_20PI_Int(vm, c):
+def eval_2OPI_Int(vm, c):
     pass
 
-def eval_Integer_10PI(vm, c):
+def eval_Integer_1OPI(vm, c):
     pass
 
-def eval_Integer_00PI(vm, c):
+def eval_Integer_0OPI(vm, c):
     pass
 
 def eval_HALCODE(vm, c):
     pass
 
 DECODE_TABLE = {
-    0x01: decode_40P,
-    0x05: decode_30P,
-    0x09: decode_20P,
-    0x0D: decode_10P,
-    0xE1: decode_20PI,
-    0xE0: decode_10PI,
-    0x3C: decode_00PI,
+    0x01: decode_4OP,
+    0x05: decode_3OP,
+    0x09: decode_2OP,
+    0x0D: decode_1OP,
+    0xE1: decode_2OPI,
+    0xE0: decode_1OPI,
+    0x3C: decode_0OPI,
     0x42: decode_HALCODE,
 }
 
 EVAL_TABLE = {
-    0x01: eval_40P_Int,
-    0x05: eval_30P_Int,
-    0x09: eval_20P_Int,
-    0x0D: eval_10P_Int,
-    0xE1: eval_20PI_Int,
-    0xE0: eval_Integer_10PI,
-    0x3C: eval_Integer_00PI,
+    0x01: eval_4OP_Int,
+    0x05: eval_3OP_Int,
+    0x09: eval_2OP_Int,
+    0x0D: eval_1OP_Int,
+    0xE1: eval_2OPI_Int,
+    0xE0: eval_Integer_1OPI,
+    0x3C: eval_Integer_0OPI,
     0x42: eval_HALCODE,
 }
 
