@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+# 4 OP integer instructions
+
 def ADD_CI(vm, c):
     pass
 
@@ -77,3 +79,173 @@ def SORT(vm, c):
 def SORTU(vm, c):
     pass
 
+
+# 3 OP integer instructions
+
+def ADD(vm, c):
+    pass
+
+def ADDU(vm, c):
+    pass
+
+def SUB(vm, c):
+    pass
+
+def SUBU(vm, c):
+    pass
+
+def CMP(vm, c):
+    pass
+
+def CMPU(vm, c):
+    pass
+
+def MUL(vm, c):
+    pass
+
+def MULH(vm, c):
+    pass
+
+def MULU(vm, c):
+    pass
+
+def MULUH(vm, c):
+    pass
+
+def DIV(vm, c):
+    pass
+
+def MOD(vm, c):
+    pass
+
+def DIVU(vm, c):
+    pass
+
+def MODU(vm, c):
+    pass
+
+def MAX(vm, c):
+    pass
+
+def MAXU(vm, c):
+    pass
+
+def MIN(vm, c):
+    pass
+
+def MINU(vm, c):
+    pass
+
+def AND(vm, c):
+    pass
+
+def OR(vm, c):
+    pass
+
+def XOR(vm, c):
+    pass
+
+def NAND(vm, c):
+    pass
+
+def NOR(vm, c):
+    pass
+
+def XNOR(vm, c):
+    pass
+
+def MPQ(vm, c):
+    pass
+
+def LPQ(vm, c):
+    pass
+
+def CPQ(vm, c):
+    pass
+
+def BPQ(vm, c):
+    pass
+
+def SAL(vm, c):
+    pass
+
+def SAR(vm, c):
+    pass
+
+def SL0(vm, c):
+    pass
+
+def SR0(vm, c):
+    pass
+
+def SL1(vm, c):
+    pass
+
+def SR1(vm, c):
+    pass
+
+def ROL(vm, c):
+    pass
+
+def ROR(vm, c):
+    pass
+
+def LOADX(vm, c):
+    pass
+
+def LOADXU8(vm, c):
+    pass
+
+def LOADX16(vm, c):
+    pass
+
+def LOADXU16(vm, c):
+    pass
+
+def LOADX32(vm, c):
+    pass
+
+def LOADXU32(vm, c):
+    pass
+
+def STOREX(vm, c):
+    pass
+
+def STOREX8(vm, c):
+    pass
+
+def STOREX16(vm, c):
+    pass
+
+def STOREX32(vm, c):
+    pass
+
+def CMPJUMP_G(vm, c):
+    pass
+
+def CMPJUMP_GE(vm, c):
+    pass
+
+def CMPJUMP_E(vm, c):
+    pass
+
+def CMPJUMP_NE(vm, c):
+    pass
+
+def CMPJUMP_LE(vm, c):
+    pass
+
+def CMPJUMP_L(vm, c):
+    pass
+
+def CMPJUMPU_G(vm, c):
+    pass
+
+def CMPJUMPU_GE(vm, c):
+    pass
+
+def CMPJUMPU_LE(vm, c):
+    pass
+
+def CMPJUMPU_L(vm, c):
+    pass
