@@ -361,24 +361,7 @@ def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
     return False # Why?
 
 def eval_4OP_Int(vm, c):
-    ILLEGAL_MSG = "ILLEGAL_4OP"
-    name = ILLEGAL_MSG
-    raw_xop = c[RAW_XOP]
-    if raw_xop in EVAL_4OP_INT_TABLE:
-        instruction_func, instruction_str = EVAL_4OP_INT_TABLE[raw_xop]
-        if DEBUG:
-            name = instruction_str
-        #elif TRACE: # TODO
-        #    record_trace(instruction_str) # TODO
-        instruction_func(vm, c)
-    else:
-        illegal_instruction(vm, c)
-
-    if DEBUG:
-        print "# %s reg%d reg%d reg%d reg%d" % (
-            name,
-            ) + c[I_REGISTERS][0:4]
-    return False
+    return eval_N_OP_int(vm, c, 4, EVAL_4OP_INT_TABLE)
 
 def eval_3OP_Int(vm, c):
     return eval_N_OP_int(vm, c, 3, EVAL_3OP_INT_TABLE, EVAL_30P_INT_ILLEGAL)
