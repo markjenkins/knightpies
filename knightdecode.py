@@ -164,7 +164,7 @@ def eval_instruction(vm, current_instruction):
             "Computer Program has Halted\nAfter Executing %d instructions" \
             % vm[PERF_COUNT]
         # if TRACE: # TODO
-        #     record_trance("HALT") # TODO
+        #    record_trace("HALT") # TODO
         #    print_traces() # TODO
     else:
         illegal_instruction(vm, current_instruction)
