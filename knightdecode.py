@@ -23,6 +23,8 @@ from sys import stderr
 from time import sleep
 from array import array
 
+import knightinstructions
+
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
 NUM_REGISTERS = 16
@@ -219,54 +221,60 @@ def decode_0OPI(vm, c):
 def decode_HALCODE(vm, c):
     pass
 
+def lookup_instruction_and_debug_str(x):
+    table_key, instruction_str = x
+    return (table_key,
+            (getattr(knightinstructions, instruction_str),
+             instruction_str.replace("_", ".")
+            ) # inner tuple
+    ) # outer tuple
+
+EVAL_4OP_INT_TABLE_STRING = {
+    0x00: "ADD_CI",
+    0x01: "ADD_CO",
+    0x02: "ADD_CIO",
+    0x03: "ADDU_CI",
+    0x04: "ADDU_CO",
+    0x05: "ADDU_CIO",
+    0x06: "SUB_BI",
+    0x07: "SUB_BO",
+    0x08: "SUB_BIO",
+    0x09: "SUBU_BI",
+    0x0A: "SUBU_BO",
+    0x0B: "SUBU_BIO",
+    0x0C: "MULTIPLY",
+    0x0D: "MULTIPLYU",
+    0x0E: "DIVIDE",
+    0x0F: "DIVIDEU",
+    0x10: "MUX",
+    0x11: "NMUX",
+    0x12: "SORT",
+    0x13: "SORTU",
+}
+
+EVAL_4OP_INT_TABLE = dict( map(
+    lookup_instruction_and_debug_str,
+    EVAL_4OP_INT_TABLE_STRING.items() ) # map
+) # dict
+
+
 def eval_4OP_Int(vm, c):
     ILLEGAL_MSG = "ILLEGAL_4OP"
+    name = ILLEGAL_MSG
     raw_xop = c[RAW_XOP]
-    if raw_xop==0x00: # ADD.CI
-        pass
-    elif raw_xop==0x01: # ADD.CO
-        pass
-    elif raw_xop==0x02: # ADD.CIO
-        pass
-    elif raw_xop==0x03: # ADDU.CI
-        pass
-    elif raw_xop==0x04: # ADDU.CO
-        pass
-    elif raw_xop==0x05: # ADDU.CIO
-        pass
-    elif raw_xop==0x06: # SUB.BI
-        pass
-    elif raw_xop==0x07: # SUB.BO
-        pass
-    elif raw_xop==0x08: # SUB.BIO
-        pass
-    elif raw_xop==0x09: # SUBU.BI
-        pass
-    elif raw_xop==0x0A: # SUBU.BO
-        pass
-    elif raw_xop==0x0B: # SUBU.BIO
-        pass
-    elif raw_xop==0x0C: # MULTIPLY
-        pass
-    elif raw_xop==0x0D: # MULTIPLYU
-        pass
-    elif raw_xop==0x0E: # DIVIDE
-        pass
-    elif raw_xop==0x0F: # DIVIDEU
-        pass
-    elif raw_xop==0x10: # MUX
-        pass
-    elif raw_xop==0x11: # NMUX
-        pass
-    elif raw_xop==0x12: # SORT
-        pass
-    elif raw_xop==0x13: # SORTU
-        pass
+    if raw_xop in EVAL_4OP_INT_TABLE:
+        instruction_func, instruction_str = EVAL_4OP_INT_TABLE[raw_xop]
+        if DEBUG:
+            name = instruction_str
+        #elif TRACE: # TODO
+        #    record_trace(instruction_str) # TODO
+        instruction_func(vm, c)
     else:
         illegal_instruction(vm, c)
+
     if DEBUG:
         print "# %s reg%d reg%d reg%d reg%d" % (
-            "", # Name in original code
+            name,
             ) + c[I_REGISTERS][0:4]
     return False
 
