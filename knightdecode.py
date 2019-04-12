@@ -321,6 +321,45 @@ EVAL_3OP_INT_TABLE = dict( map(
     EVAL_3OP_INT_TABLE_STRING.items() ) # map
 ) # dict
 
+# using a dictionary type instead of set/fozenset or sets for python 2.2
+# compatibility
+EVAL_30P_INT_ILLEGAL = {
+    0x014: None,
+    0x015: None,
+    0x016: None,
+    0x017: None,
+    0x018: None,
+    0x019: None,
+    0x01A: None,
+    0x01B: None,
+    }
+
+def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
+    name = "ILLEGAL_%dOP" % n
+    raw_xop = c[RAW_XOP]
+    if raw_xop in lookup_table:
+        instruction_func, instruction_str = lookup_table[raw_xop]
+        if DEBUG:
+            name = instruction_str
+        #elif TRACE: # TODO
+        #    record_trace(instruction_str) # TODO
+        instruction_func(vm, c)
+
+    # not sure why zome XOP are matched explicitly for illegal whereas
+    # others fall into default when the handling is the same
+    # some explicitly illegal XOPs in eval_3OP_int probably just exist
+    # to reserve them for future use
+    # elif illegal_table!=None and raw_xop in illegal_table:
+    #    illegal_instruction(vm, c)
+    else:
+        illegal_instruction(vm, c)
+
+    if DEBUG:
+        print ("# %s" + " reg%d"*n) % (
+            name,
+            ) + c[I_REGISTERS][0:n]
+    return False # Why?
+
 def eval_4OP_Int(vm, c):
     ILLEGAL_MSG = "ILLEGAL_4OP"
     name = ILLEGAL_MSG
@@ -342,7 +381,7 @@ def eval_4OP_Int(vm, c):
     return False
 
 def eval_3OP_Int(vm, c):
-    pass
+    return eval_N_OP_int(vm, c, 3, EVAL_3OP_INT_TABLE, EVAL_30P_INT_ILLEGAL)
 
 def eval_2OP_Int(vm, c):
     pass
