@@ -24,6 +24,7 @@ from time import sleep
 from array import array
 
 import knightinstructions
+from pythoncompat import print_func
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
@@ -99,9 +100,10 @@ def halt_vm(vm):
 
 def outside_of_world(vm, place, message):
     if len(vm[MEM]) <= place:
-        print >> stderr, "Invalid state reached after: %d instructions" \
-            % vm[PERF_COUNT]
-        print >> stderr, "%d: %s" % (place, message)
+        print_func("Invalid state reached after: %d instructions" %
+                   vm[PERF_COUNT],
+                   file=stderr)
+        print_func("%d: %s" % (place, message), file=stderr)
         vm = halt_vm(vm)
         # if TRACE: TODO
         #    pass # TODO
@@ -115,19 +117,19 @@ def invalidate_instruction(i):
     return i[0:INVALID] + (True,) + i[INVALID+1:]
 
 def illegal_instruction(vm, current_instruction):
-    print >> stderr, \
-        "Invalid instruction was recieved at address:%08X" % \
-        current_instruction[CURIP]
-    print >> stderr, \
-        "After %d instructions" % vm[PERF_COUNT]
-    print >> stderr, "Unable to execute the following instruction:\n\t%s" % \
-        string_unpacked_instruction(current_instruction)
+    print_func("Invalid instruction was recieved at address:%08X" %
+               current_instruction[CURIP],
+               file=stderr)
+    print_func("After %d instructions" % vm[PERF_COUNT], file=stderr)
+    print_func("Unable to execute the following instruction:\n\t%s" %
+               string_unpacked_instruction(current_instruction),
+               file=stderr)
 
     current_instruction = invalidate_instruction(current_instruction)
     vm = halt_vm(vm)
 
     if DEBUG:
-        print >> stderr, "Computer Program has Halted"
+        print_func("Computer Program has Halted", file=stderr)
 
     #if TRACE: # TODO
     #    record_trace("HALT") # TODO
@@ -143,8 +145,9 @@ def string_unpacked_instruction(i):
 def eval_instruction(vm, current_instruction):
     vm = increment_vm_perf_count(vm)
     if DEBUG:
-        print "Executing: %s" % string_unpacked_instruction(
-            current_instruction)
+        print_func("Executing: %s" %
+                   string_unpacked_instruction(current_instruction),
+                   file=stderr)
         sleep(1)
 
     raw0 = current_instruction[RAW][0]
@@ -162,9 +165,10 @@ def eval_instruction(vm, current_instruction):
         EVAL_TABLE[raw0](vm, current_instruction)
     elif raw0 == 0xFF:  # Deal with HALT
         vm = halt_vm(vm)
-        print >> stderr, \
-            "Computer Program has Halted\nAfter Executing %d instructions" \
-            % vm[PERF_COUNT]
+        print_func(
+            "Computer Program has Halted\nAfter Executing %d instructions"
+            % vm[PERF_COUNT],
+            file=stderr)
         # if TRACE: # TODO
         #    record_trace("HALT") # TODO
         #    print_traces() # TODO
@@ -355,9 +359,9 @@ def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
         illegal_instruction(vm, c)
 
     if DEBUG:
-        print ("# %s" + " reg%d"*n) % (
-            name,
-            ) + c[I_REGISTERS][0:n]
+        print_func(
+            ("# %s" + " reg%d"*n) % ( (name,) + c[I_REGISTERS][0:n] )
+        ) # print_func
     return False # Why?
 
 def eval_4OP_Int(vm, c):
@@ -410,7 +414,7 @@ assert tuple(sorted(DECODE_TABLE.keys())) == tuple(sorted(EVAL_TABLE.keys()))
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
-    print "vm created %d bytes" %  len(vm[MEM])
+    print_func( "vm created %d bytes" %  len(vm[MEM]) )
     instruction = read_instruction(vm)
-    print "instruction opcode unpacked (0x0%s, 0x0%s)" % \
-        instruction[OP]
+    print_func( "instruction opcode unpacked (0x0%s, 0x0%s)" % 
+                instruction[OP] )
