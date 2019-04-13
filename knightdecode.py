@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import division # prevent use of "/" in the old way
+
 from sys import stderr
 from time import sleep
 from array import array
@@ -72,7 +74,7 @@ def unpack_byte(a):
     table = ['0','1', '2', '3', '4', '5', '6', '7', '8', '9',
              'A', 'B', 'C', 'D', 'E', 'F']
     assert len(table)==16
-    return (table[a / 16], table[a % 16])
+    return (table[a // 16], table[a % 16])
 
 def read_instruction(vm):
     current_ip = vm[IP]
@@ -180,9 +182,9 @@ def decode_4OP(vm, c):
     xop = (c[RESTOF][0], c[RESTOF][1])
     raw_immediate = 0
     i_registers = (
-        c[RAW][2]/16,
+        c[RAW][2]//16,
         c[RAW][2]%16,
-        c[RAW][3]/16,
+        c[RAW][3]//16,
         c[RAW][3]%16,
     )
     return c + (raw_xop, # RAW_XOP
@@ -192,13 +194,13 @@ def decode_4OP(vm, c):
     )
 
 def decode_3OP(vm, c):
-    raw_xop = c[RAW][1]*0x10 + c[RAW][2]/16
+    raw_xop = c[RAW][1]*0x10 + c[RAW][2]//16
     xop = c[RESTOF]
     assert len(xop) == 3
     raw_immediate = 0
     i_registers = (
         c[RAW][2]%16,
-        c[RAW][3]/16,
+        c[RAW][3]//16,
         c[RAW][3]%16,
     )
     return c + (raw_xop, # RAW_XOP
