@@ -342,3 +342,30 @@ def CMPSKIPU_LE(vm, c):
 
 def CMPSKIPU_L(vm, c):
     pass
+
+
+# 1 OP integer instructions
+
+def READPC(vm, c):
+    pass
+
+def READSCID(vm, c):
+    pass
+
+def FALSE(vm, c):
+    pass
+
+def TRUE(vm, c):
+    pass
+
+def JSR_COROUTINE(vm, c):
+    pass
+
+def RET(vm, c):
+    pass
+
+def PUSHPC(vm, c):
+    pass
+
+def POPPC(vm, c):
+    pass

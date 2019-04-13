@@ -378,6 +378,22 @@ EVAL_2OP_INT_TABLE = dict( map(
     EVAL_2OP_INT_TABLE_STRING.items() ) # map
 ) # dict
 
+EVAL_1OP_INT_TABLE_STRING = {
+    0x00000: "READPC",
+    0x00001: "READSCID",
+    0x00002: "FALSE",
+    0x00003: "TRUE",
+    0x01000: "JSR_COROUTINE",
+    0x01001: "RET",
+    0x02000: "PUSHPC",
+    0x02001: "POPPC",
+}
+
+EVAL_1OP_INT_TABLE = dict( map(
+    lookup_instruction_and_debug_str,
+    EVAL_1OP_INT_TABLE_STRING.items() ) # map
+) # dict
+
 def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
     name = "ILLEGAL_%dOP" % n
     raw_xop = c[RAW_XOP]
@@ -414,7 +430,7 @@ def eval_2OP_Int(vm, c):
     return eval_N_OP_int(vm, c, 2, EVAL_2OP_INT_TABLE)
 
 def eval_1OP_Int(vm, c):
-    pass
+    return eval_N_OP_int(vm, c, 1, EVAL_1OP_INT_TABLE)
 
 def eval_2OPI_Int(vm, c):
     pass
