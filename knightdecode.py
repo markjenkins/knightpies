@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # A derivitive port of:
 # https://github.com/oriansj/stage0/blob/master/vm_decode.c
