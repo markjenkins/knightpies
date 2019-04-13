@@ -340,6 +340,44 @@ EVAL_30P_INT_ILLEGAL = {
     0x01B: None,
     }
 
+EVAL_2OP_INT_TABLE_STRING = {
+    0x0000: "NEG",
+    0x0001: "ABS",
+    0x0002: "NABS",
+    0x0003: "SWAP",
+    0x0004: "COPY",
+    0x0005: "MOVE",
+    0x0006: "NOT",
+    0x0100: "BRANCH",
+    0x0101: "CALL",
+    0x0200: "PUSHR",
+    0x0201: "PUSH8",
+    0x0202: "PUSH16",
+    0x0203: "PUSH32",
+    0x0280: "POPR",
+    0x0281: "POP8",
+    0x0282: "POPU8",
+    0x0283: "POP16",
+    0x0284: "POPU16",
+    0x0285: "POP32",
+    0x0286: "POPU32",
+    0x0300: "CMPSKIP_G",
+    0x0301: "CMPSKIP_GE",
+    0x0302: "CMPSKIP_E",
+    0x0304: "CMPSKIP_NE",
+    0x0305: "CMPSKIP_LE",
+    0x0305: "CMPSKIP_L",
+    0x0380: "CMPSKIPU_G",
+    0x0381: "CMPSKIPU_GE",
+    0x0384: "CMPSKIPU_LE",
+    0x0385: "CMPSKIPU_L",
+    }
+
+EVAL_2OP_INT_TABLE = dict( map(
+    lookup_instruction_and_debug_str,
+    EVAL_2OP_INT_TABLE_STRING.items() ) # map
+) # dict
+
 def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
     name = "ILLEGAL_%dOP" % n
     raw_xop = c[RAW_XOP]
@@ -373,7 +411,7 @@ def eval_3OP_Int(vm, c):
     return eval_N_OP_int(vm, c, 3, EVAL_3OP_INT_TABLE, EVAL_30P_INT_ILLEGAL)
 
 def eval_2OP_Int(vm, c):
-    pass
+    return eval_N_OP_int(vm, c, 2, EVAL_2OP_INT_TABLE)
 
 def eval_1OP_Int(vm, c):
     pass

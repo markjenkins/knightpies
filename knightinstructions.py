@@ -249,3 +249,93 @@ def CMPJUMPU_LE(vm, c):
 
 def CMPJUMPU_L(vm, c):
     pass
+
+def NEG(vm, c):
+    pass
+
+def ABS(vm, c):
+    pass
+
+def NABS(vm, c):
+    pass
+
+def SWAP(vm, c):
+    pass
+
+def COPY(vm, c):
+    pass
+
+def MOVE(vm, c):
+    pass
+
+def NOT(vm, c):
+    pass
+
+def BRANCH(vm, c):
+    pass
+
+def CALL(vm, c):
+    pass
+
+def PUSHR(vm, c):
+    pass
+
+def PUSH8(vm, c):
+    pass
+
+def PUSH16(vm, c):
+    pass
+
+def PUSH32(vm, c):
+    pass
+
+def POPR(vm, c):
+    pass
+
+def POP8(vm, c):
+    pass
+
+def POPU8(vm, c):
+    pass
+
+def POP16(vm, c):
+    pass
+
+def POPU16(vm, c):
+    pass
+
+def POP32(vm, c):
+    pass
+
+def POPU32(vm, c):
+    pass
+
+def CMPSKIP_G(vm, c):
+    pass
+
+def CMPSKIP_GE(vm, c):
+    pass
+
+def CMPSKIP_E(vm, c):
+    pass
+
+def CMPSKIP_NE(vm, c):
+    pass
+
+def CMPSKIP_LE(vm, c):
+    pass
+
+def CMPSKIP_L(vm, c):
+    pass
+
+def CMPSKIPU_G(vm, c):
+    pass
+
+def CMPSKIPU_GE(vm, c):
+    pass
+
+def CMPSKIPU_LE(vm, c):
+    pass
+
+def CMPSKIPU_L(vm, c):
+    pass
