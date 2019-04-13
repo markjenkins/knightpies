@@ -459,6 +459,57 @@ EVAL_2OPI_INT_TABLE = dict( map(
     EVAL_2OPI_INT_TABLE_STRING.items() ) # map
 ) # dict
 
+EVAL_1OPI_INT_TABLE_STRING = {
+    0x2C0: "JUMP_C",
+    0x2C1: "JUMP_B",
+    0x2C2: "JUMP_O",
+    0x2C3: "JUMP_G",
+    0x2C4: "JUMP_GE",
+    0x2C5: "JUMP_E",
+    0x2C6: "JUMP_NE",
+    0x2C7: "JUMP_LE",
+    0x2C8: "JUMP_L",
+    0x2C9: "JUMP_Z",
+    0x2CA: "JUMP_NZ",
+    0x2CB: "JUMP_P",
+    0x2CC: "JUMP_NP",
+    0x2D0: "CALLI",
+    0x2D1: "LOADI",
+    0x2D2: "LOADUI",
+    0x2D3: "SALI",
+    0x2D4: "SARI",
+    0x2D5: "SL0I",
+    0x2D6: "SR0I",
+    0x2D7: "SL1I",
+    0x2D8: "SR1I",
+    0x2E0: "LOADR",
+    0x2E1: "LOADR8",
+    0x2E2: "LOADRU8",
+    0x2E3: "LOADR16",
+    0x2E4: "LOADRU16",
+    0x2E5: "LOADR32",
+    0x2E6: "LOADRU32",
+    0x2F0: "STORER",
+    0x2F1: "STORER8",
+    0x2F2: "STORER16",
+    0x2F3: "STORER32",
+    0xA00: "CMPSKIPI_G",
+    0xA01: "CMPSKIPI_GE",
+    0xA02: "CMPSKIPI_E",
+    0xA03: "CMPSKIPI_NE",
+    0xA04: "CMPSKIPI_LE",
+    0xA05: "CMPSKIPI_L",
+    0xA10: "CMPSKIPUI_G",
+    0xA11: "CMPSKIPUI_GE",
+    0xA14: "CMPSKIPUI_LE",
+    0xA15: "CMPSKIPUI_L",
+    }
+
+EVAL_1OPI_INT_TABLE = dict( map(
+    lookup_instruction_and_debug_str,
+    EVAL_1OPI_INT_TABLE_STRING.items() ) # map
+) # dict
+
 def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
                   immediate=False, illegal_table=None):
     name = "ILLEGAL_%dOP" % n
@@ -510,7 +561,9 @@ def eval_2OPI_Int(vm, c):
                          immediate=True)
 
 def eval_Integer_1OPI(vm, c):
-    pass
+    return eval_N_OP_int(vm, c, 2,
+                         c[RAW][2]*16 + c[RAW_XOP], EVAL_1OPI_INT_TABLE,
+                         immediate=True)
 
 def eval_Integer_0OPI(vm, c):
     pass

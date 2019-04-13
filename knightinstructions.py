@@ -471,3 +471,135 @@ def CMPJUMPUI_LE(vm, c):
 
 def CMPJUMPUI_L(vm, c):
     pass
+
+
+# 1 OP integer immediate
+
+def JUMP_C(vm, c):
+    pass
+
+def JUMP_B(vm, c):
+    pass
+
+def JUMP_O(vm, c):
+    pass
+
+def JUMP_G(vm, c):
+    pass
+
+def JUMP_GE(vm, c):
+    pass
+
+def JUMP_E(vm, c):
+    pass
+
+def JUMP_NE(vm, c):
+    pass
+
+def JUMP_LE(vm, c):
+    pass
+
+def JUMP_L(vm, c):
+    pass
+
+def JUMP_Z(vm, c):
+    pass
+
+def JUMP_NZ(vm, c):
+    pass
+
+def JUMP_P(vm, c):
+    pass
+
+def JUMP_NP(vm, c):
+    pass
+
+def CALLI(vm, c):
+    pass
+
+def LOADI(vm, c):
+    pass
+
+def LOADUI(vm, c):
+    pass
+
+def SALI(vm, c):
+    pass
+
+def SARI(vm, c):
+    pass
+
+def SL0I(vm, c):
+    pass
+
+def SR0I(vm, c):
+    pass
+
+def SL1I(vm, c):
+    pass
+
+def SR1I(vm, c):
+    pass
+
+def LOADR(vm, c):
+    pass
+
+def LOADR8(vm, c):
+    pass
+
+def LOADRU8(vm, c):
+    pass
+
+def LOADR16(vm, c):
+    pass
+
+def LOADRU16(vm, c):
+    pass
+
+def LOADR32(vm, c):
+    pass
+
+def LOADRU32(vm, c):
+    pass
+
+def STORER(vm, c):
+    pass
+
+def STORER8(vm, c):
+    pass
+
+def STORER16(vm, c):
+    pass
+
+def STORER32(vm, c):
+    pass
+
+def CMPSKIPI_G(vm, c):
+    pass
+
+def CMPSKIPI_GE(vm, c):
+    pass
+
+def CMPSKIPI_E(vm, c):
+    pass
+
+def CMPSKIPI_NE(vm, c):
+    pass
+
+def CMPSKIPI_LE(vm, c):
+    pass
+
+def CMPSKIPI_L(vm, c):
+    pass
+
+def CMPSKIPUI_G(vm, c):
+    pass
+
+def CMPSKIPUI_GE(vm, c):
+    pass
+
+def CMPSKIPUI_LE(vm, c):
+    pass
+
+def CMPSKIPUI_L(vm, c):
+    pass
