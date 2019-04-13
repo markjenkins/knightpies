@@ -250,6 +250,9 @@ def CMPJUMPU_LE(vm, c):
 def CMPJUMPU_L(vm, c):
     pass
 
+
+# 2 OP integer instructions
+
 def NEG(vm, c):
     pass
 
