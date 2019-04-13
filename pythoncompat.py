@@ -24,6 +24,8 @@ if sys.version_info[0] >= 3:
         print_func = __builtins__["print"]
     else:
         print_func = getattr(__builtins__, "print")
+
+    gen_range = range
 else:
     def print_func(*args, **kargs):
         sep = kargs.get('sep', " ")
@@ -35,6 +37,8 @@ else:
             fd.write(arg)
         fd.write(end)
         fd.flush()
+
+    gen_range = xrange
 
 if __name__ == "__main__":
     print_func("hello world!")

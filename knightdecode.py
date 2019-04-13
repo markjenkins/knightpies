@@ -24,7 +24,7 @@ from time import sleep
 from array import array
 
 import knightinstructions
-from pythoncompat import print_func
+from pythoncompat import print_func, gen_range
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
@@ -50,7 +50,7 @@ def create_vm(size):
     # allocate registers, assert unsigned short is the size we think it is
     registers = array(ARRAY_TYPE_UNSIGNED_SHORT)
     assert registers.itemsize == SIZE_UNSIGNED_SHORT # 2
-    for i in xrange(NUM_REGISTERS):
+    for i in range(NUM_REGISTERS):
         registers.append(0)
 
     amount_of_ram = size
@@ -58,7 +58,7 @@ def create_vm(size):
     # allocate memory, assert unsigned char is the size we think it is
     memory = array(ARRAY_TYPE_UNSIGNED_CHAR)
     assert memory.itemsize == SIZE_UNSIGNED_CHAR # 1
-    for i in xrange(size):
+    for i in gen_range(size): # using gen_range because this is a big number
         memory.append(0)
 
     halted = False
