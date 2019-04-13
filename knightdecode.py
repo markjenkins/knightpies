@@ -225,7 +225,16 @@ def decode_2OP(vm, c):
     )
 
 def decode_1OP(vm, c):
-    pass
+    raw_xop = c[RAW][1]*0x1000 + c[RAW][2]*0x10 + c[RAW][3]//16
+    xop = c[RESTOF]
+    assert len(xop) == 5
+    raw_immediate = 0
+    i_registers = (c[RAW][3]%16,)
+    return c + (raw_xop, # RAW_XOP
+                xop, # XOP
+                raw_immediate, # RAW_IMMEDIATE
+                i_registers, # I_REGISTERS
+    )
 
 def decode_2OPI(vm, c):
     pass
