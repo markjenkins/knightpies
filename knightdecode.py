@@ -210,7 +210,19 @@ def decode_3OP(vm, c):
     )
 
 def decode_2OP(vm, c):
-    pass
+    raw_xop = c[RAW][1]*0x100 + c[RAW][2]
+    xop = c[RESTOF]
+    assert len(xop) == 4
+    raw_immediate = 0
+    i_registers = (
+        c[RAW][3]//16,
+        c[RAW][3]%16,
+    )
+    return c + (raw_xop, # RAW_XOP
+                xop, # XOP
+                raw_immediate, # RAW_IMMEDIATE
+                i_registers, # I_REGISTERS
+    )
 
 def decode_1OP(vm, c):
     pass
