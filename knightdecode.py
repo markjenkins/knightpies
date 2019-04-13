@@ -512,7 +512,10 @@ EVAL_1OPI_INT_TABLE = dict( map(
 
 def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
                   immediate=False, illegal_table=None):
-    name = "ILLEGAL_%dOP" % n
+    if immediate:
+        name = "ILLEGAL_%dOPI" % n
+    else:
+        name = "ILLEGAL_%dOP" % n
     if lookup_val in lookup_table:
         instruction_func, instruction_str = lookup_table[lookup_val]
         if DEBUG:
