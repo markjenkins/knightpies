@@ -569,7 +569,18 @@ def eval_Integer_1OPI(vm, c):
                          immediate=True)
 
 def eval_Integer_0OPI(vm, c):
-    pass
+    name = "ILLEGAL_0OPI"
+    if c[RAW_XOP] == 0x00: # JUMP
+        if DEBUG:
+            name = "JUMP"
+        #elif TRACE: # TODO
+        #    record_trace("JUMP") # TODO
+        JUMP(vm, c)
+    else:
+        illegal_instruction(vm, c)
+
+    if DEBUG:
+        print_func( "# %s %d\n" % (name, c[RAW_IMMEDIATE]) )
 
 def eval_HALCODE(vm, c):
     pass

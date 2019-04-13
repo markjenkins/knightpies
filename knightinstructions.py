@@ -603,3 +603,9 @@ def CMPSKIPUI_LE(vm, c):
 
 def CMPSKIPUI_L(vm, c):
     pass
+
+
+# 0 OP integer immediate
+
+def JUMP(vm, c):
+    pass
