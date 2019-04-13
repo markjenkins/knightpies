@@ -107,7 +107,7 @@ def outside_of_world(vm, place, message):
         vm = halt_vm(vm)
         # if TRACE: TODO
         #    pass # TODO
-	exit(message)
+        exit(message)
 
 def increment_vm_perf_count(vm):
     assert PERF_COUNT == len(vm)-1 # PERF_COUNT is end of the list
