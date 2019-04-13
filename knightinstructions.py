@@ -369,3 +369,105 @@ def PUSHPC(vm, c):
 
 def POPPC(vm, c):
     pass
+
+
+# 2 OP integer immediate
+
+def ADDI(vm, c):
+    pass
+
+def ADDUI(vm, c):
+    pass
+
+def SUBI(vm, c):
+    pass
+
+def SUBUI(vm, c):
+    pass
+
+def CMPI(vm, c):
+    pass
+
+def LOAD(vm, c):
+    pass
+
+def LOAD8(vm, c):
+    pass
+
+def LOADU8(vm, c):
+    pass
+
+def LOAD16(vm, c):
+    pass
+
+def LOADU16(vm, c):
+    pass
+
+def LOAD32(vm, c):
+    pass
+
+def LOADU32(vm, c):
+    pass
+
+def CMPUI(vm, c):
+    pass
+
+def STORE(vm, c):
+    pass
+
+def STORE8(vm, c):
+    pass
+
+def STORE16(vm, c):
+    pass
+
+def STORE32(vm, c):
+    pass
+
+def ANDI(vm, c):
+    pass
+
+def ORI(vm, c):
+    pass
+
+def XORI(vm, c):
+    pass
+
+def NANDI(vm, c):
+    pass
+
+def NORI(vm, c):
+    pass
+
+def XNORI(vm, c):
+    pass
+
+def CMPJUMPI_G(vm, c):
+    pass
+
+def CMPJUMPI_GE(vm, c):
+    pass
+
+def CMPJUMPI_E(vm, c):
+    pass
+
+def CMPJUMPI_NE(vm, c):
+    pass
+
+def CMPJUMPI_LE(vm, c):
+    pass
+
+def CMPJUMPI_L(vm, c):
+    pass
+
+def CMPJUMPUI_G(vm, c):
+    pass
+
+def CMPJUMPUI_GE(vm, c):
+    pass
+
+def CMPJUMPUI_LE(vm, c):
+    pass
+
+def CMPJUMPUI_L(vm, c):
+    pass

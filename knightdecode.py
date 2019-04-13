@@ -227,13 +227,21 @@ def decode_0OPI(vm, c):
 def decode_HALCODE(vm, c):
     pass
 
-def lookup_instruction_and_debug_str(x):
+def lookup_instruction_and_debug_str(x, replace_underscore=True):
     table_key, instruction_str = x
+    if replace_underscore:
+        instruction_str_debug = instruction_str.replace("_", ".")
+    else:
+        instruction_str_debug = instruction_str
+
     return (table_key,
             (getattr(knightinstructions, instruction_str),
-             instruction_str.replace("_", ".")
+             instruction_str_debug
             ) # inner tuple
     ) # outer tuple
+
+def lookup_instruction_and_debug_str_no_sub(x):
+    return lookup_instruction_and_debug_str(x, replace_underscore=False)
 
 EVAL_4OP_INT_TABLE_STRING = {
     0x00: "ADD_CI",
@@ -394,11 +402,68 @@ EVAL_1OP_INT_TABLE = dict( map(
     EVAL_1OP_INT_TABLE_STRING.items() ) # map
 ) # dict
 
-def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
+EVAL_1OP_INT_TABLE_STRING = {
+    0x00000: "READPC",
+    0x00001: "READSCID",
+    0x00002: "FALSE",
+    0x00003: "TRUE",
+    0x01000: "JSR_COROUTINE",
+    0x01001: "RET",
+    0x02000: "PUSHPC",
+    0x02001: "POPPC",
+}
+
+EVAL_1OP_INT_TABLE = dict( map(
+    lookup_instruction_and_debug_str_no_sub,
+    EVAL_1OP_INT_TABLE_STRING.items() ) # map
+) # dict
+
+EVAL_2OPI_INT_TABLE_STRING = {
+    0x0E: "ADDI",
+    0x0F: "ADDUI",
+    0x10: "SUBI",
+    0x11: "SUBUI",
+    0x12: "CMPI",
+    0x13: "LOAD",
+    0x14: "LOAD8",
+    0x15: "LOADU8",
+    0x16: "LOAD16",
+    0x17: "LOADU16",
+    0x18: "LOAD32",
+    0x19: "LOADU32",
+    0x1F: "CMPUI",
+    0x20: "STORE",
+    0x21: "STORE8",
+    0x22: "STORE16",
+    0x23: "STORE32",
+    0xB0: "ANDI",
+    0xB1: "ORI",
+    0xB2: "XORI",
+    0xB3: "NANDI",
+    0xB4: "NORI",
+    0xB5: "XNORI",
+    0xC0: "CMPJUMPI_G",
+    0xC1: "CMPJUMPI_GE",
+    0xC2: "CMPJUMPI_E",
+    0xC3: "CMPJUMPI_NE",
+    0xC4: "CMPJUMPI_LE",
+    0xC5: "CMPJUMPI_L",
+    0xD0: "CMPJUMPUI_G",
+    0xD1: "CMPJUMPUI_GE",
+    0xD4: "CMPJUMPUI_LE",
+    0xD5: "CMPJUMPUI_L",
+    }
+
+EVAL_2OPI_INT_TABLE = dict( map(
+    lookup_instruction_and_debug_str,
+    EVAL_2OPI_INT_TABLE_STRING.items() ) # map
+) # dict
+
+def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
+                  immediate=False, illegal_table=None):
     name = "ILLEGAL_%dOP" % n
-    raw_xop = c[RAW_XOP]
-    if raw_xop in lookup_table:
-        instruction_func, instruction_str = lookup_table[raw_xop]
+    if lookup_val in lookup_table:
+        instruction_func, instruction_str = lookup_table[lookup_val]
         if DEBUG:
             name = instruction_str
         #elif TRACE: # TODO
@@ -416,24 +481,33 @@ def eval_N_OP_int(vm, c, n, lookup_table, illegal_table=None):
 
     if DEBUG:
         print_func(
-            ("# %s" + " reg%d"*n) % ( (name,) + c[I_REGISTERS][0:n] )
+            ("# %s" + " reg%d"*n) % ( (name,) + c[I_REGISTERS][0:n] ),
+            end="",
+            sep="",
         ) # print_func
+        if immediate:
+            print_func(" %d" % c[RAW_IMMEDIATE] )
+        else:
+            print_func()
     return False # Why?
 
 def eval_4OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 4, EVAL_4OP_INT_TABLE)
+    return eval_N_OP_int(vm, c, 4, c[RAW_XOP], EVAL_4OP_INT_TABLE)
 
 def eval_3OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 3, EVAL_3OP_INT_TABLE, EVAL_30P_INT_ILLEGAL)
+    return eval_N_OP_int(vm, c, 3,
+                         c[RAW_XOP], EVAL_3OP_INT_TABLE,
+                         illegal_table=EVAL_30P_INT_ILLEGAL)
 
 def eval_2OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 2, EVAL_2OP_INT_TABLE)
+    return eval_N_OP_int(vm, c, 2, c[RAW_XOP], EVAL_2OP_INT_TABLE)
 
 def eval_1OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 1, EVAL_1OP_INT_TABLE)
+    return eval_N_OP_int(vm, c, 1, c[RAW_XOP], EVAL_1OP_INT_TABLE)
 
 def eval_2OPI_Int(vm, c):
-    pass
+    return eval_N_OP_int(vm, c, 2, c[RAW][2], EVAL_2OPI_INT_TABLE,
+                         immediate=True)
 
 def eval_Integer_1OPI(vm, c):
     pass
