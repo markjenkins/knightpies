@@ -188,7 +188,7 @@ def eval_instruction(vm, current_instruction):
 
 def decode_4OP(vm, c):
     raw_xop = c[RAW][1]
-    xop = (c[RESTOF][0], c[RESTOF][1])
+    xop = (c[RESTOF][0][0], c[RESTOF][0][1])
     raw_immediate = 0
     i_registers = (
         c[RAW][2]//16,
@@ -206,7 +206,7 @@ def decode_4OP(vm, c):
 
 def decode_3OP(vm, c):
     raw_xop = c[RAW][1]*0x10 + c[RAW][2]//16
-    xop = c[RESTOF]
+    xop = (c[RESTOF][0][0], c[RESTOF][0][1], c[RESTOF][1][0])
     assert len(xop) == 3
     raw_immediate = 0
     i_registers = (
@@ -224,7 +224,9 @@ def decode_3OP(vm, c):
 
 def decode_2OP(vm, c):
     raw_xop = c[RAW][1]*0x100 + c[RAW][2]
-    xop = c[RESTOF]
+    xop = tuple([x
+                 for x in r
+                 for r in c[RESTOF][0:2] ])
     assert len(xop) == 4
     raw_immediate = 0
     i_registers = (
@@ -241,7 +243,9 @@ def decode_2OP(vm, c):
 
 def decode_1OP(vm, c):
     raw_xop = c[RAW][1]*0x1000 + c[RAW][2]*0x10 + c[RAW][3]//16
-    xop = c[RESTOF]
+    xop = tuple([x
+                 for x in r
+                 for r in c[RESTOF][0:2] ]) + (c[RESTOF][2][0],)
     assert len(xop) == 5
     raw_immediate = 0
     i_registers = (c[RAW][3]%16,)
@@ -260,7 +264,9 @@ def decode_2OPI(vm, c):
     hold = vm[MEM][new_ip]
     next_ip+=1
     raw_immediate = raw_immediate*0x100 + hold
-    immediate = c[RESTOF]
+    immediate = tuple([x
+                       for x in r
+                       for r in c[RESTOF][1:] ] )
     assert len(immediate) == 4
     i_registers = (c[RAW][3]//16, c[RAW][3]%16)
     return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
@@ -279,11 +285,13 @@ def decode_1OPI(vm, c):
     hold = vm[MEM][new_ip]
     next_ip+=1
     raw_immediate = raw_immediate*0x100 + hold
-    immediate = c[RESTOF]
+    immediate = tuple([x
+                       for x in r
+                       for r in c[RESTOF][1:] ] )
     assert len(immediate) == 4
     hal_code = 0
     raw_xop = c[RAW][3]//16
-    xop = (immediate[3],)
+    xop = (RESTOF[2][1],)
     i_registers = (c[RAW][3]%16,)
     return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
         raw_xop, # RAW_XOP
@@ -296,11 +304,14 @@ def decode_1OPI(vm, c):
 
 def decode_0OPI(vm, c):
     raw_immediate = c[RAW][2]*0x100 + c[RAW][3]
-    immediate = c[RESTOF][1:]
-    assert len(immediate)==2
+    immediate = tuple([x
+                       for x in r
+                       for r in c[RESTOF][1:] ] )
+    assert len(immediate)==4
     hal_code = 0
     raw_xop = c[RAW][1]
     xop = c[RESTOF][0]
+    assert len(xop)==2
     return c + (
         raw_xop, # RAW_XOP
         xop, # XOP
