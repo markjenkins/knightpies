@@ -43,7 +43,7 @@ EXIT_FAILURE = 1
 
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 (OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
- RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS) = range(11)
+ RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE) = range(12)
 
 
 def create_vm(size):
@@ -201,6 +201,7 @@ def decode_4OP(vm, c):
                 raw_immediate, # RAW_IMMEDIATE
                 (), # IMMEDIATE
                 i_registers, # I_REGISTERS
+                None, # HAL_CODE
     )
 
 def decode_3OP(vm, c):
@@ -218,6 +219,7 @@ def decode_3OP(vm, c):
                 raw_immediate, # RAW_IMMEDIATE
                 (), # IMMEDIATE
                 i_registers, # I_REGISTERS
+                None, # HAL_CODE
     )
 
 def decode_2OP(vm, c):
@@ -234,6 +236,7 @@ def decode_2OP(vm, c):
                 raw_immediate, # RAW_IMMEDIATE
                 (), # IMMEDIATE
                 i_registers, # I_REGISTERS
+                None, # HAL_CODE
     )
 
 def decode_1OP(vm, c):
@@ -247,6 +250,7 @@ def decode_1OP(vm, c):
                 raw_immediate, # RAW_IMMEDIATE
                 (), # IMMEDIATE
                 i_registers, # I_REGISTERS
+                None, # HAL_CODE
     )
 
 def decode_2OPI(vm, c):
@@ -264,7 +268,9 @@ def decode_2OPI(vm, c):
         None, # XOP
         raw_immediate, # RAW_IMMEDIATE
         immediate, # IMMEDIATE
-        i_registers) # I_REGISTERS
+        i_registers, # I_REGISTERS
+        None, # HAL_CODE
+    )
 
 def decode_1OPI(vm, c):
     next_ip = c[NEXT_IP]
@@ -284,7 +290,9 @@ def decode_1OPI(vm, c):
         xop,
         raw_immediate, # RAW_IMMEDIATE
         immediate, # IMMEDIATE
-        i_registers) # I_REGISTERS
+        i_registers, # I_REGISTERS
+        hal_code, # HAL_CODE
+    )
 
 def decode_0OPI(vm, c):
     pass
