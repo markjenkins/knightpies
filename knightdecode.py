@@ -711,8 +711,53 @@ def eval_Integer_0OPI(vm, c):
         print_func( "# %s %d\n" % (name, c[RAW_IMMEDIATE]) )
     return next_ip
 
+HAL_CODES_TABLE_STRING = {
+    0x100000: "FOPEN_READ",
+    0x100001: "FOPEN_WRITE",
+    0x100002: "FCLOSE",
+    0x100003: "REWIND",
+    0x100004: "FSEEK",
+    0x100100: "FGETC",
+    0x100200: "FPUTC",
+    0x110000: "HAL_MEM",
+    }
+
+def hal_code_table_entry(x):
+    table_key, instruction_str = x
+
+    return (table_key,
+            (getattr(knightinstructions, "vm_" + instruction_str),
+             instruction_str
+            ) # inner tuple
+    ) # outer tuple
+
+HAL_CODES_TABLE = dict( map( hal_code_table_entry,
+                             HAL_CODES_TABLE_STRING.items() ) # map
+) # dict
+
 def eval_HALCODE(vm, c):
-    pass
+    next_ip = None
+    name = "ILLEGAL_HALCODE"
+
+    # POSIX MODE instructions not implemented
+
+    if c[HAL_CODE] in HAL_CODES_TABLE:
+        HAL_CODES_TABLE[c[HAL_CODE]]
+        instruction_func, instruction_str = lookup_table[lookup_val]
+        if DEBUG:
+            name = instruction_str
+        #elif TRACE: # TODO
+        #    record_trace(instruction_str) # TODO
+        instruction_func(vm)
+        next_ip = c[NEXTIP]
+    else:
+        print_func("Invalid HALCODE", file=stderr)
+        print_func("Computer Program has Halted", file=stderr)
+        illegal_instruction(vm, c)
+
+    if DEBUG:
+        print_func("# %s" % name)
+    return next_ip
 
 DECODE_TABLE = {
     0x01: decode_4OP,

@@ -609,3 +609,30 @@ def CMPSKIPUI_L(vm, c):
 
 def JUMP(vm, c):
     pass
+
+
+# HAL_CODES
+
+def vm_FOPEN_READ(vm, c):
+    pass
+
+def vm_FOPEN_WRITE(vm, c):
+    pass
+
+def vm_FCLOSE(vm, c):
+    pass
+
+def vm_REWIND(vm, c):
+    pass
+
+def vm_FSEEK(vm, c):
+    pass
+
+def vm_FGETC(vm, c):
+    pass
+
+def vm_FPUTC(vm, c):
+    pass
+
+def vm_HAL_MEM(vm, c):
+    pass
