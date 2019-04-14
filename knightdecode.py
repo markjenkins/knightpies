@@ -27,6 +27,7 @@ from array import array
 
 import knightinstructions
 from pythoncompat import print_func, gen_range
+from constants import EXIT_FAILURE
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
@@ -42,14 +43,16 @@ MIN_INSTRUCTION_LEN = 4
 
 DEBUG = False
 
-EXIT_FAILURE = 1
-
 OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
 
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 (OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
  RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE) = range(12)
 
+
+def grow_memory(vm, size):
+    while len(vm[MEM])<size:
+        vm[MEM].append(0)
 
 def create_vm(size, registersize=32):
     instruction_pointer = 0
@@ -81,15 +84,16 @@ def create_vm(size, registersize=32):
     # allocate memory, assert unsigned char is the size we think it is
     memory = array(ARRAY_TYPE_UNSIGNED_CHAR)
     assert memory.itemsize == SIZE_UNSIGNED_CHAR # 1
-    for i in gen_range(size): # using gen_range because this is a big number
-        memory.append(0)
+
 
     halted = False
     exception = False
     performance_counter = 0
-    
-    return (instruction_pointer, registers, memory,
-            halted, exception, performance_counter)
+
+    vm = (instruction_pointer, registers, memory,
+          halted, exception, performance_counter)
+    grow_memory(vm, size)
+    return vm
 
 def unpack_byte(a):
     table = ['0','1', '2', '3', '4', '5', '6', '7', '8', '9',
