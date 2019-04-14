@@ -30,10 +30,13 @@ from pythoncompat import print_func, gen_range
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
+ARRAY_TYPE_UNSIGNED_INT = 'I'
+ARRAY_TYPE_UNSIGNED_INT_LONG = 'L'
 NUM_REGISTERS = 16
 
 SIZE_UNSIGNED_CHAR = 1
-SIZE_UNSIGNED_SHORT = 2
+MIN_SIZE_UNSIGNED_SHORT = 2
+MIN_SIZE_UNSIGNED_INT = 4
 
 MIN_INSTRUCTION_LEN = 4
 
@@ -48,12 +51,28 @@ OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
  RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE) = range(12)
 
 
-def create_vm(size):
+def create_vm(size, registersize=32):
     instruction_pointer = 0
 
-    # allocate registers, assert unsigned short is the size we think it is
-    registers = array(ARRAY_TYPE_UNSIGNED_SHORT)
-    assert registers.itemsize == SIZE_UNSIGNED_SHORT # 2
+    if registersize==32:
+        registers = array(ARRAY_TYPE_UNSIGNED_INT)
+        assert registers.itemsize == MIN_SIZE_UNSIGNED_INT # 4
+    elif registersize==64:
+        registers = array(ARRAY_TYPE_UNSIGNED_INT_LONG)
+        if registers.itemsize != 64//8: # 64//8==8
+            # 32 bits (4 bytes) is too small, but at least we expect to see it
+            # on some platforms, so this assert will still pass
+            assert registers.itemsize >= 4
+            raise Exception("64 bit register size not available "
+                            "on this platform")
+    elif registersize==16:
+        # allocate registers, assert unsigned short is the size we think it is
+        registers = array(ARRAY_TYPE_UNSIGNED_SHORT)
+        assert registers.itemsize == MIN_SIZE_UNSIGNED_SHORT # 2
+    else:
+        raise Exception("%d bit register size not available on this platform"
+                        % registersize
+        )
     for i in range(NUM_REGISTERS):
         registers.append(0)
 
