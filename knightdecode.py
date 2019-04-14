@@ -186,7 +186,7 @@ def eval_instruction(vm, current_instruction):
         if [0,0,0,0]==current_instruction[RAW].tolist():
             #if TRACE: # TODO
             #    record_trace("NOP") # TODO
-            return vm_with_new_ip(vm, current_instruction[NEXT_IP])
+            return vm_with_new_ip(vm, current_instruction[NEXTIP])
         illegal_instruction(vm, current_instruction)
 
     elif raw0 in DECODE_TABLE:
@@ -283,7 +283,7 @@ def decode_1OP(vm, c):
     )
 
 def decode_2OPI(vm, c):
-    next_ip = c[NEXT_IP]
+    next_ip = c[NEXTIP]
     raw_immediate = vm[MEM][next_ip]
     next_ip+=1
     hold = vm[MEM][next_ip]
@@ -294,7 +294,7 @@ def decode_2OPI(vm, c):
                        for r in c[RESTOF][1:] ] )
     assert len(immediate) == 4
     i_registers = (c[RAW][3]//16, c[RAW][3]%16)
-    return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
+    return c[0:NEXTIP] + (next_ip,) + c[NEXTIP+1:] + (
         None, # RAW_XOP
         None, # XOP
         raw_immediate, # RAW_IMMEDIATE
@@ -304,7 +304,7 @@ def decode_2OPI(vm, c):
     )
 
 def decode_1OPI(vm, c):
-    next_ip = c[NEXT_IP]
+    next_ip = c[NEXTIP]
     outside_of_world(vm, next_ip+2-1, OUTSIDE_WORLD_ERROR)
     raw_immediate = vm[MEM][next_ip]
     next_ip+=1
@@ -319,7 +319,7 @@ def decode_1OPI(vm, c):
     raw_xop = c[RAW][3]//16
     xop = (RESTOF[2][1],)
     i_registers = (c[RAW][3]%16,)
-    return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
+    return c[0:NEXTIP] + (next_ip,) + c[NEXTIP+1:] + (
         raw_xop, # RAW_XOP
         xop,
         raw_immediate, # RAW_IMMEDIATE
