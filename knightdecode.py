@@ -259,9 +259,9 @@ def decode_1OP(vm, c):
 
 def decode_2OPI(vm, c):
     next_ip = c[NEXT_IP]
-    raw_immediate = vm[MEM][new_ip]
+    raw_immediate = vm[MEM][next_ip]
     next_ip+=1
-    hold = vm[MEM][new_ip]
+    hold = vm[MEM][next_ip]
     next_ip+=1
     raw_immediate = raw_immediate*0x100 + hold
     immediate = tuple([x
@@ -280,9 +280,9 @@ def decode_2OPI(vm, c):
 
 def decode_1OPI(vm, c):
     next_ip = c[NEXT_IP]
-    raw_immediate = vm[MEM][new_ip]
+    raw_immediate = vm[MEM][next_ip]
     next_ip+=1
-    hold = vm[MEM][new_ip]
+    hold = vm[MEM][next_ip]
     next_ip+=1
     raw_immediate = raw_immediate*0x100 + hold
     immediate = tuple([x
