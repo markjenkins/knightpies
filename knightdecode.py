@@ -317,7 +317,7 @@ def decode_1OPI(vm, c):
     assert len(immediate) == 4
     hal_code = 0
     raw_xop = c[RAW][3]//16
-    xop = (RESTOF[2][1],)
+    xop = (c[RESTOF][2][1],)
     i_registers = (c[RAW][3]%16,)
     return c[0:NEXTIP] + (next_ip,) + c[NEXTIP+1:] + (
         raw_xop, # RAW_XOP
