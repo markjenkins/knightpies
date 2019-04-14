@@ -191,7 +191,7 @@ def eval_instruction(vm, current_instruction):
 
     elif raw0 in DECODE_TABLE:
         assert raw0 in EVAL_TABLE
-        current_instruction = DECODE_TABLE[raw0](current_instruction)
+        current_instruction = DECODE_TABLE[raw0](vm, current_instruction)
         return vm_with_new_ip(vm,
                               EVAL_TABLE[raw0](vm, current_instruction) )
     elif raw0 == 0xFF:  # Deal with HALT
