@@ -260,8 +260,8 @@ def decode_2OPI(vm, c):
     assert len(immediate) == 4
     i_registers = (c[RAW][3]//16, c[RAW][3]%16)
     return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
-        raw_xop, # RAW_XOP
-        xop, # XOP
+        None, # RAW_XOP
+        None, # XOP
         raw_immediate, # RAW_IMMEDIATE
         immediate, # IMMEDIATE
         i_registers) # I_REGISTERS
