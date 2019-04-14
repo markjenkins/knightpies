@@ -43,7 +43,7 @@ EXIT_FAILURE = 1
 
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 (OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
- RAW_XOP, XOP, RAW_IMMEDIATE, I_REGISTERS) = range(10)
+ RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS) = range(11)
 
 
 def create_vm(size):
@@ -190,6 +190,7 @@ def decode_4OP(vm, c):
     return c + (raw_xop, # RAW_XOP
                 xop, # XOP
                 raw_immediate, # RAW_IMMEDIATE
+                (), # IMMEDIATE
                 i_registers, # I_REGISTERS
     )
 
@@ -206,6 +207,7 @@ def decode_3OP(vm, c):
     return c + (raw_xop, # RAW_XOP
                 xop, # XOP
                 raw_immediate, # RAW_IMMEDIATE
+                (), # IMMEDIATE
                 i_registers, # I_REGISTERS
     )
 
@@ -221,6 +223,7 @@ def decode_2OP(vm, c):
     return c + (raw_xop, # RAW_XOP
                 xop, # XOP
                 raw_immediate, # RAW_IMMEDIATE
+                (), # IMMEDIATE
                 i_registers, # I_REGISTERS
     )
 
@@ -233,11 +236,26 @@ def decode_1OP(vm, c):
     return c + (raw_xop, # RAW_XOP
                 xop, # XOP
                 raw_immediate, # RAW_IMMEDIATE
+                (), # IMMEDIATE
                 i_registers, # I_REGISTERS
     )
 
 def decode_2OPI(vm, c):
-    pass
+    next_ip = c[NEXT_IP]
+    raw_immediate = vm[MEM][new_ip]
+    next_ip+=1
+    hold = vm[MEM][new_ip]
+    next_ip+=1
+    raw_immediate = raw_immediate*0x100 + hold
+    immediate = c[RESTOF]
+    assert len(immediate) == 4
+    i_registers = (c[RAW][3]//16, c[RAW][3]%16)
+    return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
+        raw_xop, # RAW_XOP
+        xop, # XOP
+        raw_immediate, # RAW_IMMEDIATE
+        immediate, # IMMEDIATE
+        i_registers) # I_REGISTERS
 
 def decode_1OPI(vm, c):
     pass
