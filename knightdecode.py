@@ -35,7 +35,7 @@ NUM_REGISTERS = 16
 SIZE_UNSIGNED_CHAR = 1
 SIZE_UNSIGNED_SHORT = 2
 
-INSTRUCTION_LEN = 4
+MIN_INSTRUCTION_LEN = 4
 
 DEBUG = False
 
@@ -78,14 +78,14 @@ def unpack_byte(a):
 
 def read_instruction(vm):
     current_ip = vm[IP]
-    next_ip = current_ip+INSTRUCTION_LEN
+    next_ip = current_ip+MIN_INSTRUCTION_LEN
 
-    # Why current_ip+INSTRUCTION_LEN-1 and not just current_ip ?
-    # If the end of memory isn't INSTRUCTION_LEN byte aligned, than
+    # Why current_ip+MIN_INSTRUCTION_LEN-1 and not just current_ip ?
+    # If the end of memory isn't MIN_INSTRUCTION_LEN byte aligned, than
     # current_ip may be in bounds but the last byte of it might not be
     outside_of_world(vm, next_ip-1, "READ Instruction outside of World")
     
-    instruction_bytes = vm[MEM][current_ip:current_ip+INSTRUCTION_LEN]
+    instruction_bytes = vm[MEM][current_ip:current_ip+MIN_INSTRUCTION_LEN]
     opcode = unpack_byte(instruction_bytes[0])
 
     return (opcode, # OP
