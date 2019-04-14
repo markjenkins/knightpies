@@ -35,7 +35,10 @@ else:
             if i != 0:
                 fd.write(sep) 
             fd.write(arg)
-        fd.write(end)
+        if end=='':
+            fd.write(sep)
+        else:
+            fd.write(end)
         fd.flush()
 
     gen_range = xrange
