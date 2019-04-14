@@ -41,6 +41,8 @@ DEBUG = False
 
 EXIT_FAILURE = 1
 
+OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
+
 (IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
 (OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
  RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE) = range(12)
@@ -83,7 +85,7 @@ def read_instruction(vm):
     # Why current_ip+MIN_INSTRUCTION_LEN-1 and not just current_ip ?
     # If the end of memory isn't MIN_INSTRUCTION_LEN byte aligned, than
     # current_ip may be in bounds but the last byte of it might not be
-    outside_of_world(vm, next_ip-1, "READ Instruction outside of World")
+    outside_of_world(vm, next_ip-1, OUTSIDE_WORLD_ERROR)
     
     instruction_bytes = vm[MEM][current_ip:current_ip+MIN_INSTRUCTION_LEN]
     opcode = unpack_byte(instruction_bytes[0])
@@ -280,6 +282,7 @@ def decode_2OPI(vm, c):
 
 def decode_1OPI(vm, c):
     next_ip = c[NEXT_IP]
+    outside_of_world(vm, next_ip+2-1, OUTSIDE_WORLD_ERROR)
     raw_immediate = vm[MEM][next_ip]
     next_ip+=1
     hold = vm[MEM][next_ip]
