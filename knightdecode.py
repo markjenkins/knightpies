@@ -344,7 +344,14 @@ def decode_0OPI(vm, c):
     )
 
 def decode_HALCODE(vm, c):
-    pass
+    return c + (
+        None, # RAW_XOP
+        None, # XOP
+        None, # RAW_IMEDIATE
+        None, # IMMEDIATE
+        (), # I_REGISTERS
+        c[RAW][1]*0x10000 + c[RAW][2]*0x100 + c[RAW][3] # HAL_CODE
+        )
 
 def lookup_instruction_and_debug_str(x, replace_underscore=True):
     table_key, instruction_str = x
