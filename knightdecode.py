@@ -312,8 +312,8 @@ def decode_1OPI(vm, c):
     next_ip+=1
     raw_immediate = raw_immediate*0x100 + hold
     immediate = tuple([x
-                       for x in r
-                       for r in c[RESTOF][1:] ] )
+                       for r in c[RESTOF][1:]
+                       for x in r] )
     assert len(immediate) == 4
     hal_code = 0
     raw_xop = c[RAW][3]//16
@@ -331,8 +331,8 @@ def decode_1OPI(vm, c):
 def decode_0OPI(vm, c):
     raw_immediate = c[RAW][2]*0x100 + c[RAW][3]
     immediate = tuple([x
-                       for x in r
-                       for r in c[RESTOF][1:] ] )
+                       for r in c[RESTOF][1:]
+                       for x in r] )
     assert len(immediate)==4
     hal_code = 0
     raw_xop = c[RAW][1]
