@@ -267,7 +267,24 @@ def decode_2OPI(vm, c):
         i_registers) # I_REGISTERS
 
 def decode_1OPI(vm, c):
-    pass
+    next_ip = c[NEXT_IP]
+    raw_immediate = vm[MEM][new_ip]
+    next_ip+=1
+    hold = vm[MEM][new_ip]
+    next_ip+=1
+    raw_immediate = raw_immediate*0x100 + hold
+    immediate = c[RESTOF]
+    assert len(immediate) == 4
+    hal_code = 0
+    raw_xop = c[RAW][3]//16
+    xop = (immediate[3],)
+    i_registers = (c[RAW][3]%16,)
+    return c[0:NEXT_IP] + (next_ip,) + c[NEXT_IP+1:] + (
+        raw_xop, # RAW_XOP
+        xop,
+        raw_immediate, # RAW_IMMEDIATE
+        immediate, # IMMEDIATE
+        i_registers) # I_REGISTERS
 
 def decode_0OPI(vm, c):
     pass
