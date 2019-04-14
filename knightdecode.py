@@ -295,7 +295,20 @@ def decode_1OPI(vm, c):
     )
 
 def decode_0OPI(vm, c):
-    pass
+    raw_immediate = c[RAW][2]*0x100 + c[RAW][3]
+    immediate = c[RESTOF][1:]
+    assert len(immediate)==2
+    hal_code = 0
+    raw_xop = c[RAW][1]
+    xop = c[RESTOF][0]
+    return c + (
+        raw_xop, # RAW_XOP
+        xop, # XOP
+        raw_immediate, # RAW_IMMEDIATE
+        immediate, # IMMEDIATE
+        (), # I_REGISTERS
+        hal_code, # HAL_CODE
+    )
 
 def decode_HALCODE(vm, c):
     pass
