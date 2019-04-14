@@ -144,6 +144,9 @@ def string_unpacked_instruction(i):
             ''.join(''.join(rpair)
                     for rpair in i[RESTOF]) )
 
+def vm_with_new_ip(vm, new_ip):
+    return vm[0:IP] + (new_ip,) + vm[IP+1:]
+
 def eval_instruction(vm, current_instruction):
     vm = increment_vm_perf_count(vm)
     if DEBUG:
@@ -158,13 +161,14 @@ def eval_instruction(vm, current_instruction):
         if [0,0,0,0]==current_instruction[RAW].tolist():
             #if TRACE: # TODO
             #    record_trace("NOP") # TODO
-            return
+            return vm_with_new_ip(vm, current_instruction[NEXT_IP])
         illegal_instruction(vm, current_instruction)
 
     elif raw0 in DECODE_TABLE:
         assert raw0 in EVAL_TABLE
         current_instruction = DECODE_TABLE[raw0](current_instruction)
-        EVAL_TABLE[raw0](vm, current_instruction)
+        return vm_with_new_ip(vm,
+                              EVAL_TABLE[raw0](vm, current_instruction) )
     elif raw0 == 0xFF:  # Deal with HALT
         vm = halt_vm(vm)
         print_func(
@@ -174,8 +178,13 @@ def eval_instruction(vm, current_instruction):
         # if TRACE: # TODO
         #    record_trace("HALT") # TODO
         #    print_traces() # TODO
+        return vm
     else:
         illegal_instruction(vm, current_instruction)
+
+    # we shouldn't make it this far, other branches call exit()
+    assert False
+    return None
 
 def decode_4OP(vm, c):
     raw_xop = c[RAW][1]
@@ -551,6 +560,7 @@ EVAL_1OPI_INT_TABLE = dict( map(
 
 def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
                   immediate=False, illegal_table=None):
+    next_ip = None
     if immediate:
         name = "ILLEGAL_%dOPI" % n
     else:
@@ -561,7 +571,7 @@ def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
             name = instruction_str
         #elif TRACE: # TODO
         #    record_trace(instruction_str) # TODO
-        instruction_func(vm, c)
+        next_ip = instruction_func(vm, c)
 
     # not sure why zome XOP are matched explicitly for illegal whereas
     # others fall into default when the handling is the same
@@ -582,7 +592,7 @@ def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
             print_func(" %d" % c[RAW_IMMEDIATE] )
         else:
             print_func()
-    return False # Why?
+    return next_ip
 
 def eval_4OP_Int(vm, c):
     return eval_N_OP_int(vm, c, 4, c[RAW_XOP], EVAL_4OP_INT_TABLE)
@@ -608,18 +618,20 @@ def eval_Integer_1OPI(vm, c):
                          immediate=True)
 
 def eval_Integer_0OPI(vm, c):
+    next_ip = None
     name = "ILLEGAL_0OPI"
     if c[RAW_XOP] == 0x00: # JUMP
         if DEBUG:
             name = "JUMP"
         #elif TRACE: # TODO
         #    record_trace("JUMP") # TODO
-        JUMP(vm, c)
+        next_ip = JUMP(vm, c)
     else:
         illegal_instruction(vm, c)
 
     if DEBUG:
         print_func( "# %s %d\n" % (name, c[RAW_IMMEDIATE]) )
+    return next_ip
 
 def eval_HALCODE(vm, c):
     pass
@@ -647,6 +659,15 @@ EVAL_TABLE = {
 }
 
 assert tuple(sorted(DECODE_TABLE.keys())) == tuple(sorted(EVAL_TABLE.keys()))
+
+def read_and_eval(vm):
+    vm = eval_instruction(vm, read_instruction(vm))
+    if vm==None or vm[IP]==None:
+        assert False # this shouldn't happen
+        # catch if asserts are off
+        raise Exception(
+            "eval_instruction did not return a new vm state")
+    return vm
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
