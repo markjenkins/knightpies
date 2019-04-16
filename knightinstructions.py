@@ -17,6 +17,86 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from array import array
+
+from constants import \
+    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \
+    OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
+    RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE
+
+BITS_PER_BYTE = 8
+def prove_8_bits_per_array_byte():
+    single_byte_value = 0
+    # shift in 8 bits for every byte
+    unsigned_byte_array = array('B')
+    for i in range(BITS_PER_BYTE * unsigned_byte_array.itemsize):
+        single_byte_value = (single_byte_value<<1) | 1 # shift a 1 bit in
+    if unsigned_byte_array.itemsize==1:
+        assert single_byte_value == 0xFF
+
+    try:
+        unsigned_byte_array.append(single_byte_value)
+    except OverflowError:
+    # this could only happen if 1 byte was < 8 bits
+        assert False
+
+    try: # now we expect this to cause an overflow
+        unsigned_byte_array[0]+=1
+    except OverflowError:
+        return True
+    return False
+assert prove_8_bits_per_array_byte()
+
+MAX_16_SIGNED = 2**15-1
+MAX_16_UNSIGNED = 2**16-1
+MAX_32_UNSIGNED = 2**32-1
+MAX_64_UNSIGNED = 2**64-1
+
+def make_twos_complement_converter(num_bits):
+    # this is a modified version of
+    # https://en.wikipedia.org/wiki
+    # /Two%27s_complement#Converting_from_two's_complement_representation
+    mask = 2**(num_bits-1)
+    def twos_complement(input_value):
+        return -(input_value & mask) + (input_value & ~mask)
+    return twos_complement
+
+sixteenbit_twos_complement = make_twos_complement_converter(16)
+thirtytwobit_twos_complement = make_twos_complement_converter(32)
+
+def interpret_sixteenbits_as_signed(value):
+    if value > MAX_16_SIGNED:
+        return sixteenbit_twos_complement(value)
+    else:
+        return value
+
+def sign_extend_negative_and_unsign(
+        value, num_bytes=None, num_bits=None, origin_bits=16):
+    assert not (num_bytes==None and num_bits==None)
+    assert value < 0
+    if num_bytes!=None: # num_bits==None
+        num_bits = num_bytes*BITS_PER_BYTE
+    MAX_VALUE = 2**num_bits-1
+    return_value = MAX_VALUE + value + 1
+    assert 0<=return_value  <= MAX_VALUE
+    return return_value
+
+def stuff_int_as_signed_16bit_value_into_register(
+        value, register_file, regindex):
+    # value is currently in its unsigned form
+    assert 0 <= value <= MAX_16_UNSIGNED
+    register_size_bytes = register_file.itemsize
+    # no conversion necessary if we're using 16 bit registers or the value
+    # is positive
+    if register_size_bytes==2 or 0<=value<=MAX_16_SIGNED:
+        register_file[regindex] = value
+    else:
+        sixteenbit_signed = interpret_sixteenbits_as_signed(value)
+        value_unsigned_and_signextended = \
+            sign_extend_negative_and_unsign(
+                sixteenbit_signed, num_bytes=register_file.itemsize )
+        register_file[regindex] = value_unsigned_and_signextended
+
 # 4 OP integer instructions
 
 def ADD_CI(vm, c):
@@ -475,6 +555,9 @@ def CMPJUMPUI_L(vm, c):
 
 # 1 OP integer immediate
 
+def get_args_for_1OPI(vm, c):
+    return vm[REG], c[I_REGISTERS][0], c[RAW_IMMEDIATE], c[NEXTIP]
+
 def JUMP_C(vm, c):
     pass
 
@@ -518,10 +601,15 @@ def CALLI(vm, c):
     pass
 
 def LOADI(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    stuff_int_as_signed_16bit_value_into_register(
+        raw_immediate, register_file, reg0)
+    return next_ip
 
 def LOADUI(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    register_file[reg0] = raw_immediate
+    return next_ip
 
 def SALI(vm, c):
     pass

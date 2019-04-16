@@ -27,7 +27,11 @@ from array import array
 
 import knightinstructions
 from pythoncompat import print_func, gen_range
-from constants import EXIT_FAILURE
+from constants import \
+    EXIT_FAILURE, \
+    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \
+    OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
+    RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
 ARRAY_TYPE_UNSIGNED_SHORT = 'H'
@@ -44,10 +48,6 @@ MIN_INSTRUCTION_LEN = 4
 DEBUG = False
 
 OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
-
-(IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT) = range(6)
-(OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
- RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE) = range(12)
 
 
 def grow_memory(vm, size):
