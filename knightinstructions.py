@@ -441,7 +441,9 @@ def FALSE(vm, c):
     return next_ip
 
 def TRUE(vm, c):
-    pass
+    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    register_file[reg0] = 2**(vm[REG].itemsize*BITS_PER_BYTE)-1
+    return next_ip
 
 def JSR_COROUTINE(vm, c):
     pass
