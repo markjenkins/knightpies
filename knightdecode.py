@@ -250,8 +250,8 @@ def decode_3OP(vm, c):
 def decode_2OP(vm, c):
     raw_xop = c[RAW][1]*0x100 + c[RAW][2]
     xop = tuple([x
-                 for x in r
-                 for r in c[RESTOF][0:2] ])
+                 for r in c[RESTOF][0:2]
+                 for x in r ])
     assert len(xop) == 4
     raw_immediate = 0
     i_registers = (
@@ -290,8 +290,8 @@ def decode_2OPI(vm, c):
     next_ip+=1
     raw_immediate = raw_immediate*0x100 + hold
     immediate = tuple([x
-                       for x in r
-                       for r in c[RESTOF][1:] ] )
+                       for r in c[RESTOF][1:]
+                       for x in r] )
     assert len(immediate) == 4
     i_registers = (c[RAW][3]//16, c[RAW][3]%16)
     return c[0:NEXTIP] + (next_ip,) + c[NEXTIP+1:] + (
