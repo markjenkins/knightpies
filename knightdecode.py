@@ -528,22 +528,6 @@ EVAL_1OP_INT_TABLE_STRING = {
 }
 
 EVAL_1OP_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str,
-    EVAL_1OP_INT_TABLE_STRING.items() ) # map
-) # dict
-
-EVAL_1OP_INT_TABLE_STRING = {
-    0x00000: "READPC",
-    0x00001: "READSCID",
-    0x00002: "FALSE",
-    0x00003: "TRUE",
-    0x01000: "JSR_COROUTINE",
-    0x01001: "RET",
-    0x02000: "PUSHPC",
-    0x02001: "POPPC",
-}
-
-EVAL_1OP_INT_TABLE = dict( map(
     lookup_instruction_and_debug_str_no_sub,
     EVAL_1OP_INT_TABLE_STRING.items() ) # map
 ) # dict
