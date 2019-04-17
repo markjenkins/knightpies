@@ -426,6 +426,9 @@ def CMPSKIPU_L(vm, c):
 
 # 1 OP integer instructions
 
+def get_args_for_1OP(vm, c):
+    return vm[REG], c[I_REGISTERS][0], c[NEXTIP]
+
 def READPC(vm, c):
     pass
 
@@ -433,7 +436,9 @@ def READSCID(vm, c):
     pass
 
 def FALSE(vm, c):
-    pass
+    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    register_file[reg0] = 0
+    return next_ip
 
 def TRUE(vm, c):
     pass

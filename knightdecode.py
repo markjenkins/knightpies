@@ -269,8 +269,8 @@ def decode_2OP(vm, c):
 def decode_1OP(vm, c):
     raw_xop = c[RAW][1]*0x1000 + c[RAW][2]*0x10 + c[RAW][3]//16
     xop = tuple([x
-                 for x in r
-                 for r in c[RESTOF][0:2] ]) + (c[RESTOF][2][0],)
+                 for r in c[RESTOF][0:2]
+                 for x in r ]) + (c[RESTOF][2][0],)
     assert len(xop) == 5
     raw_immediate = 0
     i_registers = (c[RAW][3]%16,)
