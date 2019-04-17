@@ -30,6 +30,7 @@ class SimpleInstructionTests(TestCase):
         # - get us the positive version
         # and we compare that to 2**self.registersize (1 larger than max)
         self.assertEqual( -~self.vm[REG][0], 1<<self.registersize )
+        self.assertEqual( self.vm[REG][0], (1<<self.registersize)-1 )
 
 class SimpleInstructionTests64(SimpleInstructionTests):
     registersize = 64
