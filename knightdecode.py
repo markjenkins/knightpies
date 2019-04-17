@@ -26,6 +26,9 @@ from time import sleep
 from array import array
 
 import knightinstructions
+import knightinstructions64
+import knightinstructions32
+import knightinstructions16
 from pythoncompat import print_func, gen_range
 from constants import \
     EXIT_FAILURE, \
@@ -172,44 +175,57 @@ def string_unpacked_instruction(i):
 def vm_with_new_ip(vm, new_ip):
     return vm[0:IP] + (new_ip,) + vm[IP+1:]
 
-def eval_instruction(vm, current_instruction):
-    vm = increment_vm_perf_count(vm)
-    if DEBUG:
-        print_func("Executing: %s" %
-                   string_unpacked_instruction(current_instruction),
-                   file=stderr)
-        sleep(1)
+def make_eval_instruction_for_registersize(registersizebits):
+    EVAL_META_TABLE = {
+        256: make_eval_tables_for_register_size(256),
+        128: make_eval_tables_for_register_size(128),
+        64: make_eval_tables_for_register_size(64),
+        32: make_eval_tables_for_register_size(32),
+        16: make_eval_tables_for_register_size(16),
+    }
 
-    raw0 = current_instruction[RAW][0]
-        
-    if raw0 == 0: # Deal with NOPs
-        if [0,0,0,0]==current_instruction[RAW].tolist():
-            #if TRACE: # TODO
-            #    record_trace("NOP") # TODO
-            return vm_with_new_ip(vm, current_instruction[NEXTIP])
-        illegal_instruction(vm, current_instruction)
+    EVAL_TABLE = EVAL_META_TABLE[registersizebits]
 
-    elif raw0 in DECODE_TABLE:
-        assert raw0 in EVAL_TABLE
-        current_instruction = DECODE_TABLE[raw0](vm, current_instruction)
-        return vm_with_new_ip(vm,
-                              EVAL_TABLE[raw0](vm, current_instruction) )
-    elif raw0 == 0xFF:  # Deal with HALT
-        vm = halt_vm(vm)
-        print_func(
-            "Computer Program has Halted\nAfter Executing %d instructions"
-            % vm[PERF_COUNT],
-            file=stderr)
-        # if TRACE: # TODO
-        #    record_trace("HALT") # TODO
-        #    print_traces() # TODO
-        return vm
-    else:
-        illegal_instruction(vm, current_instruction)
+    def eval_instruction(vm, current_instruction):
+        vm = increment_vm_perf_count(vm)
+        if DEBUG:
+            print_func("Executing: %s" %
+                       string_unpacked_instruction(current_instruction),
+                       file=stderr)
+            sleep(1)
 
-    # we shouldn't make it this far, other branches call exit()
-    assert False
-    return None
+        raw0 = current_instruction[RAW][0]
+
+        if raw0 == 0: # Deal with NOPs
+            if [0,0,0,0]==current_instruction[RAW].tolist():
+                #if TRACE: # TODO
+                #    record_trace("NOP") # TODO
+                return vm_with_new_ip(vm, current_instruction[NEXTIP])
+            illegal_instruction(vm, current_instruction)
+
+        elif raw0 in DECODE_TABLE:
+            assert raw0 in EVAL_TABLE
+            current_instruction = DECODE_TABLE[raw0](vm, current_instruction)
+            return vm_with_new_ip(vm,
+                                  EVAL_TABLE[raw0](vm, current_instruction) )
+        elif raw0 == 0xFF:  # Deal with HALT
+            vm = halt_vm(vm)
+            print_func(
+                "Computer Program has Halted\nAfter Executing %d instructions"
+                % vm[PERF_COUNT],
+                file=stderr)
+            # if TRACE: # TODO
+            #    record_trace("HALT") # TODO
+            #    print_traces() # TODO
+            return vm
+        else:
+            illegal_instruction(vm, current_instruction)
+
+        # we shouldn't make it this far, other branches call exit()
+        assert False
+        return None
+
+    return eval_instruction
 
 def decode_4OP(vm, c):
     raw_xop = c[RAW][1]
@@ -357,22 +373,6 @@ def decode_HALCODE(vm, c):
         c[RAW][1]*0x10000 + c[RAW][2]*0x100 + c[RAW][3] # HAL_CODE
         )
 
-def lookup_instruction_and_debug_str(x, replace_underscore=True):
-    table_key, instruction_str = x
-    if replace_underscore:
-        instruction_str_debug = instruction_str.replace("_", ".")
-    else:
-        instruction_str_debug = instruction_str
-
-    return (table_key,
-            (getattr(knightinstructions, instruction_str),
-             instruction_str_debug
-            ) # inner tuple
-    ) # outer tuple
-
-def lookup_instruction_and_debug_str_no_sub(x):
-    return lookup_instruction_and_debug_str(x, replace_underscore=False)
-
 EVAL_4OP_INT_TABLE_STRING = {
     0x00: "ADD_CI",
     0x01: "ADD_CO",
@@ -395,11 +395,6 @@ EVAL_4OP_INT_TABLE_STRING = {
     0x12: "SORT",
     0x13: "SORTU",
 }
-
-EVAL_4OP_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str,
-    EVAL_4OP_INT_TABLE_STRING.items() ) # map
-) # dict
 
 EVAL_3OP_INT_TABLE_STRING = {
     0x000: "ADD",
@@ -460,11 +455,6 @@ EVAL_3OP_INT_TABLE_STRING = {
     0x065: "CMPJUMPU_L",
 }
 
-EVAL_3OP_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str,
-    EVAL_3OP_INT_TABLE_STRING.items() ) # map
-) # dict
-
 # using a dictionary type instead of set/fozenset or sets for python 2.2
 # compatibility
 EVAL_30P_INT_ILLEGAL = {
@@ -511,11 +501,6 @@ EVAL_2OP_INT_TABLE_STRING = {
     0x0385: "CMPSKIPU_L",
     }
 
-EVAL_2OP_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str,
-    EVAL_2OP_INT_TABLE_STRING.items() ) # map
-) # dict
-
 EVAL_1OP_INT_TABLE_STRING = {
     0x00000: "READPC",
     0x00001: "READSCID",
@@ -526,11 +511,6 @@ EVAL_1OP_INT_TABLE_STRING = {
     0x02000: "PUSHPC",
     0x02001: "POPPC",
 }
-
-EVAL_1OP_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str_no_sub,
-    EVAL_1OP_INT_TABLE_STRING.items() ) # map
-) # dict
 
 EVAL_2OPI_INT_TABLE_STRING = {
     0x0E: "ADDI",
@@ -567,11 +547,6 @@ EVAL_2OPI_INT_TABLE_STRING = {
     0xD4: "CMPJUMPUI_LE",
     0xD5: "CMPJUMPUI_L",
     }
-
-EVAL_2OPI_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str,
-    EVAL_2OPI_INT_TABLE_STRING.items() ) # map
-) # dict
 
 EVAL_1OPI_INT_TABLE_STRING = {
     0x2C0: "JUMP_C",
@@ -619,11 +594,6 @@ EVAL_1OPI_INT_TABLE_STRING = {
     0xA15: "CMPSKIPUI_L",
     }
 
-EVAL_1OPI_INT_TABLE = dict( map(
-    lookup_instruction_and_debug_str,
-    EVAL_1OPI_INT_TABLE_STRING.items() ) # map
-) # dict
-
 def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
                   immediate=False, illegal_table=None):
     next_ip = None
@@ -660,45 +630,115 @@ def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
             print_func()
     return next_ip
 
-def eval_4OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 4, c[RAW_XOP], EVAL_4OP_INT_TABLE)
+KNIGHT_INSTRUCTIONS_MODULES = {
+    64: knightinstructions64,
+    32: knightinstructions32,
+    16: knightinstructions16,
+    }
 
-def eval_3OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 3,
-                         c[RAW_XOP], EVAL_3OP_INT_TABLE,
-                         illegal_table=EVAL_30P_INT_ILLEGAL)
+def get_instruction_module_for_registersize(registersizebytes):
+    return KNIGHT_INSTRUCTIONS_MODULES.get(
+        registersizebytes, knightinstructions)
 
-def eval_2OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 2, c[RAW_XOP], EVAL_2OP_INT_TABLE)
+def make_eval_tables_for_register_size(registersizebits):
+    knightmodule = get_instruction_module_for_registersize(registersizebits)
+    def lookup_instruction_and_debug_str(x, replace_underscore=True):
+        table_key, instruction_str = x
+        if replace_underscore:
+            instruction_str_debug = instruction_str.replace("_", ".")
+        else:
+            instruction_str_debug = instruction_str
 
-def eval_1OP_Int(vm, c):
-    return eval_N_OP_int(vm, c, 1, c[RAW_XOP], EVAL_1OP_INT_TABLE)
+        return (table_key,
+                (getattr(knightmodule, instruction_str),
+                 instruction_str_debug
+                ) # inner tuple
+        ) # outer tuple
 
-def eval_2OPI_Int(vm, c):
-    return eval_N_OP_int(vm, c, 2, c[RAW][2], EVAL_2OPI_INT_TABLE,
-                         immediate=True)
+    def lookup_instruction_and_debug_str_no_sub(x):
+        return lookup_instruction_and_debug_str(x, replace_underscore=False)
 
-def eval_Integer_1OPI(vm, c):
-    return eval_N_OP_int(vm, c, 2,
-                         c[RAW][2]*16 + c[RAW_XOP], EVAL_1OPI_INT_TABLE,
-                         immediate=True)
+    EVAL_4OP_INT_TABLE = dict( map(
+        lookup_instruction_and_debug_str,
+        EVAL_4OP_INT_TABLE_STRING.items() ) # map
+    ) # dict
 
-def eval_Integer_0OPI(vm, c):
-    next_ip = None
-    name = "ILLEGAL_0OPI"
-    if c[RAW_XOP] == 0x00: # JUMP
+    EVAL_2OP_INT_TABLE = dict( map(
+        lookup_instruction_and_debug_str,
+        EVAL_2OP_INT_TABLE_STRING.items() ) # map
+    ) # dict
+
+    EVAL_2OP_INT_TABLE = dict( map(
+        lookup_instruction_and_debug_str,
+        EVAL_2OP_INT_TABLE_STRING.items() ) # map
+    ) # dict
+
+    EVAL_1OP_INT_TABLE = dict( map(
+        lookup_instruction_and_debug_str_no_sub,
+        EVAL_1OP_INT_TABLE_STRING.items() ) # map
+    ) # dict
+
+    EVAL_2OPI_INT_TABLE = dict( map(
+        lookup_instruction_and_debug_str,
+        EVAL_2OPI_INT_TABLE_STRING.items() ) # map
+    ) # dict
+
+    EVAL_1OPI_INT_TABLE = dict( map(
+        lookup_instruction_and_debug_str,
+        EVAL_1OPI_INT_TABLE_STRING.items() ) # map
+    ) # dict
+
+    def eval_4OP_Int(vm, c):
+        return eval_N_OP_int(vm, c, 4, c[RAW_XOP], EVAL_4OP_INT_TABLE)
+
+    def eval_3OP_Int(vm, c):
+        return eval_N_OP_int(vm, c, 3,
+                             c[RAW_XOP], EVAL_3OP_INT_TABLE,
+                             illegal_table=EVAL_30P_INT_ILLEGAL)
+
+    def eval_2OP_Int(vm, c):
+        return eval_N_OP_int(vm, c, 2, c[RAW_XOP], EVAL_2OP_INT_TABLE)
+
+    def eval_1OP_Int(vm, c):
+        return eval_N_OP_int(vm, c, 1, c[RAW_XOP], EVAL_1OP_INT_TABLE)
+
+    def eval_2OPI_Int(vm, c):
+        return eval_N_OP_int(vm, c, 2, c[RAW][2], EVAL_2OPI_INT_TABLE,
+                             immediate=True)
+
+    def eval_Integer_1OPI(vm, c):
+        return eval_N_OP_int(vm, c, 2,
+                             c[RAW][2]*16 + c[RAW_XOP], EVAL_1OPI_INT_TABLE,
+                             immediate=True)
+
+    def eval_Integer_0OPI(vm, c):
+        next_ip = None
+        name = "ILLEGAL_0OPI"
+        if c[RAW_XOP] == 0x00: # JUMP
+            if DEBUG:
+                name = "JUMP"
+            #elif TRACE: # TODO
+            #    record_trace("JUMP") # TODO
+            next_ip = knightmodule.JUMP(vm, c)
+        else:
+            illegal_instruction(vm, c)
+
         if DEBUG:
-            name = "JUMP"
-        #elif TRACE: # TODO
-        #    record_trace("JUMP") # TODO
-        next_ip = JUMP(vm, c)
-    else:
-        illegal_instruction(vm, c)
+            print_func( "# %s %d\n" % (name, c[RAW_IMMEDIATE]) )
+        return next_ip
 
-    if DEBUG:
-        print_func( "# %s %d\n" % (name, c[RAW_IMMEDIATE]) )
-    return next_ip
-
+    EVAL_TABLE = {
+        0x01: eval_4OP_Int,
+        0x05: eval_3OP_Int,
+        0x09: eval_2OP_Int,
+        0x0D: eval_1OP_Int,
+        0xE1: eval_2OPI_Int,
+        0xE0: eval_Integer_1OPI,
+        0x3C: eval_Integer_0OPI,
+        0x42: eval_HALCODE,
+    }
+    return EVAL_TABLE
+    
 HAL_CODES_TABLE_STRING = {
     0x100000: "FOPEN_READ",
     0x100001: "FOPEN_WRITE",
@@ -758,27 +798,58 @@ DECODE_TABLE = {
     0x42: decode_HALCODE,
 }
 
-EVAL_TABLE = {
-    0x01: eval_4OP_Int,
-    0x05: eval_3OP_Int,
-    0x09: eval_2OP_Int,
-    0x0D: eval_1OP_Int,
-    0xE1: eval_2OPI_Int,
-    0xE0: eval_Integer_1OPI,
-    0x3C: eval_Integer_0OPI,
-    0x42: eval_HALCODE,
+assert \
+    (tuple(sorted(DECODE_TABLE.keys())) ==
+     tuple(sorted(make_eval_tables_for_register_size(0).keys()))
+     ) # end expression
+
+eval_instruction_256 = make_eval_instruction_for_registersize(256)
+eval_instruction_128 = make_eval_instruction_for_registersize(128)
+eval_instruction_64 = make_eval_instruction_for_registersize(64)
+eval_instruction_32 = make_eval_instruction_for_registersize(32)
+eval_instruction_16 = make_eval_instruction_for_registersize(16)
+
+EVAL_INSTRUCTION_FOR_REGISTER_SIZES = {
+    256//8: eval_instruction_256, # 32 byte registers
+    128//8: eval_instruction_128, # 16 byte registers
+    64//8: eval_instruction_64,# 8 byte/64bit registers
+    32//8: eval_instruction_32,# 4 byte/32bit registers
+    16//8: eval_instruction_16,# 2 byte/16bit registers
+    }
+
+def eval_instruction(vm, current_instruction):
+    return EVAL_INSTRUCTION_FOR_REGISTER_SIZES[vm[REG].itemsize](
+        vm, current_instruction)
+
+def make_read_and_eval_for_registersize(registersizebits):
+    eval_instruction_specific_bit = EVAL_INSTRUCTION_FOR_REGISTER_SIZES.get(
+        registersizebits//8, eval_instruction) # default to generic version
+    def read_and_eval(vm):
+        vm = eval_instruction_specific_bit(vm, read_instruction(vm))
+        if vm==None or vm[IP]==None:
+            assert False # this shouldn't happen
+            # catch if asserts are off
+            raise Exception(
+                "eval_instruction did not return a new vm state")
+        return vm
+    return read_and_eval
+
+read_and_eval256 = make_read_and_eval_for_registersize(256)
+read_and_eval128 = make_read_and_eval_for_registersize(128)
+read_and_eval64 = make_read_and_eval_for_registersize(64)
+read_and_eval32 = make_read_and_eval_for_registersize(32)
+read_and_eval16 = make_read_and_eval_for_registersize(16)
+
+READ_AND_EVAL_TABLE = {
+    256//8: read_and_eval256,
+    128//8: read_and_eval128,
+    64//8: read_and_eval64,
+    32//8: read_and_eval32,
+    16//8: read_and_eval16,
 }
 
-assert tuple(sorted(DECODE_TABLE.keys())) == tuple(sorted(EVAL_TABLE.keys()))
-
 def read_and_eval(vm):
-    vm = eval_instruction(vm, read_instruction(vm))
-    if vm==None or vm[IP]==None:
-        assert False # this shouldn't happen
-        # catch if asserts are off
-        raise Exception(
-            "eval_instruction did not return a new vm state")
-    return vm
+    return READ_AND_EVAL_TABLE[vm[REG].itemsize](vm)
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
