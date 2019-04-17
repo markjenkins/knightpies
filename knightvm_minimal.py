@@ -24,7 +24,10 @@ from string import hexdigits
 
 from pythoncompat import print_func
 from constants import EXIT_SUCCESS, EXIT_FAILURE
-from knightdecode import MEM, HALTED, create_vm, grow_memory, read_and_eval
+from knightdecode import \
+    MEM, HALTED, \
+    create_vm, grow_memory, \
+    read_and_eval, read_and_eval16, read_and_eval32, read_and_eval64
 
 def load_program(vm, romfilename):
     # binary mode because we don't want python's opinion of encoding, newlines
@@ -62,8 +65,16 @@ def load_hex_program(vm, hexromfilename):
     f.close()
 
 def execute_vm(vm):
+    register_size_bits = vm[REG].itemsize*8
+    read_and_eval_table = {
+        16: read_and_eval16,
+        32: read_and_eval32,
+        64: read_and_eval64,
+        }
+    read_and_eval_register_size_specific = read_and_eval_table.get(
+        register_size_bits, read_and_eval)
     while not vm[HALTED]:
-        vm = read_and_eval(vm)
+        vm = read_and_eval_register_size_specific(vm)
 
 def do_minimal_vm(romfile, romhex=False, memory_size=1<<21):
     vm = create_vm(size=0, registersize=32)
