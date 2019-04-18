@@ -20,3 +20,8 @@
 from __future__ import division # prevent use of "/" in the old way
 
 from knightinstructions import *
+
+def TRUE(vm, c):
+    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    register_file[reg0] = MAX_16_UNSIGNED
+    return next_ip
