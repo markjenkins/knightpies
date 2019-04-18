@@ -65,7 +65,7 @@ sixteenbit_twos_complement = make_twos_complement_converter(16)
 thirtytwobit_twos_complement = make_twos_complement_converter(32)
 
 def interpret_sixteenbits_as_signed(value):
-    if value > MAX_16_SIGNED:
+    if value > MAX_16_SIGNED: # would value & 0x8000 be a faster sign test?
         return sixteenbit_twos_complement(value)
     else:
         return value
@@ -83,19 +83,26 @@ def sign_extend_negative_and_unsign(
 
 def stuff_int_as_signed_16bit_value_into_register(
         value, register_file, regindex):
+    # Interesting performance TODO, is it faster to not
+    # check the sign bit with the if statement below
+    # or if the simple signless case should come first
+
     # value is currently in its unsigned form
     assert 0 <= value <= MAX_16_UNSIGNED
     register_size_bytes = register_file.itemsize
-    # no conversion necessary if we're using 16 bit registers or the value
-    # is positive
-    if register_size_bytes==2 or 0<=value<=MAX_16_SIGNED:
-        register_file[regindex] = value
-    else:
-        sixteenbit_signed = interpret_sixteenbits_as_signed(value)
+
+    # check for sign bit, if found sign extend
+    # value > 2**15-1 and value < 2**16-1
+    # would value & 0x8000 be a faster test for the sign bit?
+    if value > MAX_16_SIGNED:
+        sixteenbit_signed = sixteenbit_twos_complement(value)
         value_unsigned_and_signextended = \
             sign_extend_negative_and_unsign(
-                sixteenbit_signed, num_bytes=register_file.itemsize )
+                sixteenbit_signed, num_bytes=register_size_bytes )
         register_file[regindex] = value_unsigned_and_signextended
+    # no conversion necessary if the unsigned value would have no sign bit
+    else:
+        register_file[regindex] = value
 
 # 4 OP integer instructions
 
@@ -611,6 +618,7 @@ def CALLI(vm, c):
     pass
 
 def LOADI(vm, c):
+    # 16 bit version just uses LOADUI
     register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     stuff_int_as_signed_16bit_value_into_register(
         raw_immediate, register_file, reg0)

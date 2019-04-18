@@ -21,6 +21,11 @@ from __future__ import division # prevent use of "/" in the old way
 
 from knightinstructions import *
 
+# We don't need to mess around with sign extension for 16 bit LOADI,
+# when copying a signed 16 bit value stored as a 16 bit unsigned into a
+# 16 bit unsigned register, we just copy the bits like generic LOADUI does
+LOADI = LOADUI
+
 def TRUE(vm, c):
     register_file, reg0, next_ip = get_args_for_1OP(vm, c)
     register_file[reg0] = MAX_16_UNSIGNED
