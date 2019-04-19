@@ -43,5 +43,12 @@ else:
 
     gen_range = xrange
 
+def write_byte(fd, byte_write):
+    if sys.version_info[0] >= 3:
+        value_to_write = bytes( (byte_write,) )
+    else:
+        value_to_write = chr(value_to_write)
+    fd.write(value_to_write)
+
 if __name__ == "__main__":
     print_func("hello world!")

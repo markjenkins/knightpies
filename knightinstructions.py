@@ -18,11 +18,16 @@
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
 from array import array
+from os.path import exists
+from sys import stderr
 
 from constants import \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \
+    TAPE1FILENAME, TAPE2FILENAME, TAPEFD, TAPEFD_I_STDIN, TAPEFD_I_STDOUT, \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE
+
+from pythoncompat import write_byte
 
 BITS_PER_BYTE = 8
 def prove_8_bits_per_array_byte():
@@ -719,26 +724,68 @@ def JUMP(vm, c):
 
 # HAL_CODES
 
-def vm_FOPEN_READ(vm, c):
-    pass
+def lookup_tapeindex_and_filename(vm, io_device_register=0):
+    io_device = vm[REG][io_device_register]
+    if 0x00001100 == io_device:
+        return 0, TAPE1FILENAME, io_device
+    elif 0x00001101 == io_device:
+        return 1, TAPE2FILENAME, io_device
+    elif 0x0 == io_device:
+        return None, None, io_device
+    else:
+        return None, None, None
 
-def vm_FOPEN_WRITE(vm, c):
-    pass
+def lookup_fd(vm, io_device_register=0, write_context=False):
+    tapeindex, tapefilenameindex, io_device = lookup_tapeindex_and_filename(
+        vm, io_device_register=io_device_register)
+    if None==tapeindex and io_device==0x0:
+        if write_context:
+            return vm[TAPEFD][TAPEFD_I_STDOUT]
+        else:
+            return vm[TAPEFD][TAPEFD_I_STDIN]
+    elif not (None in (tapeindex, tapefilenameindex)):
+        return vm[TAPEFD][tapeindex]
+    else:
+        exit("Error looking up relevant tape device")
 
-def vm_FCLOSE(vm, c):
-    pass
+def tapeopen(vm, flags, do_exists=False):
+    tapeindex, tapefilenameindex, io_device = lookup_tapeindex_and_filename(vm)
+    if None in (tapeindex, tapefilenameindex):
+        exit("no tape device selected for read/write")
+    filename = vm[tapefilenameindex]
+    if do_exists:
+        if not exists(filename):
+            exit("File named %s does not exist" %  filename)
+    vm[TAPEFD][tapeindex] = open(filename, flags)
 
-def vm_REWIND(vm, c):
-    pass
+def vm_FOPEN_READ(vm):
+    tapeopen(vm, 'rb', do_exists=True)
 
-def vm_FSEEK(vm, c):
-    pass
+def vm_FOPEN_WRITE(vm):
+    tapeopen(vm, 'wb')
 
-def vm_FGETC(vm, c):
-    pass
+def vm_FCLOSE(vm):
+    lookup_fd(vm).close()
 
-def vm_FPUTC(vm, c):
-    pass
+def vm_REWIND(vm):
+    lookup_fd(vm).seek(0)
 
-def vm_HAL_MEM(vm, c):
+def vm_FSEEK(vm):
+    SEEK_CUR = 1 # wence=1 means relative to current pos 
+    lookup_fd(vm).seek(VM[REG][1], wence=SEEK_CUR) 
+
+def vm_FGETC(vm):
+    byte_read = lookup_fd(vm, write_context=False,
+                          io_device_register=1).read(1)
+    if len(byte_read)==0:
+        vm[REG][0] = 0
+    else:
+        vm[REG][0] = ord(byte_read)
+
+def vm_FPUTC(vm):
+    output_byte = vm[REG][0] & 0xFF
+    fd = lookup_fd(vm, write_context=True, io_device_register=1)
+    write_byte(fd, output_byte)
+
+def vm_HAL_MEM(vm):
     pass

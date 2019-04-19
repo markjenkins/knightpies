@@ -21,7 +21,7 @@
 
 from __future__ import division # prevent use of "/" in the old way
 
-from sys import stderr
+from sys import stderr, stdin, stdout
 from time import sleep
 from array import array
 
@@ -32,7 +32,7 @@ import knightinstructions16
 from pythoncompat import print_func, gen_range
 from constants import \
     EXIT_FAILURE, \
-    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \
+    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TAPE1FILENAME, TAPE2FILENAME, \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE
 
@@ -57,7 +57,9 @@ def grow_memory(vm, size):
     while len(vm[MEM])<size:
         vm[MEM].append(0)
 
-def create_vm(size, registersize=32):
+def create_vm(size, registersize=32,
+              tapefile1="tape_01", tapefile2="tape_02",
+              stdin=stdin, stdout=stdout):
     instruction_pointer = 0
 
     if registersize==32:
@@ -94,7 +96,8 @@ def create_vm(size, registersize=32):
     performance_counter = 0
 
     vm = (instruction_pointer, registers, memory,
-          halted, exception, performance_counter)
+          halted, exception, performance_counter,
+          tapefile1, tapefile2, [None,None, stdin, stdout])
     grow_memory(vm, size)
     return vm
 
@@ -140,8 +143,7 @@ def outside_of_world(vm, place, message):
         exit(message)
 
 def increment_vm_perf_count(vm):
-    assert PERF_COUNT == len(vm)-1 # PERF_COUNT is end of the list
-    return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,)
+    return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,) + vm[PERF_COUNT+1:]
         
 def invalidate_instruction(i):
     return i[0:INVALID] + (True,) + i[INVALID+1:]
@@ -770,8 +772,7 @@ def eval_HALCODE(vm, c):
     # POSIX MODE instructions not implemented
 
     if c[HAL_CODE] in HAL_CODES_TABLE:
-        HAL_CODES_TABLE[c[HAL_CODE]]
-        instruction_func, instruction_str = lookup_table[lookup_val]
+        instruction_func, instruction_str = HAL_CODES_TABLE[c[HAL_CODE]]
         if DEBUG:
             name = instruction_str
         #elif TRACE: # TODO

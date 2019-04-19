@@ -23,7 +23,7 @@ from sys import stderr
 from string import hexdigits
 
 from pythoncompat import print_func
-from constants import EXIT_SUCCESS, EXIT_FAILURE
+from constants import REG, EXIT_SUCCESS, EXIT_FAILURE
 from knightdecode import \
     MEM, HALTED, \
     create_vm, grow_memory, \
