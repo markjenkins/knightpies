@@ -29,7 +29,7 @@ import knightinstructions
 import knightinstructions64
 import knightinstructions32
 import knightinstructions16
-from pythoncompat import print_func, gen_range, init_array_itemsize_8
+from pythoncompat import print_func, init_array_itemsize_8
 from constants import \
     EXIT_FAILURE, \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TAPE1FILENAME, TAPE2FILENAME, \
