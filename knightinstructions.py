@@ -109,6 +109,16 @@ def stuff_int_as_signed_16bit_value_into_register(
     else:
         register_file[regindex] = value
 
+def next_instruction_size(vm):
+    c = vm[MEM][vm[IP]]
+    if c==0xE0 or c==0xE1:
+        return 6
+    else:
+        return 4
+
+def compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
+    return register_file[reg0] != raw_immediate
+
 # 4 OP integer instructions
 
 def ADD_CI(vm, c):
@@ -695,7 +705,11 @@ def CMPSKIPI_E(vm, c):
     pass
 
 def CMPSKIPI_NE(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    if compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
+        return next_ip + next_instruction_size(vm)
+    else:
+        return next_ip
 
 def CMPSKIPI_LE(vm, c):
     pass
