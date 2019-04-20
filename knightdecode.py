@@ -29,17 +29,16 @@ import knightinstructions
 import knightinstructions64
 import knightinstructions32
 import knightinstructions16
-from pythoncompat import print_func, gen_range
+from pythoncompat import print_func, gen_range, init_array_itemsize_8
 from constants import \
     EXIT_FAILURE, \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TAPE1FILENAME, TAPE2FILENAME, \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
-    RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE
+    RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
+    ARRAY_TYPE_UNSIGNED_CHAR, ARRAY_TYPE_UNSIGNED_SHORT, \
+    ARRAY_TYPE_UNSIGNED_INT, ARRAY_TYPE_UNSIGNED_INT_LONG, \
+    ARRAY_TYPE_UNSIGNED_LONG_LONG
 
-ARRAY_TYPE_UNSIGNED_CHAR = 'B'
-ARRAY_TYPE_UNSIGNED_SHORT = 'H'
-ARRAY_TYPE_UNSIGNED_INT = 'I'
-ARRAY_TYPE_UNSIGNED_INT_LONG = 'L'
 NUM_REGISTERS = 16
 
 SIZE_UNSIGNED_CHAR = 1
@@ -66,11 +65,8 @@ def create_vm(size, registersize=32,
         registers = array(ARRAY_TYPE_UNSIGNED_INT)
         assert registers.itemsize == MIN_SIZE_UNSIGNED_INT # 4
     elif registersize==64:
-        registers = array(ARRAY_TYPE_UNSIGNED_INT_LONG)
-        if registers.itemsize != 64//8: # 64//8==8
-            # 32 bits (4 bytes) is too small, but at least we expect to see it
-            # on some platforms, so this assert will still pass
-            assert registers.itemsize >= 4
+        registers = init_array_itemsize_8()
+        if None==registers: # 64//8==8
             raise Exception("64 bit register size not available "
                             "on this platform")
     elif registersize==16:
