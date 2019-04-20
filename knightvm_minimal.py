@@ -28,6 +28,7 @@ from knightdecode import \
     MEM, HALTED, \
     create_vm, grow_memory, \
     read_and_eval, read_and_eval16, read_and_eval32, read_and_eval64
+from hex0tobin import int_bytes_from_hex0_fd
 
 def load_program(vm, romfilename):
     # binary mode because we don't want python's opinion of encoding, newlines
@@ -41,28 +42,13 @@ def load_program(vm, romfilename):
     f.close()
 
 def load_hex_program(vm, hexromfilename):
-    f = open(hexromfilename)
-    first_nyble = True
-    accumulator = 0
     # this is intended to operate at the start of memory before allocation
     assert len(vm[MEM])==0
-    while True: # until break
-        # this is character based I/O, on newer pythons the text encoding
-        # could be something other than ASCII, UTF8, and that's fine
-        character = f.read(1)
-        if character=='':
-            break
-        elif character in hexdigits:
-            accumulator += int(character, 16)
-            if first_nyble:
-                accumulator = accumulator << 4
-                first_nyble = False
-            else:
-                first_nyble = True
-                vm[MEM].append(accumulator)
-                accumulator = 0
-        # else: pass # ignore everything that's not a hexdigit
+    f = open(hexromfilename)
+    for input_byte in int_bytes_from_hex0_fd(f):
+        vm[MEM].append(input_byte)
     f.close()
+
 
 def execute_vm(vm):
     register_size_bits = vm[REG].itemsize*8
