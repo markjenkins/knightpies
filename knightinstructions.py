@@ -666,7 +666,7 @@ def make_two_either_condition_bit_jump(condition_mask1, condition_mask2):
         #     return next_ip
 
         # I haven't tested it, but I assume this is faster?
-        if register_file[reg0] & combined_mask
+        if register_file[reg0] & combined_mask:
             return next_ip + raw_immediate
         else:
             return next_ip
