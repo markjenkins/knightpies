@@ -25,7 +25,7 @@ testcases = (
 
 class EdgeCaseSignedIntegerTests(TestCase):
     registersize = 32
-    
+    optimize = True
     def setUp(self):
         self.vm = create_vm(size=0, registersize=self.registersize)
         self.vm[MEM].frombytes( bytes.fromhex('E0002D10') ) # LOADI r0
@@ -35,7 +35,7 @@ for sixteenbits_bigendian_hex_str in testcases:
         sixteenbits = bytes.fromhex(sixteenbits_bigendian_hex_str)
         # 16 bit immediate value to finish LOADI instruction
         self.vm[MEM].frombytes( sixteenbits )
-        read_and_eval(self.vm)
+        read_and_eval(self.vm, self.optimize)
         register_as_bytes = self.vm[REG][0].to_bytes(
             self.vm[REG].itemsize,
             byteorder='big', signed=False)
@@ -52,9 +52,19 @@ for sixteenbits_bigendian_hex_str in testcases:
     setattr(EdgeCaseSignedIntegerTests,
             "test_%s" % sixteenbits_bigendian_hex_str,
             test_function)
-                
+
+class ThirtyTwoBitRegistersNoOptimize(EdgeCaseSignedIntegerTests):
+    optimize = False
+
 class SixteenBitRegisters(EdgeCaseSignedIntegerTests):
     registersize=16
 
+class SixteenBitRegistersNoOptimize(SixteenBitRegisters):
+    optimize = False
+    
 class SixtyFourBitRegisters(EdgeCaseSignedIntegerTests):
     registersize=64
+
+class SixtyFourBitRegistersNoOptimize(SixtyFourBitRegisters):
+    optimize = False
+

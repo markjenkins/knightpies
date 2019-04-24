@@ -7,6 +7,7 @@ from knightdecode import create_vm, grow_memory, read_and_eval
 
 class SimpleInstructionTests(TestCase):
     registersize = 32
+    optimize = True
 
     def setUp(self):
         self.vm = create_vm(size=0, registersize=self.registersize)
@@ -23,7 +24,7 @@ class SimpleInstructionTests(TestCase):
     def test_TRUE(self):
         self.load_1OP_int_prefix()
         self.vm[MEM].frombytes( bytes.fromhex('30') ) # TRUE r0
-        read_and_eval(self.vm)
+        read_and_eval(self.vm, optimize=self.optimize)
         # look for all 1 bits
         # ~ gets us a negative number that has
         # a 1 bit and zeros where the 1 bits are
@@ -32,8 +33,17 @@ class SimpleInstructionTests(TestCase):
         self.assertEqual( -~self.vm[REG][0], 1<<self.registersize )
         self.assertEqual( self.vm[REG][0], (1<<self.registersize)-1 )
 
+class SimpleInstructionTests32NoOptimize(SimpleInstructionTests):
+    optimize = False
+        
 class SimpleInstructionTests64(SimpleInstructionTests):
     registersize = 64
 
+class SimpleInstructionTests64NoOptimize(SimpleInstructionTests64):
+    optimize = False   
+
 class SimpleInstructionTests16(SimpleInstructionTests):
     registersize = 16
+
+class SimpleInstructionTests16NoOptimize(SimpleInstructionTests16):
+    optimize = False

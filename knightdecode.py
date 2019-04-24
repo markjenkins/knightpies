@@ -830,8 +830,12 @@ def get_read_and_eval_for_register_size(regsize_bytes):
             make_read_and_eval_for_registersize(regsize_bytes*8)
     return READ_AND_EVAL_TABLE[regsize_bytes]
 
-def read_and_eval(vm):
-    return get_read_and_eval_for_register_size(vm[REG].itemsize)(vm)
+def read_and_eval(vm, optimize=True):
+    if optimize:
+        return get_read_and_eval_for_register_size(vm[REG].itemsize)(vm)
+    else:
+        # this forces the generic version
+        return get_read_and_eval_for_register_size(0)(vm)
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
