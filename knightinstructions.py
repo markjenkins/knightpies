@@ -152,6 +152,17 @@ def register_negative(register_file, reg0):
 def register_positive(register_file, reg0):
     return not register_negative(register_file, reg0)
 
+def writeout_bytes(vm, pointer, value, byte_count):
+    from knightdecode import outside_of_world
+    outside_of_world(
+        vm, pointer, "Writeout bytes Address_1 is outside of World")
+    outside_of_world(
+        vm, pointer+byte_count, "Writeout bytes Address_2 is outside of World")
+    # example invocation of range, byte_count=4 (32 bits)
+    # range(24, -8, -8) = [24, 16, 8, 0]
+    for i, x in enumerate(range( 8*(byte_count-1), -8, -8)):
+        vm[MEM][pointer+i] = (value>>x) & 0xff
+
 # 4 OP integer instructions
 
 def ADD_CI(vm, c):
@@ -705,7 +716,14 @@ def JUMP_NP(vm, c):
         return next_ip
 
 def CALLI(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    reg_size = register_file.itemsize
+    # Write out the PC
+    writeout_bytes(vm, register_file[reg0], next_ip, reg_size)
+
+    register_file[reg0] += reg_size # Update our index
+
+    return next_ip + raw_immediate # Update PC
 
 def LOADI(vm, c):
     # 16 bit version just uses LOADUI
