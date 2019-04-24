@@ -27,7 +27,8 @@ from constants import REG, EXIT_SUCCESS, EXIT_FAILURE
 from knightdecode import \
     MEM, HALTED, \
     create_vm, grow_memory, \
-    read_and_eval, read_and_eval16, read_and_eval32, read_and_eval64
+    get_read_and_eval_for_register_size
+
 from hex0tobin import int_bytes_from_hex0_fd
 
 def load_program(vm, romfilename):
@@ -51,14 +52,8 @@ def load_hex_program(vm, hexromfilename):
 
 
 def execute_vm(vm):
-    register_size_bits = vm[REG].itemsize*8
-    read_and_eval_table = {
-        16: read_and_eval16,
-        32: read_and_eval32,
-        64: read_and_eval64,
-        }
-    read_and_eval_register_size_specific = read_and_eval_table.get(
-        register_size_bits, read_and_eval)
+    read_and_eval_register_size_specific = get_read_and_eval_for_register_size(
+        vm[REG].itemsize*8)
     while not vm[HALTED]:
         vm = read_and_eval_register_size_specific(vm)
 

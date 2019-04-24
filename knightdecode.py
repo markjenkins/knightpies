@@ -26,9 +26,6 @@ from time import sleep
 from array import array
 
 import knightinstructions
-import knightinstructions64
-import knightinstructions32
-import knightinstructions16
 from pythoncompat import print_func, init_array_itemsize_8
 from constants import \
     EXIT_FAILURE, \
@@ -174,15 +171,7 @@ def vm_with_new_ip(vm, new_ip):
     return vm[0:IP] + (new_ip,) + vm[IP+1:]
 
 def make_eval_instruction_for_registersize(registersizebits):
-    EVAL_META_TABLE = {
-        256: make_eval_tables_for_register_size(256),
-        128: make_eval_tables_for_register_size(128),
-        64: make_eval_tables_for_register_size(64),
-        32: make_eval_tables_for_register_size(32),
-        16: make_eval_tables_for_register_size(16),
-    }
-
-    EVAL_TABLE = EVAL_META_TABLE[registersizebits]
+    EVAL_TABLE = make_eval_tables_for_register_size(registersizebits)
 
     def eval_instruction(vm, current_instruction):
         vm = increment_vm_perf_count(vm)
@@ -628,15 +617,20 @@ def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
             print_func()
     return next_ip
 
-KNIGHT_INSTRUCTIONS_MODULES = {
-    64: knightinstructions64,
-    32: knightinstructions32,
-    16: knightinstructions16,
-    }
-
 def get_instruction_module_for_registersize(registersizebytes):
-    return KNIGHT_INSTRUCTIONS_MODULES.get(
-        registersizebytes, knightinstructions)
+    # defer the imports to here to only import what's needed and
+    # in case the user opts for unoptimized version
+    if registersizebytes==64:
+        import knightinstructions64
+        return knightinstructions64
+    elif registersizebytes==32:
+        import knightinstructions32
+        return knightinstructions32
+    elif registersizebytes==16:
+        import knightinstructions16
+        return knightinstructions16
+    else:
+        return knightinstructions
 
 def make_eval_tables_for_register_size(registersizebits):
     knightmodule = get_instruction_module_for_registersize(registersizebits)
@@ -800,27 +794,23 @@ assert \
      tuple(sorted(make_eval_tables_for_register_size(0).keys()))
      ) # end expression
 
-eval_instruction_256 = make_eval_instruction_for_registersize(256)
-eval_instruction_128 = make_eval_instruction_for_registersize(128)
-eval_instruction_64 = make_eval_instruction_for_registersize(64)
-eval_instruction_32 = make_eval_instruction_for_registersize(32)
-eval_instruction_16 = make_eval_instruction_for_registersize(16)
+EVAL_INSTRUCTION_FOR_REGISTER_SIZES = {}
 
-EVAL_INSTRUCTION_FOR_REGISTER_SIZES = {
-    256//8: eval_instruction_256, # 32 byte registers
-    128//8: eval_instruction_128, # 16 byte registers
-    64//8: eval_instruction_64,# 8 byte/64bit registers
-    32//8: eval_instruction_32,# 4 byte/32bit registers
-    16//8: eval_instruction_16,# 2 byte/16bit registers
-    }
+def get_eval_instruction_for_register_size(regsize_bytes):
+    global EVAL_INSTRUCTION_FOR_REGISTER_SIZES
+    if regsize_bytes not in EVAL_INSTRUCTION_FOR_REGISTER_SIZES:
+        EVAL_INSTRUCTION_FOR_REGISTER_SIZES[regsize_bytes] = \
+            make_eval_instruction_for_registersize(regsize_bytes*8)
+    return EVAL_INSTRUCTION_FOR_REGISTER_SIZES[regsize_bytes]
 
 def eval_instruction(vm, current_instruction):
-    return EVAL_INSTRUCTION_FOR_REGISTER_SIZES[vm[REG].itemsize](
+    return get_eval_instruction_for_register_size(vm[REG].itemsize)(
         vm, current_instruction)
 
 def make_read_and_eval_for_registersize(registersizebits):
-    eval_instruction_specific_bit = EVAL_INSTRUCTION_FOR_REGISTER_SIZES.get(
-        registersizebits//8, eval_instruction) # default to generic version
+    global EVAL_INSTRUCTION_FOR_REGISTER_SIZES
+    eval_instruction_specific_bit = get_eval_instruction_for_register_size(
+        registersizebits//8)
     def read_and_eval(vm):
         vm = eval_instruction_specific_bit(vm, read_instruction(vm))
         if vm==None or vm[IP]==None:
@@ -831,22 +821,17 @@ def make_read_and_eval_for_registersize(registersizebits):
         return vm
     return read_and_eval
 
-read_and_eval256 = make_read_and_eval_for_registersize(256)
-read_and_eval128 = make_read_and_eval_for_registersize(128)
-read_and_eval64 = make_read_and_eval_for_registersize(64)
-read_and_eval32 = make_read_and_eval_for_registersize(32)
-read_and_eval16 = make_read_and_eval_for_registersize(16)
+READ_AND_EVAL_TABLE = {}
 
-READ_AND_EVAL_TABLE = {
-    256//8: read_and_eval256,
-    128//8: read_and_eval128,
-    64//8: read_and_eval64,
-    32//8: read_and_eval32,
-    16//8: read_and_eval16,
-}
+def get_read_and_eval_for_register_size(regsize_bytes):
+    global READ_AND_EVAL_TABLE
+    if regsize_bytes not in READ_AND_EVAL_TABLE:
+        READ_AND_EVAL_TABLE[regsize_bytes] = \
+            make_read_and_eval_for_registersize(regsize_bytes*8)
+    return READ_AND_EVAL_TABLE[regsize_bytes]
 
 def read_and_eval(vm):
-    return READ_AND_EVAL_TABLE[vm[REG].itemsize](vm)
+    return get_read_and_eval_for_register_size(vm[REG].itemsize)(vm)
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)
