@@ -20,8 +20,18 @@
 from __future__ import division # prevent use of "/" in the old way
 
 from knightinstructions import *
+from knightinstructions_bit_optimized import make_nbit_optimized_functions
 
-def TRUE(vm, c):
-    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
-    register_file[reg0] = MAX_64_UNSIGNED
-    return next_ip
+nbit_optimized_dict = make_nbit_optimized_functions(64)
+
+# 1 OP
+TRUE = nbit_optimized_dict['TRUE_64']
+
+
+# 3 OP
+CMP = nbit_optimized_dict['CMP_64']
+JUMP_P = nbit_optimized_dict['JUMP_P_64']
+
+
+# 1 OP immediate
+JUMP_NP = nbit_optimized_dict['JUMP_NP_64']

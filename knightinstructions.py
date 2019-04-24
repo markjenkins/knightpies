@@ -56,8 +56,6 @@ assert prove_8_bits_per_array_byte()
 
 MAX_16_SIGNED = 2**15-1
 MAX_16_UNSIGNED = 2**16-1
-MAX_32_UNSIGNED = 2**32-1
-MAX_64_UNSIGNED = 2**64-1
 
 def twos_complement_conversion_w_mask(input_value, mask):
     # this is a modified version of
@@ -75,7 +73,6 @@ def make_twos_complement_converter(num_bits):
     return twos_complement
 
 sixteenbit_twos_complement = make_twos_complement_converter(16)
-thirtytwobit_twos_complement = make_twos_complement_converter(32)
 
 def interpret_sixteenbits_as_signed(value):
     if value > MAX_16_SIGNED: # would value & 0x8000 be a faster sign test?

@@ -20,13 +20,24 @@
 from __future__ import division # prevent use of "/" in the old way
 
 from knightinstructions import *
+from knightinstructions_bit_optimized import make_nbit_optimized_functions
+
+nbit_optimized_dict = make_nbit_optimized_functions(16)
+
+# 1 OP
 
 # We don't need to mess around with sign extension for 16 bit LOADI,
 # when copying a signed 16 bit value stored as a 16 bit unsigned into a
 # 16 bit unsigned register, we just copy the bits like generic LOADUI does
 LOADI = LOADUI
 
-def TRUE(vm, c):
-    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
-    register_file[reg0] = MAX_16_UNSIGNED
-    return next_ip
+TRUE = nbit_optimized_dict['TRUE_16']
+
+
+# 3 OP
+CMP = nbit_optimized_dict['CMP_16']
+
+
+# 1 OP immediate
+JUMP_P = nbit_optimized_dict['JUMP_P_16']
+JUMP_NP = nbit_optimized_dict['JUMP_NP_16']
