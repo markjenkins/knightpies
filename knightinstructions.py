@@ -598,7 +598,20 @@ def SUBI(vm, c):
     pass
 
 def SUBUI(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    # subtract and use a bitmask for register_file.itemsize*8 bits
+    # to match the register size. A negative result from the subtraction
+    # is no problem as negative numbers of type long (2.x) or int (3.x)
+    # have infinite 1 bits available for bitwise operations
+    # https://wiki.python.org/moin/BitwiseOperators
+    # in python 2.2-2.7 the graduation from int (precision of c long type) to
+    # infinite precision long happens automatically as the mask
+    # operand that will force up promotion when register_file.itemsize matches
+    # the c long
+    register_file[reg0] = (register_file[reg1] - raw_immediate) & \
+                          ( (1<<register_file.itemsize*8)-1)
+    return next_ip
 
 def CMPI(vm, c):
     pass
