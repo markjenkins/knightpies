@@ -666,10 +666,18 @@ def JUMP_L(vm, c):
     pass
 
 def JUMP_Z(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    if 0==register_file[reg0]:
+        return next_ip + raw_immediate
+    else:
+        return next_ip
 
 def JUMP_NZ(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    if 0!=register_file[reg0]:
+        return next_ip + raw_immediate
+    else:
+        return next_ip
 
 def JUMP_P(vm, c):
     register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
