@@ -768,7 +768,7 @@ def CMPSKIPUI_L(vm, c):
 # 0 OP integer immediate
 
 def JUMP(vm, c):
-    pass
+    return c[NEXTIP]+c[RAW_IMMEDIATE]
 
 
 # HAL_CODES
