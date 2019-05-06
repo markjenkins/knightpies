@@ -251,11 +251,20 @@ def get_args_for_3OP(vm, c):
             c[I_REGISTERS][0], c[I_REGISTERS][1], c[I_REGISTERS][2],
             c[NEXTIP])
 
-def ADD(vm, c):
-    pass
-
 def ADDU(vm, c):
-    pass
+    registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    registerfile[reg0] = (
+        (registerfile[reg1] + registerfile[reg2]) &
+        ( (1<<(registerfile.itemsize*8)) -1 ) )
+    return next_ip
+
+# for ADD, vm_instructions.c worries about values being signed and
+# stuff, but I think the idea of twos complement integers is that stuff
+# gets sorted out when we do addition and we just have to mask out the
+# overflow bits (which ADDU does anyway because we need to fit in the
+# destination register)
+# testing needed to validate
+ADD = ADDU
 
 def SUB(vm, c):
     pass
