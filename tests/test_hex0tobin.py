@@ -64,9 +64,8 @@ class TestStage0Monitorexecute(TestHex0Common):
         grow_memory(vm, self.stack_end)
         execute_vm(vm, optimize=self.optimize, halt_print=False)
         input_file_fd.close()
-        tape_file = open(tape_01_temp_file_path, 'rb')
-        checksum = sha256(tape_file.read())
-        tape_file.close()
+        with open(tape_01_temp_file_path, 'rb') as tape_file:
+            checksum = sha256(tape_file.read())
         unlink(tape_01_temp_file_path)
         unlink(tape_02_temp_file_path)
 
