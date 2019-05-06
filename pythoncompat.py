@@ -66,9 +66,24 @@ else:
         return open(filename, 'rb')
 
     def get_binary_mode_stdout():
-        # not technically in binary mode, but our python2 compatible
-        # write_byte function won't care about encoding and will write whatever
-        # the non-unicode string from chr(byte_write) co-responds to
+        # okay, so sys.stdout is not technically in binary mode in python2
+        # sys.stdout.encoding might be UTF8, None, or something else
+        # the most common cases are us running code interactivly
+        # that only outputs ascii characters (always valid 1 byte UTF8)
+        # or stdout directed to a file or pipe in which case
+        # sys.stdout.encoding will be None and almost every byte passes
+        # through unharmed
+        #
+        # the exception is the translation of new line characters on platforms
+        # like Windows, so the below windows fragment hopefully helps, and
+        # everything else is unix-like and python is chill
+        # [okay, except python on classic MacOS (pre OS X 10.0) ]
+        #
+        # key thing is our python2 compatible write_byte function won't care
+        # and throw errors
+        if sys.platform == "win32":
+            import os, msvcrt
+            msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
         return sys.stdout
 
     def write_byte(fd, byte_write):
