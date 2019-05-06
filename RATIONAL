@@ -1,0 +1,76 @@
+My interest in implementing Knight ISA in Python is two fold:
+ * As an educational exercise to further my understanding of the https://bootstrappable.org effort and how to simulate a register machine.
+
+ * Leverage the amazing work of stage0 [0] and mes [1] to bootstrap the free world from platforms where a C compiler or Scheme is not available or trusted, but where Python is available. This includes
+ i) 16+ years of GNU/Linux pressed installer discs that are still out there with python 2.2+ but absent gcc
+
+ii) computers that shipped direct from the manufacturer with the above functionality
+
+ and
+
+iii) Macintoshes from Mac OS X 10.2 and later that came with Python 2.2+
+
+To become a bootstrap pathway, the effort [2] to rewrite mes in M2 [3] needs to be completed. This would only work on x86 systems compatible with stage0/stage1/cc_x86 and mescc-tools [4].
+
+To support more exotic platforms such as 32 bit PowerPC Macintoshes, SPARC or MIPS without having to add architecture support to mescc and M2-Planet, and executable format/linker support to mescc-tools, I would need to either write stage0/stage2/cc_knight.s (M2 compiler written in knight ISA targeting knight ISA) or write a M2 to Knight ISA compiler so as to have a way of compiling M2-Planet to Knight ISA.
+
+But I don't expect the performance of interpreting a Knight ISA build of mescc (c compiler written in Scheme) in Python on an exotic old computer to be acceptable, even for a patient, one-time escape to the free world.
+
+This may inspire my next bootstrap project, to port a Scheme compiler that compiles to stack-based virtual machines (easier than targeting register machines). Possible targets:
+ * cpython bytecode [4] [5] [6]
+ * JVM bytecode [7] [8] [9]
+ * .Net CLR bytecode [10]
+ * Write a simple bytecode interpreter in M2
+
+I'm going to see what I can learn from Kawa [11]. Let me know if there are other Scheme compilers targeting stack machines that I should look at.
+
+Once I can run mescc one way or another, I'd like to enable a quick escape to the free world. My idea, use mescc to build tccboot [12] [13] (which is for x86) using the mes modified tcc [14]. I could then move that to a compatible old x86 machine, have tccboot compile linux 2.4 on boot and have that execute a userland (built by mescc) where tcc-i386 is guided to bootstrap more. (including a GCC cross compiler targeting my original exotic equipment)
+
+Implementing Knight ISA in Python will have also have a benefit to users of other implementations like the the original in C. The test suite (knighttests) already provides empirical evidence that the well commented blob stage0_monitor.hex0 behaves as promised, as the results it produces are bit identical with those produced by hex0tobin.py. (a gold standard audit is still checking by hand the assemblly of stage0_monitor.s to hex0).  Subsequent releases will demonstrate the same for stage1_assembler-0.hex0 and stage1_assembler-1.hex0. This testing could be further enhanced by using the technique of fuzzing [15]. These techniques could be extended to test hex1 files and so on.
+
+
+-----
+A final note. Why is testing IronPython compatibility on my TODO? IronPython on Windows is interesting from a diverse double-compiling [16] perspective as IronPython is implemented in C# and I imagine the .Net CLR interpreter on Windows was built with Microsoft's C compiler and does not have GCC in its build heritage.
+
+
+Footnotes
+[0] https://github.com/oriansj/stage0
+
+[1] https://www.gnu.org/software/mes/
+
+[2] https://github.com/oriansj/mes-m2
+
+[3] https://github.com/oriansj/m2-planet
+
+[4] https://github.com/oriansj/mescc-tools
+
+[4] https://docs.python.org/3/library/dis.html
+
+[5] https://opensource.com/article/18/4/introduction-python-bytecode
+
+[6] https://leanpub.com/insidethepythonvirtualmachine/read
+
+[7] https://en.wikipedia.org/wiki/Java_bytecode
+
+[8] https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings
+
+[9] https://docs.oracle.com/javase/specs/jvms/se8/html/index.html
+
+[10] https://en.wikipedia.org/wiki/Common_Language_Runtime
+
+[11] https://www.gnu.org/software/kawa/
+
+[12] https://bellard.org/tcc/tccboot.html
+
+[13] https://github.com/seyko2/tccboot
+
+[14] https://gitlab.com/janneke/tinycc , see mes and wip-bootstrapable branches
+
+[15] https://en.wikipedia.org/wiki/Fuzzing
+
+[16] Diverse-Double Compiling, David A. Wheeler, https://dwheeler.com/trusting-trust/
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.

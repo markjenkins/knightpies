@@ -1,0 +1,9 @@
+0.1 -- 2019-05-04
+- Enough instructions implemented to interpret stage0_monitor
+- An initial test suite exercising above, including
+ * Parallel execution with the original C knightvm with comparison of state and output
+ * Our own implementation of hex0 file encoding and this is compared against published stage0 SHA256SUMS and execution of stage0_monitor on additional hex0 files from stage0 project
+- Git sub-module reference to stage0 Release_0.2.0
+  (2988d0e3913f9767b2026ccb95df55ec303576f3)
+
+

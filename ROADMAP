@@ -1,0 +1,99 @@
+* items are implemented, but under tested by the current test suite 
+
+0.2
+ - Implement enough instructions to execute stage1_assembler-0.hex0
+* FOPEN_READ (this will test)
+CMPSKIPI.GE
+CMPSKIPI.G
+CMPSKIPI.E
+* ADD
+SWAP
+
+0.2.5
+ - Implement enough instructions to execute stage1_assembler-1.hex0
+NOT
+ADDUI
+STOREX16
+*REWIND
+LOADXU16
+SUB
+SARI
+JSR_COROUTINE
+
+0.3
+ - Implement enough instructions to execute stage1/stage1_assembler-2.hex1
+   (use it to assemble stage1/M0-macro.hex2 and stage1/SET.hex2)
+READSCID
+SL0
+COPY
+STOREX
+STORE
+MOVE
+SARI
+PUSHR
+STORE8
+POPR
+LOADX
+
+0.4
+ - Implement enough instructions to execute stage1/M0-macro.hex2
+   (use it to assemble all .s files)
+STORE32
+LOADXU8
+*CMP
+LOAD32
+LOAD8
+SR0I
+CMPSKIPI.L
+MUL
+SUBI
+ADDU
+
+0.4.5
+ - Test by assembling and executing stage0/stage1/CAT.s
+
+0.5.0
+ - Implement enough instructions to execute stage0/stage2/forth.s
+   (load stage0/stage3/inital_library.fs)
+HAL_MEM
+CMPSKIP.GE
+DIV
+SAL
+SAR
+CMPSKIP.E
+CMPSKIP.G
+OR
+AND
+LOAD
+CMPJUMPI.LE
+NEG
+* JUMP.NZ
+
+0.6
+ - Implement enough instructions to execute stage0/stage2/lisp.s
+ (load stage0/stage3/ascension.scm)
+[instruction TODO list here]
+
+0.7
+ - Implement all knightvm instructions used by stage2/cc_x86.s
+ use it to build all stage0/stage3 c programs
+[instruction TODO list here]
+
+0.8
+ - Implement all knightvm instructions emitted by M2 planet (and make full use of its test suite)
+[instruction TODO list here]
+
+1.0
+ - Implement all knightvm instructions found in stage0/vm_instructions.c
+
+Other TODOS prior to 1.0
+ * Adding substantial comments, especially for the meta-programming
+ * Convert further to a pseudo functional style so get_args_for_*OP functions can go away
+ * Separate directly executable Python files from the rest, move library modules to a knightpy package
+ * Adopting a compliant file system layout that could make this mergable with stage0
+ * Performance test premature optimizations
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.

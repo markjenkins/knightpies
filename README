@@ -1,0 +1,59 @@
+A Python implementation of the Knight instruction architecture found in Jeremiah Orians' stage0 project:
+https://github.com/oriansj/stage0
+
+knightpies is licensed under GNU GPL v3 or later, see LICENSE
+
+Currently incomplete, knightpies can only run the instructions used by the stage0_monitor program. See ROADMAP for the plans to add more on the pathway to a 1.0 release and to full compatibility with stage0/vm_instructions.c. Patches and pull requests targeting that order of attack are most welcome.
+
+See RATIONAL for why I'm writing this.
+
+Attempts have been made to remain compatible with Python 2.2 and later in the main code and Python 3.2 and later in the test suite. I'm interested in remaining compatible with PyPy (pypy.org) and IronPython (ironpython.net) (see RATIONAL) as well. These compatibility goals hasn't been tested yet.
+
+Programs you can invoke:
+
+$ ./hex0tobin.py
+Takes a hex0 file (first argument) and encodes the parts in hex into a binary output file (second argument), ignoring comments
+
+$ ./knightvm_minimal.py
+This is largely compatible with stage0/vm_minimal.c, accepting a Knight rom binary file as its first argument and acting upon tape_01 and tape_02 files in the current working directory. The only difference is that an additional --rom-hex argument (after the file name, not before) can be provided if the rom is in the hex0 format of the stage0 project.
+Example invocations:
+$ ./knightvm_minimal.py stage0_monitor
+$ ./knightvm_minimal.py stage0/stage0/stage0_monitor.hex0 --rom-hex
+
+At this stage, invocation is better illustrated by the test suite, which doesn't rely on the limitations of knightvm_minimal.main and instead directly calls relevant functions to set up knight ISA tape IO.
+
+The test suite (knighttests) relies upon the stage0 code base. Revision 2988d0e3913f9767b2026ccb95df55ec303576f3 (Release_0.2.0) of the stage0 project is referenced as a git submodule, you can bring that up with git submodule [1] commands
+$ git submodule init
+$ git submodule update
+https://git-scm.com/book/en/v2/Git-Tools-Submodules
+
+You can also supply your own copy of the stage0 code instead of using the submodule feature. If you want to use stage0 from another directory, you could make a symlink or stage0dir.py allows you to specify another location.
+
+You can run individual test cases with
+$ python3 -m knighttests.test_module_name
+or
+$ ./runtestmodule.py knighttests/test_module.py
+direct invocation of some of the test files does not work.
+
+Run the entire test suite with
+$ ./run_tests.sh
+add -v for verbose output
+
+The most interesting test is
+python3 -m knighttests.test_parallel_execution
+which takes advantage of stage0/User_Interface.py and stage0/wrapper.c to run our python implementation and the original C implementation in parallel, comparing the respective registers and program memory after every instruction is run.
+
+This requires libvm.so from stage0 to be built:
+$ cd stage0
+$ make libvm.so
+$ cd ../
+$ ln -s stage0/libvm.so libvm.so
+$ python3 -m knighttests.test_parallel_execution
+
+-- Mark Jenkins <mark@markjenkins.ca>
+
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
