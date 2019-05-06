@@ -777,7 +777,12 @@ def SARI(vm, c):
     pass
 
 def SL0I(vm, c):
-    pass
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    register_file[reg0] = (
+        (register_file[reg0]<<raw_immediate) &
+        (1<<(register_file.itemsize*8)-1) # (2**itemsize*8)-1, max unsigned
+    ) # end expression
+    return next_ip
 
 def SR0I(vm, c):
     pass

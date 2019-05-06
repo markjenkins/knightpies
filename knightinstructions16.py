@@ -69,3 +69,8 @@ def CALLI(vm, c):
     register_file[reg0] += register_file.itemsize # Update our index
 
     return next_ip + raw_immediate # Update PC
+
+def SL0I(vm, c):
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    register_file[reg0] = (register_file[reg0]<<raw_immediate) & 0xFFFF
+    return next_ip
