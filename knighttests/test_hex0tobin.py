@@ -35,10 +35,10 @@ ADDITIONAL_SHA256SUMS = [
 
 class TestHex0Common(TestCase):
     def setUp(self):
-        stage0hex0fd = open( STAGE_0_MONITOR_HEX_FILEPATH )
         self.stage0_bin_fd = BytesIO()
-        write_binary_filefd_from_hex0_filefd(stage0hex0fd, self.stage0_bin_fd)
-        stage0hex0fd.close()
+        with open( STAGE_0_MONITOR_HEX_FILEPATH ) as stage0hex0fd:
+            write_binary_filefd_from_hex0_filefd(
+                stage0hex0fd, self.stage0_bin_fd)
 
     def tearDown(self):
         self.stage0_bin_fd.close()
