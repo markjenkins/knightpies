@@ -33,6 +33,23 @@ LOADI = LOADUI
 
 TRUE = nbit_optimized_dict['TRUE_16']
 
+def RET(vm, c):
+    mem, register_file, reg0, next_ip_discard = get_args_for_1OP(vm, c)
+    reg_size = register_file.itemsize
+
+    # Update our index
+    address_of_pc_on_stack = register_file[reg0] - reg_size
+    register_file[reg0] = address_of_pc_on_stack
+
+    # Read in the new PC
+    # big endian, least significant byte is most significant bits
+    next_ip = (mem[address_of_pc_on_stack]<<8 +
+               mem[address_of_pc_on_stack+1] )
+
+    # Clear Stack Values
+    mem[address_of_pc_on_stack], mem[address_of_pc_on_stack+1] = 0,0
+
+    return next_ip
 
 # 3 OP
 CMP = nbit_optimized_dict['CMP_16']
