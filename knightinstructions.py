@@ -549,7 +549,7 @@ def JSR_COROUTINE(vm, c):
     pass
 
 def RET(vm, c):
-    mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    mem, register_file, reg0, next_ip_discard = get_args_for_1OP(vm, c)
     reg_size = register_file.itemsize
 
     # Update our index
