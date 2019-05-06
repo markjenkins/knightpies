@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from unittest import TestCase
 from io import BytesIO
 from hashlib import sha256
@@ -11,7 +9,7 @@ from knightdecode import create_vm
 from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 from constants import MEM
 
-from tempfile import mktemp
+from .util import get_closed_named_temp_file
 
 STACK_START = 0x600
 STACK_SIZE = 8
@@ -52,9 +50,9 @@ class TestStage0Monitorexecute(TestHex0Common):
     def test_execute_hex_load(self):
         output_mem_buffer = BytesIO()
         input_file_fd = open(
-            get_stage0_file("stage0/stage0_monitor.hex0"), 'rb')
-        tape_01_temp_file_path = mktemp() # deprecated due to security issues
-        tape_02_temp_file_path = mktemp() # deprecated due to security issues
+            get_stage0_file(STAGE_0_MONITOR_HEX_FILEPATH), 'rb')
+        tape_01_temp_file_path = get_closed_named_temp_file()
+        tape_02_temp_file_path = get_closed_named_temp_file()
         vm = create_vm(
             size=0, registersize=self.registersize,
             tapefile1=tape_01_temp_file_path, tapefile2=tape_02_temp_file_path,
@@ -98,7 +96,5 @@ if __name__ == '__main__':
     # $ ./runtestmodule.py knighttests/test_hex0tobin.py
     #
     # direct invocation like ./test_hex0tobin.py will not work
-    # PYTHONPATH=. ./knighttests/test_hex0tobin.py still works
-    # but don't count on it staying that way
     from unittest import main
     main()
