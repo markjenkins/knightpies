@@ -1,0 +1,25 @@
+Greetings,
+
+I've started to implement the Knight ISA in Python:
+https://github.com/markjenkins/knightpies
+https://github.com/markjenkins/knightpies.git
+
+I've tagged and signed "knightpies-0.1.1" which is able to emulate the instructions used by stage0/stage0/stage0_monitor.hex0 and not much else.
+
+I have a test suite that is able to run libvm.so/User Interface.py from stage0 in parallel with my implementation, comparing the registers and memory as it goes.
+
+After I started this project in its own repository, I realized that alternative implementations were welcome in stage0 itself. If there's interest, I'll rework my directory structure to be compatible with stage0's before my 1.0 milestone (implement everything stage0/vm_instructions.c does) and we can either merge the two histories together or just copy my code and I'll turn my stand alone repo to archival mode.
+
+Because my test suite references stage0 files, I use the git submodule feature to reference the specific revision of stage0 that I tested against. I've love to see more people use git submodule to document cross repo dependencies and exact versions tested against.
+
+More words:
+https://raw.githubusercontent.com/markjenkins/knightpies/knightpies-0.1.1/README
+https://raw.githubusercontent.com/markjenkins/knightpies/knightpies-0.1.1/RATIONAL
+https://raw.githubusercontent.com/markjenkins/knightpies/knightpies-0.1.1/ROADMAP
+
+Thanks for the inspirational hacking folks. I believe full source bootstrapping is a check on the prospect of totalitarian computing -- and worthwhile no matter how remote that possibility seems.
+
+In such a world, you can't even trust a binary from a friend who says they built it on a system they themselves fully bootstrapped, as even neighbors end up pitted against each other when humanity is at its worst. There's something to be said for the fact that "trust but verify" is a Russian proverb.
+
+
+Mark Jenkins 
