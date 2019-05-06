@@ -753,8 +753,13 @@ def make_two_either_condition_bit_jump(condition_mask1, condition_mask2):
 JUMP_GE = make_two_either_condition_bit_jump(CONDITION_BIT_GT, CONDITION_BIT_EQ)
 JUMP_LE = make_two_either_condition_bit_jump(CONDITION_BIT_LT, CONDITION_BIT_EQ)
 
-def JUMP_NE(*args):
-    return not JUMP_E(*args)
+def JUMP_NE(vm, c):
+    mem, register_file, reg0, raw_immediate, next_ip = \
+        get_args_for_1OPI(vm, c)
+    if register_file[reg0] & CONDITION_BIT_EQ:
+        return next_ip
+    else: # CONDITION_BIT_EQ not set
+        return next_ip + raw_immediate
 
 def JUMP_Z(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
