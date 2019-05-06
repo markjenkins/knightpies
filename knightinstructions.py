@@ -638,32 +638,45 @@ def CMPJUMPUI_L(vm, c):
 def get_args_for_1OPI(vm, c):
     return vm[REG], c[I_REGISTERS][0], c[RAW_IMMEDIATE], c[NEXTIP]
 
-def JUMP_C(vm, c):
-    pass
+def make_condition_bit_jump(condition_mask):
+    def JUMP_condition(vm, c):
+        register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+        if register_file[reg0] & condition_bit_mask:
+            return next_ip + raw_immediate
+        else:
+            return next_ip
+    return JUMP_condition
 
-def JUMP_B(vm, c):
-    pass
+JUMP_C = make_condition_bit_jump(CONDITION_BIT_C)
+JUMP_B = make_condition_bit_jump(CONDITION_BIT_B)
+JUMP_O = make_condition_bit_jump(CONDITION_BIT_O)
+JUMP_G = make_condition_bit_jump(CONDITION_BIT_GT)
+JUMP_E = make_condition_bit_jump(CONDITION_BIT_EQ)
+JUMP_L = make_condition_bit_jump(CONDITION_BIT_LT)
 
-def JUMP_O(vm, c):
-    pass
+def make_two_either_condition_bit_jump(condition_mask1, condition_mask2):
+    combined_mask = condition_mask1 | condition_mask2
+    def JUMP_two_condition(vm, c):
+        register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+        # how vm_instructions.c (stage0) does this
+        # if (register_file[reg0] & condition_mask1 or
+        #     register_file[reg0] & condition_mask2):
+        #     return next_ip + raw_immediate
+        # else:
+        #     return next_ip
 
-def JUMP_G(vm, c):
-    pass
+        # I haven't tested it, but I assume this is faster?
+        if register_file[reg0] & combined_mask
+            return next_ip + raw_immediate
+        else:
+            return next_ip
+    return JUMP_two_condition
 
-def JUMP_GE(vm, c):
-    pass
+JUMP_GE = make_two_either_condition_bit_jump(CONDITION_BIT_GT, CONDITION_BIT_EQ)
+JUMP_LE = make_two_either_condition_bit_jump(CONDITION_BIT_LT, CONDITION_BIT_EQ)
 
-def JUMP_E(vm, c):
-    pass
-
-def JUMP_NE(vm, c):
-    pass
-
-def JUMP_LE(vm, c):
-    pass
-
-def JUMP_L(vm, c):
-    pass
+def JUMP_NE(*args):
+    return not JUMP_E(*args)
 
 def JUMP_Z(vm, c):
     register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
