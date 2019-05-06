@@ -819,10 +819,11 @@ def SARI(vm, c):
 
 def SL0I(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
-    register_file[reg0] = (
-        (register_file[reg0]<<raw_immediate) &
-        (1<<(register_file.itemsize*8)-1) # (2**itemsize*8)-1, max unsigned
-    ) # end expression
+    mask = (1<<(register_file.itemsize*8))-1 # (2**itemsize*8)-1, max unsigned
+    assert( (2**(register_file.itemsize*8))-1 == mask )
+    
+    register_file[reg0] = (register_file[reg0]<<raw_immediate) & mask
+
     return next_ip
 
 def SR0I(vm, c):
