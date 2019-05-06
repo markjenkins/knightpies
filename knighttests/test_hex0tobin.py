@@ -49,21 +49,24 @@ class TestStage0Monitorexecute(TestHex0Common):
 
     def test_execute_hex_load(self):
         output_mem_buffer = BytesIO()
-        input_file_fd = open(
-            get_stage0_file(STAGE_0_MONITOR_HEX_FILEPATH), 'rb')
         tape_01_temp_file_path = get_closed_named_temp_file()
         tape_02_temp_file_path = get_closed_named_temp_file()
-        vm = create_vm(
-            size=0, registersize=self.registersize,
-            tapefile1=tape_01_temp_file_path, tapefile2=tape_02_temp_file_path,
-            stdin=input_file_fd,
-            stdout=output_mem_buffer,
-        )
-        load_hex_program(vm, STAGE_0_MONITOR_HEX_FILEPATH)
-        self.assertEqual( self.stage0_bin_fd.getbuffer(), vm[MEM].tobytes() )
-        grow_memory(vm, self.stack_end)
-        execute_vm(vm, optimize=self.optimize, halt_print=False)
-        input_file_fd.close()
+        
+        with open(get_stage0_file(
+                STAGE_0_MONITOR_HEX_FILEPATH), 'rb') as input_file_fd:
+            vm = create_vm(
+                size=0, registersize=self.registersize,
+                tapefile1=tape_01_temp_file_path,
+                tapefile2=tape_02_temp_file_path,
+                stdin=input_file_fd,
+                stdout=output_mem_buffer,
+            )
+            load_hex_program(vm, STAGE_0_MONITOR_HEX_FILEPATH)
+            self.assertEqual( self.stage0_bin_fd.getbuffer(),
+                              vm[MEM].tobytes() )
+            grow_memory(vm, self.stack_end)
+            execute_vm(vm, optimize=self.optimize, halt_print=False)
+
         with open(tape_01_temp_file_path, 'rb') as tape_file:
             checksum = sha256(tape_file.read())
         unlink(tape_01_temp_file_path)
