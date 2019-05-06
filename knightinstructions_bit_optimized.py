@@ -21,7 +21,7 @@ from __future__ import division # prevent use of "/" in the old way
 
 from knightinstructions import \
     make_twos_complement_converter, sixteenbit_twos_complement, \
-    set_comparison_flags, \
+    interpret_sixteenbits_as_signed, set_comparison_flags, \
     MAX_16_SIGNED, MAX_16_UNSIGNED, \
     get_args_for_1OP, get_args_for_3OP, get_args_for_1OPI
 
