@@ -797,9 +797,13 @@ def get_eval_instruction_for_register_size(regsize_bytes):
             make_eval_instruction_for_registersize(regsize_bytes*8)
     return EVAL_INSTRUCTION_FOR_REGISTER_SIZES[regsize_bytes]
 
-def eval_instruction(vm, current_instruction):
-    return get_eval_instruction_for_register_size(vm[REG].itemsize)(
-        vm, current_instruction)
+def eval_instruction(vm, current_instruction, optimize=True):
+    if optimize:
+        return get_eval_instruction_for_register_size(vm[REG].itemsize)(
+            vm, current_instruction)
+    else:
+        return get_eval_instruction_for_register_size(0)(
+            vm, current_instruction)
 
 def make_read_and_eval_for_registersize(registersizebits):
     global EVAL_INSTRUCTION_FOR_REGISTER_SIZES
