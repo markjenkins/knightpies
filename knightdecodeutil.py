@@ -1,5 +1,5 @@
 # A derivitive port of:
-# https://github.com/oriansj/stage0/blob/master/vm_instructions.c
+# https://github.com/oriansj/stage0/blob/master/vm_decode.c
 #
 # Copyright (C) 2019 Mark Jenkins <mark@markjenkins.ca>
 # This file is part of knightpies
