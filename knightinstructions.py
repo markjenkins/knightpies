@@ -25,7 +25,8 @@ from constants import \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \
     TAPE1FILENAME, TAPE2FILENAME, TAPEFD, TAPEFD_I_STDIN, TAPEFD_I_STDOUT, \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
-    RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE
+    RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
+    CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT
 
 from pythoncompat import write_byte
 
@@ -57,6 +58,12 @@ MAX_16_UNSIGNED = 2**16-1
 MAX_32_UNSIGNED = 2**32-1
 MAX_64_UNSIGNED = 2**64-1
 
+def twos_complement_conversion_w_mask(input_value, mask):
+    # this is a modified version of
+    # https://en.wikipedia.org/wiki
+    # /Two%27s_complement#Converting_from_two's_complement_representation
+    return -(input_value & mask) + (input_value & ~mask)
+
 def make_twos_complement_converter(num_bits):
     # this is a modified version of
     # https://en.wikipedia.org/wiki
@@ -72,6 +79,13 @@ thirtytwobit_twos_complement = make_twos_complement_converter(32)
 def interpret_sixteenbits_as_signed(value):
     if value > MAX_16_SIGNED: # would value & 0x8000 be a faster sign test?
         return sixteenbit_twos_complement(value)
+    else:
+        return value
+
+def interpret_nbits_as_signed(value, bits):
+    mask = 2**(bits-1)
+    if value > mask-1: # greater than maximum signed value
+        return twos_complement_conversion_w_mask(value, mask)
     else:
         return value
 
@@ -118,6 +132,14 @@ def next_instruction_size(vm):
 
 def compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
     return register_file[reg0] != raw_immediate
+
+def set_comparison_flags(tmp1, tmp2, registerfile, registerindex):
+    if tmp1 > tmp2:
+        registerfile[registerindex] = CONDITION_BIT_GT
+    elif tmp1 == tmp2:
+        registerfile[registerindex] = CONDITION_BIT_EQ
+    else:
+        registerfile[registerindex] = CONDITION_BIT_LT
 
 # 4 OP integer instructions
 
@@ -184,6 +206,11 @@ def SORTU(vm, c):
 
 # 3 OP integer instructions
 
+def get_args_for_3OP(vm, c):
+    return (vm[REG],
+            c[I_REGISTERS][0], c[I_REGISTERS][1], c[I_REGISTERS][2],
+            c[NEXTIP])
+
 def ADD(vm, c):
     pass
 
@@ -197,10 +224,18 @@ def SUBU(vm, c):
     pass
 
 def CMP(vm, c):
-    pass
+    registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    tmp1 = interpret_nbits_as_signed(registerfile[reg1], N_BITS)
+    tmp2 = interpret_nbits_as_signed(registerfile[reg2], N_BITS)
+    set_comparison_flags(tmp1, tmp2, registerfile, reg0)
+    return next_ip
 
 def CMPU(vm, c):
-    pass
+    registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    set_comparison_flags(
+        registerfile[reg1], registerfile[reg2], registerfile, reg0)
+    return next_ip
 
 def MUL(vm, c):
     pass

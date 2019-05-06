@@ -22,6 +22,18 @@ EXIT_FAILURE = 1
 (OP, RAW, CURIP, NEXTIP, RESTOF, INVALID,
  RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE) = range(12)
 
+Carry = (1 << 5),
+Borrow = (1 << 4),
+Overflow = (1 << 3),
+GreaterThan = (1 << 2),
+EQual = (1 << 1),
+LessThan = 1
+
+(CONDITION_BIT_C, CONDITION_BIT_B, CONDITION_BIT_O,
+ CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT) = [
+     1<<i
+     for i in range(6)]
+
 TAPEFD_I_STDIN, TAPEFD_I_STDOUT = 2, 3
 
 ARRAY_TYPE_UNSIGNED_CHAR = 'B'
