@@ -227,6 +227,16 @@ class Stage0MonitorTests(ParallelExecutionTests):
             get_stage0_file("stage0/stage0_monitor.hex0"),
             get_stage0_file("stage0/stage0_monitor.hex0") )
 
+    def test_stage0_monitor_encoding_stage1_assembler_0(self):
+        self.run_execution_test(
+            get_stage0_file("stage0/stage0_monitor.hex0"),
+            get_stage0_file("stage1/stage1_assembler-0.hex0") )
+
+    def test_stage0_monitor_encoding_stage1_assembler_1(self):
+        self.run_execution_test(
+            get_stage0_file("stage0/stage0_monitor.hex0"),
+            get_stage0_file("stage1/stage1_assembler-1.hex0") )
+
 class Stage0MonitorTestsOptimise(Stage0MonitorTests):
     optimize = True
 
