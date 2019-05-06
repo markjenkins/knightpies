@@ -56,8 +56,8 @@ def prove_8_bits_per_array_byte():
     return False
 assert prove_8_bits_per_array_byte()
 
-MAX_16_SIGNED = 2**15-1
-MAX_16_UNSIGNED = 2**16-1
+MAX_16_SIGNED = (2**15)-1
+MAX_16_UNSIGNED = (2**16)-1
 
 def twos_complement_conversion_w_mask(input_value, mask):
     # this is a modified version of
@@ -89,39 +89,29 @@ def interpret_nbits_as_signed(value, bits):
     else:
         return value
 
-def sign_extend_negative_and_unsign(
-        value, num_bytes=None, num_bits=None, origin_bits=16):
-    assert not (num_bytes==None and num_bits==None)
-    assert value < 0
-    if num_bytes!=None: # num_bits==None
-        num_bits = num_bytes*BITS_PER_BYTE
-    MAX_VALUE = 2**num_bits-1
-    return_value = MAX_VALUE + value + 1
-    assert 0<=return_value  <= MAX_VALUE
-    return return_value
+def sign_extend_16bits_unsign(value):
+    # see comment inside sign_extend_if_negative_and_unsign_bits
+    # on why python's infinite precision of sign bits makes this work
+    return value & 0xFFFF
+
+def sign_extend_if_negative_and_unsign_bits(value, num_bits):
+    mask = (1<<num_bits)-1
+    assert mask == ((2**num_bits)-1)
+    # take advantage of the infinite sign bit precision of negative
+    # integers on python 2.2 and onward by bitwise AND "&" with an
+    # appropriate bitmask. Distinction between int (precision of C long)
+    # and python long (infinite precision) in python 2.2 through 2.7 isn't
+    # a problem her as mask will be a long if num_bits is the number of
+    # bits used by python 2 int and the bitwise AND operation will
+    # automatically up promote
+    # https://wiki.python.org/moin/BitwiseOperators
+    return value & mask
 
 def stuff_int_as_signed_16bit_value_into_register(
         value, register_file, regindex):
-    # Interesting performance TODO, is it faster to not
-    # check the sign bit with the if statement below
-    # or if the simple signless case should come first
-
-    # value is currently in its unsigned form
-    assert 0 <= value <= MAX_16_UNSIGNED
-    register_size_bytes = register_file.itemsize
-
-    # check for sign bit, if found sign extend
-    # value > 2**15-1 and value < 2**16-1
-    # would value & 0x8000 be a faster test for the sign bit?
-    if value > MAX_16_SIGNED:
-        sixteenbit_signed = sixteenbit_twos_complement(value)
-        value_unsigned_and_signextended = \
-            sign_extend_negative_and_unsign(
-                sixteenbit_signed, num_bytes=register_size_bytes )
-        register_file[regindex] = value_unsigned_and_signextended
-    # no conversion necessary if the unsigned value would have no sign bit
-    else:
-        register_file[regindex] = value
+    register_file[regindex] = sign_extend_if_negative_and_unsign_bits(
+        interpret_sixteenbits_as_signed(value),
+        register_file.itemsize*8)
 
 def get_instruction_size(vm, address):
     c = vm[MEM][address]
@@ -968,8 +958,8 @@ def vm_FGETC(vm):
         vm, write_context=False,
         io_device_register=HAL_IO_DEVICE_REGISTER).read(1)
     if len(byte_read)==0:
-        vm[REG][HAL_IO_DATA_REGISTER] = sign_extend_negative_and_unsign(
-            -1, num_bytes=vm[REG].itemsize)
+        vm[REG][HAL_IO_DATA_REGISTER] = \
+            sign_extend_if_negative_and_unsign_bits(-1, vm[REG].itemsize*8)
         assert register_negative(vm[REG], HAL_IO_DATA_REGISTER)
     else:
         assert(len(byte_read)==1)
