@@ -848,7 +848,9 @@ def vm_FGETC(vm):
     byte_read = lookup_fd(vm, write_context=False,
                           io_device_register=1).read(1)
     if len(byte_read)==0:
-        vm[REG][0] = 0
+        vm[REG][0] = sign_extend_negative_and_unsign(
+            -1, num_bytes=vm[REG].itemsize)
+        assert register_negative(vm[REG], 0)
     else:
         vm[REG][0] = ord(byte_read)
 
