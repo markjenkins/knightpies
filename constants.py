@@ -27,6 +27,7 @@ EXIT_FAILURE = 1
      1<<(6-i-1)
      for i in range(6)]
 
+HALT_OP = 0xFF
 HAL_CODE_OP = 0x42
 HAL_CODE_FGETC = 0x100100
 HAL_CODE_FPUTC = 0x100200

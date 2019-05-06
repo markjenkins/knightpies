@@ -36,7 +36,7 @@ from constants import \
     ARRAY_TYPE_UNSIGNED_CHAR, ARRAY_TYPE_UNSIGNED_SHORT, \
     ARRAY_TYPE_UNSIGNED_INT, ARRAY_TYPE_UNSIGNED_INT_LONG, \
     ARRAY_TYPE_UNSIGNED_LONG_LONG, \
-    HAL_CODE_OP, HAL_CODE_FGETC, HAL_CODE_FPUTC
+    HALT_OP, HAL_CODE_OP, HAL_CODE_FGETC, HAL_CODE_FPUTC
 
 from knightdecodeutil import outside_of_world, OutsideOfWorldException
 
@@ -190,7 +190,7 @@ def make_eval_instruction_for_registersize(registersizebits):
             current_instruction = DECODE_TABLE[raw0](vm, current_instruction)
             return vm_with_new_ip(vm,
                                   EVAL_TABLE[raw0](vm, current_instruction) )
-        elif raw0 == 0xFF:  # Deal with HALT
+        elif raw0 == HALT_OP:  # Deal with HALT
             vm = halt_vm(vm)
             print_func(
                 "Computer Program has Halted\nAfter Executing %d instructions"
