@@ -16,6 +16,23 @@ STACK_SIZE = 8
 
 STAGE_0_MONITOR_HEX_FILEPATH = get_stage0_file('stage0/stage0_monitor.hex0')
 
+def get_sha256sum_of_file_after_hex0_encode(filename):
+    with BytesIO() as outputmemfile:
+        with open(filename) as hex0file:
+            write_binary_filefd_from_hex0_filefd(hex0file, outputmemfile)
+            hexdigest = sha256(outputmemfile.getbuffer()).hexdigest()
+    return hexdigest
+
+ADDITIONAL_SHA256SUMS = [
+    (filename,
+     get_sha256sum_of_file_after_hex0_encode( get_stage0_file(filename) ) )
+    for filename in (
+            'stage1/more.hex0',
+            'stage1/dehex.hex0',
+            'Linux Bootstrap/xeh.hex0',
+    ) # end tuple fed to for filename in
+]
+
 class TestHex0Common(TestCase):
     def setUp(self):
         stage0hex0fd = open( STAGE_0_MONITOR_HEX_FILEPATH )
@@ -76,7 +93,9 @@ class TestStage0Monitorexecute(TestHex0Common):
 
         self.assertEqual(
             checksum.hexdigest(),
-            sha256hex )
+            sha256hex,
+            stage0hex0file
+        )
 
     def execute_test_hex_load_published_sha256(
             self, stage0hex0file, sha256sumentry):
@@ -99,6 +118,10 @@ class TestStage0Monitorexecute(TestHex0Common):
             "stage1/stage1_assembler-1.hex0",
             "roms/stage1_assembler-1")
 
+    def test_additional_hex0_files(self):
+        for filename, sha256hexdigest in ADDITIONAL_SHA256SUMS:
+            self.execute_test_hex_load(filename, sha256hexdigest)
+        
 class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
     optimize = True
 
