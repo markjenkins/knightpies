@@ -717,7 +717,7 @@ def make_condition_bit_jump(condition_mask):
     def JUMP_condition(vm, c):
         mem, register_file, reg0, raw_immediate, next_ip = \
             get_args_for_1OPI(vm, c)
-        if register_file[reg0] & condition_bit_mask:
+        if register_file[reg0] & condition_mask:
             return next_ip + raw_immediate
         else:
             return next_ip
