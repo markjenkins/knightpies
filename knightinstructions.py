@@ -573,6 +573,12 @@ def POPPC(vm, c):
 
 # 2 OP integer immediate
 
+def get_args_for_2OPI(vm, c):
+    return (vm[MEM], vm[REG],
+            c[I_REGISTERS][0], c[I_REGISTERS][1],
+            c[RAW_IMMEDIATE], c[NEXTIP],
+            )
+
 def ADDI(vm, c):
     pass
 
@@ -625,7 +631,10 @@ def STORE32(vm, c):
     pass
 
 def ANDI(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    register_file[reg0] = register_file[reg1] & raw_immediate
+    return next_ip
 
 def ORI(vm, c):
     pass
