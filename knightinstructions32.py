@@ -35,3 +35,16 @@ CMP = nbit_optimized_dict['CMP_32']
 # 1 OP immediate
 JUMP_P = nbit_optimized_dict['JUMP_P_32']
 JUMP_NP = nbit_optimized_dict['JUMP_NP_32']
+
+def CALLI(vm, c):
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem_address = register_file[reg0]
+    # big endian
+    mem[mem_address] = next_ip>>24 # most significant byte
+    mem[mem_address+1] = (next_ip>>16) & 0xFF
+    mem[mem_address+2] = (next_ip>>8) & 0xFF
+    mem[mem_address+3] = next_ip & 0xFF # least significant byte
+
+    register_file[reg0] += register_file.itemsize # Update our index
+
+    return next_ip + raw_immediate # Update PC
