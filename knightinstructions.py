@@ -645,11 +645,12 @@ def CMPJUMPUI_L(vm, c):
 # 1 OP integer immediate
 
 def get_args_for_1OPI(vm, c):
-    return vm[REG], c[I_REGISTERS][0], c[RAW_IMMEDIATE], c[NEXTIP]
+    return vm[MEM], vm[REG], c[I_REGISTERS][0], c[RAW_IMMEDIATE], c[NEXTIP]
 
 def make_condition_bit_jump(condition_mask):
     def JUMP_condition(vm, c):
-        register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+        mem, register_file, reg0, raw_immediate, next_ip = \
+            get_args_for_1OPI(vm, c)
         if register_file[reg0] & condition_bit_mask:
             return next_ip + raw_immediate
         else:
@@ -666,7 +667,8 @@ JUMP_L = make_condition_bit_jump(CONDITION_BIT_LT)
 def make_two_either_condition_bit_jump(condition_mask1, condition_mask2):
     combined_mask = condition_mask1 | condition_mask2
     def JUMP_two_condition(vm, c):
-        register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+        mem, register_file, reg0, raw_immediate, next_ip = \
+            get_args_for_1OPI(vm, c)
         # how vm_instructions.c (stage0) does this
         # if (register_file[reg0] & condition_mask1 or
         #     register_file[reg0] & condition_mask2):
@@ -688,35 +690,35 @@ def JUMP_NE(*args):
     return not JUMP_E(*args)
 
 def JUMP_Z(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if 0==register_file[reg0]:
         return next_ip + raw_immediate
     else:
         return next_ip
 
 def JUMP_NZ(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if 0!=register_file[reg0]:
         return next_ip + raw_immediate
     else:
         return next_ip
 
 def JUMP_P(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if register_negative(register_file, reg0):
         return next_ip
     else:
         return next_ip + raw_immediate
 
 def JUMP_NP(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if register_negative(register_file, reg0):
         return next_ip + raw_immediate
     else:
         return next_ip
 
 def CALLI(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     reg_size = register_file.itemsize
     # Write out the PC
     writeout_bytes(vm, register_file[reg0], next_ip, reg_size)
@@ -727,13 +729,13 @@ def CALLI(vm, c):
 
 def LOADI(vm, c):
     # 16 bit version just uses LOADUI
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     stuff_int_as_signed_16bit_value_into_register(
         raw_immediate, register_file, reg0)
     return next_ip
 
 def LOADUI(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     register_file[reg0] = raw_immediate
     return next_ip
 
@@ -798,7 +800,7 @@ def CMPSKIPI_E(vm, c):
     pass
 
 def CMPSKIPI_NE(vm, c):
-    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
         return next_ip + get_instruction_size(vm, next_ip)
     else:

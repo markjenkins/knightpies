@@ -72,14 +72,16 @@ def make_nbit_optimized_functions(nbits):
     # 1 OP immediate
 
     def JUMP_P_N_BITS(vm, c):
-        register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+        mem, register_file, reg0, raw_immediate, next_ip = \
+            get_args_for_1OPI(vm, c)
         if register_nbit_negative(register_file, reg0):
             return next_ip
         else: # positive
             return next_ip + raw_immediate
 
     def JUMP_NP_N_BITS(vm, c):
-        register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+        mem, register_file, reg0, raw_immediate, next_ip = \
+            get_args_for_1OPI(vm, c)
         if register_nbit_negative(register_file, reg0):
             return next_ip + raw_immediate
         else: # positive
