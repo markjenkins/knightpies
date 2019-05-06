@@ -33,6 +33,14 @@ if sys.version_info[0] >= 3:
 
     def open_ascii(filename):
         return open(filename, encoding='ascii')
+
+    def get_binary_mode_stdout():
+        return sys.stdout.buffer
+
+    def write_byte(fd, byte_write):
+        value_to_write = bytes( (byte_write,) )
+        fd.write(value_to_write)
+
 else:
     def print_func(*args, **kargs):
         sep = kargs.get('sep', " ")
@@ -57,12 +65,14 @@ else:
         # making the two implementations of open_ascii incompatible
         return open(filename, 'rb')
 
-def write_byte(fd, byte_write):
-    if sys.version_info[0] >= 3:
-        value_to_write = bytes( (byte_write,) )
-    else:
-        value_to_write = chr(byte_write)
-    fd.write(value_to_write)
+    def get_binary_mode_stdout():
+        # not technically in binary mode, but our python2 compatible
+        # write_byte function won't care about encoding and will write whatever
+        # the non-unicode string from chr(byte_write) co-responds to
+        return sys.stdout
+
+    def write_byte(fd, byte_write):
+        fd.write( chr(byte_write) )
 
 def try_to_make_8_byte_long_int_array():
     a = array(ARRAY_TYPE_UNSIGNED_INT_LONG)

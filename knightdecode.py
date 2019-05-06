@@ -26,7 +26,8 @@ from time import sleep
 from array import array
 
 import knightinstructions
-from pythoncompat import print_func, init_array_itemsize_8
+from pythoncompat import print_func, init_array_itemsize_8, \
+    get_binary_mode_stdout
 from constants import \
     EXIT_FAILURE, \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TAPE1FILENAME, TAPE2FILENAME, \
@@ -57,7 +58,9 @@ def grow_memory(vm, size):
 
 def create_vm(size, registersize=32,
               tapefile1="tape_01", tapefile2="tape_02",
-              stdin=stdin, stdout=stdout):
+              stdin=stdin, stdout=None):
+    if stdout==None:
+        stdout = get_binary_mode_stdout()
     instruction_pointer = 0
 
     if registersize==32:
