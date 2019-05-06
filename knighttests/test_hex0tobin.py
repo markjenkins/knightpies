@@ -10,11 +10,10 @@ from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 from constants import MEM
 
 from .util import get_closed_named_temp_file
+from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH
 
 STACK_START = 0x600
 STACK_SIZE = 8
-
-STAGE_0_MONITOR_HEX_FILEPATH = get_stage0_file('stage0/stage0_monitor.hex0')
 
 def get_sha256sum_of_file_after_hex0_encode(filename):
     with BytesIO() as outputmemfile:
