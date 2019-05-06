@@ -17,21 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from sys import stderr
+class OutsideOfWorldException(Exception): pass
 
-from constants import MEM, PERF_COUNT
-from pythoncompat import print_func
-
-class OutsideOfWorldException(Exception):
-    def __init__(self, exception_msg, outsidemsg):
-        Exception.__init__(self, exception_msg)
-        self.exception_msg = exception_msg
-        self.outsidemsg = outsidemsg
-
-def outside_of_world(mem, perf_count, place, message):
+def outside_of_world(mem, place, message):
     if len(mem) <= place:
-        raise OutsideOfWorldException(
-            "Invalid state reached after: %d instructions\n"
-            "%d: %s" % ( perf_count, place, message),
-            message
-        )
+        raise OutsideOfWorldException(message, place)

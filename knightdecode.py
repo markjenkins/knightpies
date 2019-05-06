@@ -109,7 +109,7 @@ def read_instruction(vm):
     # Why current_ip+MIN_INSTRUCTION_LEN-1 and not just current_ip ?
     # If the end of memory isn't MIN_INSTRUCTION_LEN byte aligned, than
     # current_ip may be in bounds but the last byte of it might not be
-    outside_of_world(vm[MEM], vm[PERF_COUNT], next_ip-1, OUTSIDE_WORLD_ERROR)
+    outside_of_world(vm[MEM], next_ip-1, OUTSIDE_WORLD_ERROR)
     
     instruction_bytes = vm[MEM][current_ip:current_ip+MIN_INSTRUCTION_LEN]
     opcode = unpack_byte(instruction_bytes[0])
@@ -299,7 +299,7 @@ def decode_2OPI(vm, c):
 
 def decode_1OPI(vm, c):
     next_ip = c[NEXTIP]
-    outside_of_world(vm[MEM], vm[PERF_COUNT], next_ip+2-1, OUTSIDE_WORLD_ERROR)
+    outside_of_world(vm[MEM], next_ip+2-1, OUTSIDE_WORLD_ERROR)
     raw_immediate = vm[MEM][next_ip]
     next_ip+=1
     hold = vm[MEM][next_ip]
@@ -813,11 +813,15 @@ def make_read_and_eval_for_registersize(registersizebits):
             return vm
         except OutsideOfWorldException:
             e = exc_info()[1] # to remain backwards and forwards compatible
-            print_func(e.exception_msg, file=stderr)
-            vm = halt_vm(vm)
+            print_func(
+                "Invalid state reached after: %d instructions" % vm[PERF_COUNT],
+                file=stderr)
+            print_func(
+                "%d: %s" % (e.args[1], e.args[0]),
+                file=stderr )
             # if TRACE: TODO
             #    pass # TODO
-            exit(e.outsidemsg)
+            exit(e.args[0])
     return read_and_eval
 
 READ_AND_EVAL_TABLE = {}

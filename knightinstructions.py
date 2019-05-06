@@ -153,12 +153,12 @@ def register_negative(register_file, reg0):
 def register_positive(register_file, reg0):
     return not register_negative(register_file, reg0)
 
-def writeout_bytes(mem, perf_count, pointer, value, byte_count):
+def writeout_bytes(mem, pointer, value, byte_count):
     outside_of_world(
-        mem, perf_count, pointer,
+        mem, pointer,
         "Writeout bytes Address_1 is outside of World")
     outside_of_world(
-        mem, perf_count, pointer+byte_count,
+        mem, pointer+byte_count,
         "Writeout bytes Address_2 is outside of World")
     # example invocation of range, byte_count=4 (32 bits)
     # range(24, -8, -8) = [24, 16, 8, 0]
@@ -720,11 +720,10 @@ def JUMP_NP(vm, c):
         return next_ip
 
 def CALLI(vm, c):
-    # need to add vm[PERF_COUNT] to this
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     reg_size = register_file.itemsize
     # Write out the PC
-    writeout_bytes(mem, vm[PERF_COUNT], register_file[reg0], next_ip, reg_size)
+    writeout_bytes(mem, register_file[reg0], next_ip, reg_size)
 
     register_file[reg0] += reg_size # Update our index
 
