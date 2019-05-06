@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from constants import MEM, REG
 from knightdecode import create_vm, grow_memory, read_and_eval
+from knightinstructions import readin_bytes
 
 testcases = (
     '0000',
@@ -23,15 +24,8 @@ testcases = (
 )
 
 
-class EdgeCaseSignedIntegerTests(TestCase):
-    registersize = 32
-    optimize = True
-    def setUp(self):
-        self.vm = create_vm(size=0, registersize=self.registersize)
-        self.vm[MEM].frombytes( bytes.fromhex('E0002D10') ) # LOADI r0
-
-for sixteenbits_bigendian_hex_str in testcases:
-    def test_function(self):
+def make_LOADI_test_case(sixteenbits_bigendian_hex_str):
+    def LOADI_test_function(self):
         sixteenbits = bytes.fromhex(sixteenbits_bigendian_hex_str)
         # 16 bit immediate value to finish LOADI instruction
         self.vm[MEM].frombytes( sixteenbits )
@@ -49,19 +43,46 @@ for sixteenbits_bigendian_hex_str in testcases:
             "%d bit registers, test value %s" %
             (self.registersize, sixteenbits.hex())
         )
+    return LOADI_test_function
+
+def make_readin_bytes_test_case(sixteenbits_bigendian_hex_str):
+    def readin_bytes_test_function(self):
+        sixteenbits = bytes.fromhex(sixteenbits_bigendian_hex_str)
+        self.vm[MEM].frombytes( sixteenbits )
+        self.assertEqual(
+            sixteenbits,
+            readin_bytes(self.vm[MEM], 4, True, 2).to_bytes(
+                2, 'big', signed=True),
+            )
+    return readin_bytes_test_function
+
+class EdgeCaseSignedIntegerTests(TestCase):
+    registersize = 32
+    optimize = True
+    def setUp(self):
+        self.vm = create_vm(size=0, registersize=self.registersize)
+        self.vm[MEM].frombytes( bytes.fromhex('E0002D10') ) # LOADI r0
+
+for sixteenbits_bigendian_hex_str in testcases:
     setattr(EdgeCaseSignedIntegerTests,
             "test_%s" % sixteenbits_bigendian_hex_str,
-            test_function)
+            make_LOADI_test_case(sixteenbits_bigendian_hex_str) )
 
 class ThirtyTwoBitRegistersNoOptimize(EdgeCaseSignedIntegerTests):
     optimize = False
 
-class SixteenBitRegisters(EdgeCaseSignedIntegerTests):
+class SixteenBitRegistersNoOptimize(EdgeCaseSignedIntegerTests):
     registersize=16
-
-class SixteenBitRegistersNoOptimize(SixteenBitRegisters):
     optimize = False
     
+class SixteenBitRegistersOptimize(SixteenBitRegistersNoOptimize):
+    optimize = True
+
+for sixteenbits_bigendian_hex_str in testcases:
+    setattr(SixteenBitRegistersOptimize,
+            "test_readin_%s" % sixteenbits_bigendian_hex_str,
+            make_readin_bytes_test_case(sixteenbits_bigendian_hex_str) )
+
 class SixtyFourBitRegisters(EdgeCaseSignedIntegerTests):
     registersize=64
 

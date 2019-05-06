@@ -165,6 +165,22 @@ def writeout_bytes(mem, pointer, value, byte_count):
     for i, x in enumerate(range( 8*(byte_count-1), -8, -8)):
         mem[pointer+i] = (value>>x) & 0xff
 
+def readin_bytes(mem, pointer, signed, byte_count):
+    outside_of_world(mem, pointer,
+                     "READIN bytes Address_1 is outside of World")
+    outside_of_world(mem, pointer+byte_count-1,
+                     "READIN bytes Address_2 is outside of World")
+
+    sign_bit = signed and mem[pointer] & 0x80
+    value_sum = mem[pointer]
+    for i in range(pointer+1, pointer+byte_count):
+        value_sum = (value_sum<<8) + mem[i]
+
+    if sign_bit:
+        return twos_complement_conversion_w_mask(value_sum, 2**(byte_count*8-1))
+    else:
+        return value_sum
+
 # 4 OP integer instructions
 
 def ADD_CI(vm, c):
@@ -533,7 +549,20 @@ def JSR_COROUTINE(vm, c):
     pass
 
 def RET(vm, c):
-    pass
+    mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    reg_size = register_file.itemsize
+
+    # Update our index
+    address_of_pc_on_stack = register_file[reg0] - reg_size
+    register_file[reg0] = address_of_pc_on_stack
+
+    # Read in the new PC
+    next_ip = readin_bytes(mem, address_of_pc_on_stack, False, reg_size)
+
+    # Clear Stack Values
+    writeout_bytes(mem, address_of_pc_on_stack, 0, reg_size)
+
+    return next_ip
 
 def PUSHPC(vm, c):
     pass
