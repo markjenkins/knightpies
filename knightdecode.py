@@ -439,7 +439,7 @@ EVAL_3OP_INT_TABLE_STRING = {
 
 # using a dictionary type instead of set/fozenset or sets for python 2.2
 # compatibility
-EVAL_30P_INT_ILLEGAL = {
+EVAL_3OP_INT_ILLEGAL = {
     0x014: None,
     0x015: None,
     0x016: None,
@@ -655,9 +655,9 @@ def make_eval_tables_for_register_size(registersizebits):
         EVAL_2OP_INT_TABLE_STRING.items() ) # map
     ) # dict
 
-    EVAL_2OP_INT_TABLE = dict( map(
+    EVAL_3OP_INT_TABLE = dict( map(
         lookup_instruction_and_debug_str,
-        EVAL_2OP_INT_TABLE_STRING.items() ) # map
+        EVAL_3OP_INT_TABLE_STRING.items() ) # map
     ) # dict
 
     EVAL_1OP_INT_TABLE = dict( map(
@@ -681,7 +681,7 @@ def make_eval_tables_for_register_size(registersizebits):
     def eval_3OP_Int(vm, c):
         return eval_N_OP_int(vm, c, 3,
                              c[RAW_XOP], EVAL_3OP_INT_TABLE,
-                             illegal_table=EVAL_30P_INT_ILLEGAL)
+                             illegal_table=EVAL_3OP_INT_ILLEGAL)
 
     def eval_2OP_Int(vm, c):
         return eval_N_OP_int(vm, c, 2, c[RAW_XOP], EVAL_2OP_INT_TABLE)
