@@ -16,7 +16,7 @@ STACK_SIZE = 8
 
 STAGE_0_MONITOR_HEX_FILEPATH = get_stage0_file('stage0/stage0_monitor.hex0')
 
-class TestHex0ToBin(TestCase):
+class TestHex0Common(TestCase):
     def setUp(self):
         stage0hex0fd = open( STAGE_0_MONITOR_HEX_FILEPATH )
         self.stage0_bin_fd = BytesIO()
@@ -26,6 +26,7 @@ class TestHex0ToBin(TestCase):
     def tearDown(self):
         self.stage0_bin_fd.close()
 
+class TestHex0ToBin(TestHex0Common):
     def test_monitor_matches_known_sha256(self):
         stage0_monitor_sha256sum_HEX = get_stage0_test_sha256sum(
             'roms/stage0_monitor')
@@ -37,6 +38,15 @@ class TestHex0ToBin(TestCase):
         load_hex_program(vm, STAGE_0_MONITOR_HEX_FILEPATH)
         self.assertEqual( self.stage0_bin_fd.getbuffer(), vm[MEM].tobytes() )
 
+class TestStage0Monitorexecute(TestHex0Common):
+    registersize = 32
+    stack_size_multiplier = 1
+    optimize = False
+
+    def setUp(self):
+        super().setUp()
+        self.stack_end = STACK_START+STACK_SIZE*self.stack_size_multiplier
+
     def test_execute_hex_load(self):
         output_mem_buffer = BytesIO()
         input_file_fd = open(
@@ -44,15 +54,15 @@ class TestHex0ToBin(TestCase):
         tape_01_temp_file_path = mktemp() # deprecated due to security issues
         tape_02_temp_file_path = mktemp() # deprecated due to security issues
         vm = create_vm(
-            size=0, registersize=32,
+            size=0, registersize=self.registersize,
             tapefile1=tape_01_temp_file_path, tapefile2=tape_02_temp_file_path,
             stdin=input_file_fd,
             stdout=output_mem_buffer,
         )
         load_hex_program(vm, STAGE_0_MONITOR_HEX_FILEPATH)
         self.assertEqual( self.stage0_bin_fd.getbuffer(), vm[MEM].tobytes() )
-        grow_memory(vm, STACK_START+STACK_SIZE)
-        execute_vm(vm, halt_print=False)
+        grow_memory(vm, self.stack_end)
+        execute_vm(vm, optimize=self.optimize, halt_print=False)
         input_file_fd.close()
         tape_file = open(tape_01_temp_file_path, 'rb')
         checksum = sha256(tape_file.read())
@@ -63,3 +73,19 @@ class TestHex0ToBin(TestCase):
         self.assertEqual(
             checksum.hexdigest(),
             get_stage0_test_sha256sum('roms/stage0_monitor') )
+
+class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
+    optimize = True
+
+class TestHex0ToBin64(TestStage0Monitorexecute):
+    stack_size_multiplier = 2
+    registersize = 64
+
+class TestHex0ToBin64Optimize(TestHex0ToBin64):
+    optimize = True
+
+class TestHex0ToBin16(TestStage0Monitorexecute):
+    registersize = 16
+
+class TestHex0ToBin16Optimize(TestHex0ToBin16):
+    optimize = True
