@@ -54,11 +54,10 @@ class TestStage0Monitorexecute(TestHex0Common):
         unlink(self.tape_01_temp_file_path)
         unlink(self.tape_02_temp_file_path)
 
-    def test_execute_hex_load(self):
+    def execute_test_hex_load(self, stage0hex0file, sha256sumentry):
         output_mem_buffer = BytesIO()
 
-        with open(get_stage0_file(
-                STAGE_0_MONITOR_HEX_FILEPATH), 'rb') as input_file_fd:
+        with open(get_stage0_file(stage0hex0file), 'rb') as input_file_fd:
             vm = create_vm(
                 size=0, registersize=self.registersize,
                 tapefile1=self.tape_01_temp_file_path,
@@ -77,7 +76,12 @@ class TestStage0Monitorexecute(TestHex0Common):
 
         self.assertEqual(
             checksum.hexdigest(),
-            get_stage0_test_sha256sum('roms/stage0_monitor') )
+            get_stage0_test_sha256sum(sha256sumentry) )
+
+    def test_stage0_monitor_encodes_self(self):
+        self.execute_test_hex_load(
+            "stage0/stage0_monitor.hex0",
+            "roms/stage0_monitor")
 
 class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
     optimize = True
