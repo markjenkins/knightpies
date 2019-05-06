@@ -37,10 +37,10 @@ def RET(vm, c):
 
     # Read in the new PC
     # big endian, least significant byte is most significant bits
-    next_ip = (mem[address_of_pc_on_stack]<<24 +
-               mem[address_of_pc_on_stack+1]<<16 +
-               mem[address_of_pc_on_stack+2]<<8 +
-               mem[address_of_pc_on_stack+3] )
+    next_ip = ( (mem[address_of_pc_on_stack]<<24) +
+                (mem[address_of_pc_on_stack+1]<<16) +
+                (mem[address_of_pc_on_stack+2]<<8) +
+                (mem[address_of_pc_on_stack+3]) )
 
     # Clear Stack Values
     (mem[address_of_pc_on_stack], mem[address_of_pc_on_stack+1],
