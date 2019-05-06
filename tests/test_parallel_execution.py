@@ -223,4 +223,4 @@ class Stage0MonitorTests(ParallelExecutionTests):
             get_stage0_file("stage0/stage0_monitor.hex0") )
 
 class Stage0MonitorTestsOptimise(Stage0MonitorTests):
-    optimise = True
+    optimize = True
