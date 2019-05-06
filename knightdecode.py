@@ -36,6 +36,8 @@ from constants import \
     ARRAY_TYPE_UNSIGNED_INT, ARRAY_TYPE_UNSIGNED_INT_LONG, \
     ARRAY_TYPE_UNSIGNED_LONG_LONG
 
+from knightdecodeutil import outside_of_world
+
 NUM_REGISTERS = 16
 
 SIZE_UNSIGNED_CHAR = 1
@@ -123,17 +125,6 @@ def read_instruction(vm):
 def halt_vm(vm):
     # recontruct vm tuple with vm[HALTED] = True
     return vm[0:HALTED] + (True,) + vm[HALTED+1:]
-
-def outside_of_world(vm, place, message):
-    if len(vm[MEM]) <= place:
-        print_func("Invalid state reached after: %d instructions" %
-                   vm[PERF_COUNT],
-                   file=stderr)
-        print_func("%d: %s" % (place, message), file=stderr)
-        vm = halt_vm(vm)
-        # if TRACE: TODO
-        #    pass # TODO
-        exit(message)
 
 def increment_vm_perf_count(vm):
     return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,) + vm[PERF_COUNT+1:]

@@ -30,6 +30,7 @@ from constants import \
     CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT
 
 from pythoncompat import write_byte
+from knightdecodeutil import outside_of_world
 
 BITS_PER_BYTE = 8
 def prove_8_bits_per_array_byte():
@@ -153,7 +154,6 @@ def register_positive(register_file, reg0):
     return not register_negative(register_file, reg0)
 
 def writeout_bytes(vm, mem, pointer, value, byte_count):
-    from knightdecode import outside_of_world
     outside_of_world(
         vm, pointer, "Writeout bytes Address_1 is outside of World")
     outside_of_world(
