@@ -19,7 +19,7 @@
 
 from array import array
 from os.path import exists
-from sys import stderr
+from sys import stderr, exit
 
 from constants import \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \

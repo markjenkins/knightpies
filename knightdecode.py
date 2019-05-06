@@ -21,7 +21,7 @@
 
 from __future__ import division # prevent use of "/" in the old way
 
-from sys import stderr, stdin, stdout, exc_info
+from sys import stderr, stdin, stdout, exc_info, exit
 from time import sleep
 from array import array
 

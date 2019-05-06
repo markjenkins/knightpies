@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from sys import stderr
+from sys import stderr, exit
 from string import hexdigits
 
 from pythoncompat import print_func
