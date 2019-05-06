@@ -123,8 +123,8 @@ def stuff_int_as_signed_16bit_value_into_register(
     else:
         register_file[regindex] = value
 
-def next_instruction_size(vm):
-    c = vm[MEM][vm[IP]]
+def get_instruction_size(vm, address):
+    c = vm[MEM][address]
     if c==0xE0 or c==0xE1:
         return 6
     else:
@@ -742,7 +742,7 @@ def CMPSKIPI_E(vm, c):
 def CMPSKIPI_NE(vm, c):
     register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
-        return next_ip + next_instruction_size(vm)
+        return next_ip + get_instruction_size(vm, next_ip)
     else:
         return next_ip
 
