@@ -27,7 +27,8 @@ from constants import \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
     CONDITION_BIT_C, CONDITION_BIT_B, CONDITION_BIT_O, \
-    CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT
+    CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT, \
+    HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER, HAL_IO_DEVICE_STDIO
 
 from pythoncompat import write_byte
 from knightdecodeutil import outside_of_world
@@ -910,7 +911,7 @@ def lookup_tapeindex_and_filename(vm, io_device_register=0):
         return 0, TAPE1FILENAME, io_device
     elif 0x00001101 == io_device:
         return 1, TAPE2FILENAME, io_device
-    elif 0x0 == io_device:
+    elif HAL_IO_DEVICE_STDIO == io_device:
         return None, None, io_device
     else:
         return None, None, None
@@ -918,7 +919,7 @@ def lookup_tapeindex_and_filename(vm, io_device_register=0):
 def lookup_fd(vm, io_device_register=0, write_context=False):
     tapeindex, tapefilenameindex, io_device = lookup_tapeindex_and_filename(
         vm, io_device_register=io_device_register)
-    if None==tapeindex and io_device==0x0:
+    if None==tapeindex and io_device==HAL_IO_DEVICE_STDIO:
         if write_context:
             return vm[TAPEFD][TAPEFD_I_STDOUT]
         else:
@@ -952,21 +953,25 @@ def vm_REWIND(vm):
 
 def vm_FSEEK(vm):
     SEEK_CUR = 1 # wence=1 means relative to current pos 
-    lookup_fd(vm).seek(VM[REG][1], wence=SEEK_CUR) 
+    lookup_fd(vm).seek(VM[REG][HAL_IO_DEVICE_REGISTER], wence=SEEK_CUR)
 
 def vm_FGETC(vm):
-    byte_read = lookup_fd(vm, write_context=False,
-                          io_device_register=1).read(1)
+    byte_read = lookup_fd(
+        vm, write_context=False,
+        io_device_register=HAL_IO_DEVICE_REGISTER).read(1)
     if len(byte_read)==0:
-        vm[REG][0] = sign_extend_negative_and_unsign(
+        vm[REG][HAL_IO_DATA_REGISTER] = sign_extend_negative_and_unsign(
             -1, num_bytes=vm[REG].itemsize)
-        assert register_negative(vm[REG], 0)
+        assert register_negative(vm[REG], HAL_IO_DATA_REGISTER)
     else:
-        vm[REG][0] = ord(byte_read)
+        assert(len(byte_read)==1)
+        vm[REG][HAL_IO_DATA_REGISTER] = ord(byte_read)
 
 def vm_FPUTC(vm):
-    output_byte = vm[REG][0] & 0xFF
-    fd = lookup_fd(vm, write_context=True, io_device_register=1)
+    output_byte = vm[REG][HAL_IO_DATA_REGISTER] & 0xFF
+    fd = lookup_fd(
+        vm, write_context=True,
+        io_device_register=HAL_IO_DEVICE_REGISTER)
     write_byte(fd, output_byte)
 
 def vm_HAL_MEM(vm):

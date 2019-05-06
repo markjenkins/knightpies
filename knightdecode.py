@@ -35,7 +35,8 @@ from constants import \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
     ARRAY_TYPE_UNSIGNED_CHAR, ARRAY_TYPE_UNSIGNED_SHORT, \
     ARRAY_TYPE_UNSIGNED_INT, ARRAY_TYPE_UNSIGNED_INT_LONG, \
-    ARRAY_TYPE_UNSIGNED_LONG_LONG
+    ARRAY_TYPE_UNSIGNED_LONG_LONG, \
+    HAL_CODE_OP, HAL_CODE_FGETC, HAL_CODE_FPUTC
 
 from knightdecodeutil import outside_of_world, OutsideOfWorldException
 
@@ -721,7 +722,7 @@ def make_eval_tables_for_register_size(registersizebits):
         0xE1: eval_2OPI_Int,
         0xE0: eval_Integer_1OPI,
         0x3C: eval_Integer_0OPI,
-        0x42: eval_HALCODE,
+        HAL_CODE_OP: eval_HALCODE,
     }
     return EVAL_TABLE
     
@@ -731,8 +732,8 @@ HAL_CODES_TABLE_STRING = {
     0x100002: "FCLOSE",
     0x100003: "REWIND",
     0x100004: "FSEEK",
-    0x100100: "FGETC",
-    0x100200: "FPUTC",
+    HAL_CODE_FGETC: "FGETC",
+    HAL_CODE_FPUTC: "FPUTC",
     0x110000: "HAL_MEM",
     }
 
