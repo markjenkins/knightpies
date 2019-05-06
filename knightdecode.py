@@ -21,7 +21,7 @@
 
 from __future__ import division # prevent use of "/" in the old way
 
-from sys import stderr, stdin, stdout
+from sys import stderr, stdin, stdout, exc_info
 from time import sleep
 from array import array
 
@@ -36,7 +36,7 @@ from constants import \
     ARRAY_TYPE_UNSIGNED_INT, ARRAY_TYPE_UNSIGNED_INT_LONG, \
     ARRAY_TYPE_UNSIGNED_LONG_LONG
 
-from knightdecodeutil import outside_of_world
+from knightdecodeutil import outside_of_world, OutsideOfWorldException
 
 NUM_REGISTERS = 16
 
@@ -803,13 +803,21 @@ def make_read_and_eval_for_registersize(registersizebits):
     eval_instruction_specific_bit = get_eval_instruction_for_register_size(
         registersizebits//8)
     def read_and_eval(vm):
-        vm = eval_instruction_specific_bit(vm, read_instruction(vm))
-        if vm==None or vm[IP]==None:
-            assert False # this shouldn't happen
-            # catch if asserts are off
-            raise Exception(
-                "eval_instruction did not return a new vm state")
-        return vm
+        try:
+            vm = eval_instruction_specific_bit(vm, read_instruction(vm))
+            if vm==None or vm[IP]==None:
+                assert False # this shouldn't happen
+                # catch if asserts are off
+                raise Exception(
+                    "eval_instruction did not return a new vm state")
+            return vm
+        except OutsideOfWorldException:
+            e = exc_info()[1] # to remain backwards and forwards compatible
+            print_func(e.exception_msg, file=stderr)
+            vm = halt_vm(vm)
+            # if TRACE: TODO
+            #    pass # TODO
+            exit(e.outsidemsg)
     return read_and_eval
 
 READ_AND_EVAL_TABLE = {}
@@ -822,11 +830,11 @@ def get_read_and_eval_for_register_size(regsize_bytes):
     return READ_AND_EVAL_TABLE[regsize_bytes]
 
 def read_and_eval(vm, optimize=True):
-    if optimize:
-        return get_read_and_eval_for_register_size(vm[REG].itemsize)(vm)
-    else:
-        # this forces the generic version
-        return get_read_and_eval_for_register_size(0)(vm)
+        if optimize:
+            return get_read_and_eval_for_register_size(vm[REG].itemsize)(vm)
+        else:
+            # this forces the generic version
+            return get_read_and_eval_for_register_size(0)(vm)
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)

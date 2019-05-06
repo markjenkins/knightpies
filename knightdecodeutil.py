@@ -22,14 +22,16 @@ from sys import stderr
 from constants import MEM, PERF_COUNT
 from pythoncompat import print_func
 
+class OutsideOfWorldException(Exception):
+    def __init__(self, exception_msg, outsidemsg):
+        Exception.__init__(self, exception_msg)
+        self.exception_msg = exception_msg
+        self.outsidemsg = outsidemsg
+
 def outside_of_world(vm, place, message):
-    from knightdecode import halt_vm
     if len(vm[MEM]) <= place:
-        print_func("Invalid state reached after: %d instructions" %
-                   vm[PERF_COUNT],
-                   file=stderr)
-        print_func("%d: %s" % (place, message), file=stderr)
-        vm = halt_vm(vm)
-        # if TRACE: TODO
-        #    pass # TODO
-        exit(message)
+        raise OutsideOfWorldException(
+            "Invalid state reached after: %d instructions\n"
+            "%d: %s" % ( vm[PERF_COUNT], place, message),
+            message
+        )
