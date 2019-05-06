@@ -3,7 +3,7 @@
 TESTDIR=knighttests
 
 if test "x$1" = 'x-v'; then \
-    python3 -m unittest discover -v -s $TESTDIR
+    python3 -m unittest discover -v -t . -s $TESTDIR
 else
-    python3 -m unittest discover -s $TESTDIR
+    python3 -m unittest discover -t . -s $TESTDIR
 fi
