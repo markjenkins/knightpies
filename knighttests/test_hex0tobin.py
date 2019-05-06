@@ -54,7 +54,7 @@ class TestStage0Monitorexecute(TestHex0Common):
         unlink(self.tape_01_temp_file_path)
         unlink(self.tape_02_temp_file_path)
 
-    def execute_test_hex_load(self, stage0hex0file, sha256sumentry):
+    def execute_test_hex_load(self, stage0hex0file, sha256hex):
         output_mem_buffer = BytesIO()
 
         with open(get_stage0_file(stage0hex0file), 'rb') as input_file_fd:
@@ -76,20 +76,26 @@ class TestStage0Monitorexecute(TestHex0Common):
 
         self.assertEqual(
             checksum.hexdigest(),
+            sha256hex )
+
+    def execute_test_hex_load_published_sha256(
+            self, stage0hex0file, sha256sumentry):
+        self.execute_test_hex_load(
+            stage0hex0file,
             get_stage0_test_sha256sum(sha256sumentry) )
 
     def test_stage0_monitor_encodes_self(self):
-        self.execute_test_hex_load(
+        self.execute_test_hex_load_published_sha256(
             "stage0/stage0_monitor.hex0",
             "roms/stage0_monitor")
 
     def test_encode_stage1_assembler_0(self):
-        self.execute_test_hex_load(
+        self.execute_test_hex_load_published_sha256(
             "stage1/stage1_assembler-0.hex0",
             "roms/stage1_assembler-0")
 
     def test_encode_stage1_assembler_1(self):
-        self.execute_test_hex_load(
+        self.execute_test_hex_load_published_sha256(
             "stage1/stage1_assembler-1.hex0",
             "roms/stage1_assembler-1")
 
