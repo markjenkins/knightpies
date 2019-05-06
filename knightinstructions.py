@@ -152,7 +152,7 @@ def register_negative(register_file, reg0):
 def register_positive(register_file, reg0):
     return not register_negative(register_file, reg0)
 
-def writeout_bytes(vm, pointer, value, byte_count):
+def writeout_bytes(vm, mem, pointer, value, byte_count):
     from knightdecode import outside_of_world
     outside_of_world(
         vm, pointer, "Writeout bytes Address_1 is outside of World")
@@ -161,7 +161,7 @@ def writeout_bytes(vm, pointer, value, byte_count):
     # example invocation of range, byte_count=4 (32 bits)
     # range(24, -8, -8) = [24, 16, 8, 0]
     for i, x in enumerate(range( 8*(byte_count-1), -8, -8)):
-        vm[MEM][pointer+i] = (value>>x) & 0xff
+        mem[pointer+i] = (value>>x) & 0xff
 
 # 4 OP integer instructions
 
@@ -721,7 +721,7 @@ def CALLI(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     reg_size = register_file.itemsize
     # Write out the PC
-    writeout_bytes(vm, register_file[reg0], next_ip, reg_size)
+    writeout_bytes(vm, mem, register_file[reg0], next_ip, reg_size)
 
     register_file[reg0] += reg_size # Update our index
 
