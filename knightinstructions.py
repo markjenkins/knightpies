@@ -719,7 +719,7 @@ def make_condition_bit_jump(condition_mask):
         mem, register_file, reg0, raw_immediate, next_ip = \
             get_args_for_1OPI(vm, c)
         if register_file[reg0] & condition_mask:
-            return next_ip + raw_immediate
+            return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
         else:
             return next_ip
     return JUMP_condition
@@ -739,13 +739,13 @@ def make_two_either_condition_bit_jump(condition_mask1, condition_mask2):
         # how vm_instructions.c (stage0) does this
         # if (register_file[reg0] & condition_mask1 or
         #     register_file[reg0] & condition_mask2):
-        #     return next_ip + raw_immediate
+        #     return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
         # else:
         #     return next_ip
 
         # I haven't tested it, but I assume this is faster?
         if register_file[reg0] & combined_mask:
-            return next_ip + raw_immediate
+            return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
         else:
             return next_ip
     return JUMP_two_condition
@@ -759,19 +759,19 @@ def JUMP_NE(vm, c):
     if register_file[reg0] & CONDITION_BIT_EQ:
         return next_ip
     else: # CONDITION_BIT_EQ not set
-        return next_ip + raw_immediate
+        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
 
 def JUMP_Z(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if 0==register_file[reg0]:
-        return next_ip + raw_immediate
+        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
     else:
         return next_ip
 
 def JUMP_NZ(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if 0!=register_file[reg0]:
-        return next_ip + raw_immediate
+        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
     else:
         return next_ip
 
@@ -780,12 +780,12 @@ def JUMP_P(vm, c):
     if register_negative(register_file, reg0):
         return next_ip
     else:
-        return next_ip + raw_immediate
+        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
 
 def JUMP_NP(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if register_negative(register_file, reg0):
-        return next_ip + raw_immediate
+        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
     else:
         return next_ip
 
@@ -797,7 +797,7 @@ def CALLI(vm, c):
 
     register_file[reg0] += reg_size # Update our index
 
-    return next_ip + raw_immediate # Update PC
+    return next_ip + interpret_sixteenbits_as_signed(raw_immediate) # Update PC
 
 def LOADI(vm, c):
     # 16 bit version just uses LOADUI
@@ -905,7 +905,7 @@ def CMPSKIPUI_L(vm, c):
 # 0 OP integer immediate
 
 def JUMP(vm, c):
-    return c[NEXTIP]+c[RAW_IMMEDIATE]
+    return c[NEXTIP]+interpret_sixteenbits_as_signed(c[RAW_IMMEDIATE])
 
 
 # HAL_CODES
