@@ -54,7 +54,7 @@ def make_nbit_optimized_functions(nbits):
     # 1 OP
 
     def TRUE_N_BITS(vm, c):
-        register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+        mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
         register_file[reg0] = MAX_N_UNSIGNED
         return next_ip
 

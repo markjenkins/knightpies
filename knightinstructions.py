@@ -508,7 +508,7 @@ def CMPSKIPU_L(vm, c):
 # 1 OP integer instructions
 
 def get_args_for_1OP(vm, c):
-    return vm[REG], c[I_REGISTERS][0], c[NEXTIP]
+    return vm[MEM], vm[REG], c[I_REGISTERS][0], c[NEXTIP]
 
 def READPC(vm, c):
     pass
@@ -517,7 +517,7 @@ def READSCID(vm, c):
     pass
 
 def FALSE(vm, c):
-    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
     register_file[reg0] = 0
     return next_ip
 
@@ -525,7 +525,7 @@ def TRUE(vm, c):
     # Don't sweat the inefficiency of calculating the maximum value for the
     # register size, seperate implementations exist in
     # knightinstructions64, knightinstructions32, knightinstructions16
-    register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
     register_file[reg0] = 2**(vm[REG].itemsize*BITS_PER_BYTE)-1
     return next_ip
 
