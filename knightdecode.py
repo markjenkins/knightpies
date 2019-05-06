@@ -613,23 +613,24 @@ def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
             print_func()
     return next_ip
 
-def get_instruction_module_for_registersize(registersizebytes):
+def get_instruction_module_for_registersize_bits(registersizebits):
     # defer the imports to here to only import what's needed and
     # in case the user opts for unoptimized version
-    if registersizebytes==64:
+    if registersizebits==64:
         import knightinstructions64
         return knightinstructions64
-    elif registersizebytes==32:
+    elif registersizebits==32:
         import knightinstructions32
         return knightinstructions32
-    elif registersizebytes==16:
+    elif registersizebits==16:
         import knightinstructions16
         return knightinstructions16
     else:
         return knightinstructions
 
 def make_eval_tables_for_register_size(registersizebits):
-    knightmodule = get_instruction_module_for_registersize(registersizebits)
+    knightmodule = get_instruction_module_for_registersize_bits(
+        registersizebits)
     def lookup_instruction_and_debug_str(x, replace_underscore=True):
         table_key, instruction_str = x
         if replace_underscore:
