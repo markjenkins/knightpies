@@ -28,10 +28,10 @@ class OutsideOfWorldException(Exception):
         self.exception_msg = exception_msg
         self.outsidemsg = outsidemsg
 
-def outside_of_world(vm, place, message):
-    if len(vm[MEM]) <= place:
+def outside_of_world(mem, perf_count, place, message):
+    if len(mem) <= place:
         raise OutsideOfWorldException(
             "Invalid state reached after: %d instructions\n"
-            "%d: %s" % ( vm[PERF_COUNT], place, message),
+            "%d: %s" % ( perf_count, place, message),
             message
         )
