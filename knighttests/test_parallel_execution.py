@@ -21,6 +21,7 @@ from constants import (
     )
 from hex0tobin import write_binary_filefd_from_hex0_filefd
 from .util import get_closed_named_temp_file
+from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH
 
 LILITH_TAPE_NAME_01, LILITH_TAPE_NAME_02 = ("tape_01", "tape_02")
 LILITH_IP_REGISTER_INDEX, LILITH_PERF_COUNT_REGISTER_INDEX = (16, 17)
@@ -224,17 +225,16 @@ class Stage0MonitorTests(ParallelExecutionTests):
         
     def test_stage0_monitor_encoding_self(self):
         self.run_execution_test(
-            get_stage0_file("stage0/stage0_monitor.hex0"),
-            get_stage0_file("stage0/stage0_monitor.hex0") )
+            STAGE_0_MONITOR_HEX_FILEPATH, STAGE_0_MONITOR_HEX_FILEPATH )
 
     def test_stage0_monitor_encoding_stage1_assembler_0(self):
         self.run_execution_test(
-            get_stage0_file("stage0/stage0_monitor.hex0"),
+            STAGE_0_MONITOR_HEX_FILEPATH,
             get_stage0_file("stage1/stage1_assembler-0.hex0") )
 
     def test_stage0_monitor_encoding_stage1_assembler_1(self):
         self.run_execution_test(
-            get_stage0_file("stage0/stage0_monitor.hex0"),
+            STAGE_0_MONITOR_HEX_FILEPATH,
             get_stage0_file("stage1/stage1_assembler-1.hex0") )
 
 class Stage0MonitorTestsOptimise(Stage0MonitorTests):

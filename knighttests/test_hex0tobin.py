@@ -10,7 +10,7 @@ from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 from constants import MEM
 
 from .util import get_closed_named_temp_file
-from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH
+from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH, STAGE_0_MONITOR_RELATIVE_PATH
 
 STACK_START = 0x600
 STACK_SIZE = 8
@@ -104,7 +104,7 @@ class TestStage0Monitorexecute(TestHex0Common):
 
     def test_stage0_monitor_encodes_self(self):
         self.execute_test_hex_load_published_sha256(
-            "stage0/stage0_monitor.hex0",
+            STAGE_0_MONITOR_RELATIVE_PATH,
             "roms/stage0_monitor")
 
     def test_encode_stage1_assembler_0(self):
