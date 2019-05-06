@@ -3,7 +3,7 @@
 from string import hexdigits
 import re
 
-from pythoncompat import write_byte
+from pythoncompat import write_byte, open_ascii
 
 def hex_and_whitespace_from_hex0(hex0fd):
     line = hex0fd.readline()
@@ -45,7 +45,7 @@ def write_binary_filefd_from_hex0_filefd(input_file_fd, output_file_fd):
 
 def write_binary_file_from_hex0_file(input_file, output_file):
     # character based file read, but not UTF-8
-    input_file_fd = open(input_file, encoding='ascii')
+    input_file_fd = open_ascii(input_file)
     output_file_fd = open(output_file, 'wb') # binary output
     write_binary_filefd_from_hex0_filefd(input_file_fd, output_file_fd)
     output_file_fd.close()

@@ -30,6 +30,9 @@ if sys.version_info[0] >= 3:
         print_func = getattr(__builtins__, "print")
 
     gen_range = range
+
+    def open_ascii(filename):
+        return open(filename, encoding='ascii')
 else:
     def print_func(*args, **kargs):
         sep = kargs.get('sep', " ")
@@ -46,6 +49,13 @@ else:
         fd.flush()
 
     gen_range = xrange
+
+    def open_ascii(filename):
+        # specifying plain text encoding isn't an option in python2
+        # so we settle for binary mode which still returns non-unicode
+        # strings in python2. This allows non-ascii characters to get through
+        # making the two implementations of open_ascii incompatible
+        return open(filename, 'rb')
 
 def write_byte(fd, byte_write):
     if sys.version_info[0] >= 3:
