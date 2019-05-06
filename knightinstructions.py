@@ -610,8 +610,9 @@ def SUBUI(vm, c):
     # infinite precision long happens automatically as the mask
     # operand that will force up promotion when register_file.itemsize matches
     # the c long
-    register_file[reg0] = (register_file[reg1] - raw_immediate) & \
-                          ( (1<<register_file.itemsize*8)-1)
+    mask = (1<<(register_file.itemsize*8))-1
+    assert(mask == ( (2**(register_file.itemsize*8)) -1 ))
+    register_file[reg0] = (register_file[reg1] - raw_immediate) & mask
     return next_ip
 
 def CMPI(vm, c):
