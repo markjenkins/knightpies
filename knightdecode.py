@@ -821,7 +821,7 @@ def make_read_and_eval_for_registersize(registersizebits):
                 file=stderr )
             # if TRACE: TODO
             #    pass # TODO
-            exit(e.args[0])
+            exit(EXIT_FAILURE)
     return read_and_eval
 
 READ_AND_EVAL_TABLE = {}
