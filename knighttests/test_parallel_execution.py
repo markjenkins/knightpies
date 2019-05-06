@@ -5,6 +5,7 @@ from os.path import exists
 from unittest import TestCase
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from filecmp import cmp as file_compare
 
 from stage0dir import get_stage0_dir, get_stage0_file
 from knightvm_minimal import load_program
@@ -205,6 +206,17 @@ class ParallelExecutionTests(TestCase):
                 if self.halted():
                     break # don't bother with state checks after HALT
                 self.do_state_checks(debug_tuple)
+
+        self.assertTrue(
+            file_compare(self.tape_01_filename, LILITH_TAPE_NAME_01,
+                         shallow=False),
+            "%s vs %s" % (self.tape_01_filename, LILITH_TAPE_NAME_01)
+        )
+        self.assertTrue(
+            file_compare(self.tape_02_filename, LILITH_TAPE_NAME_02,
+                         shallow=False),
+            "%s vs %s" % (self.tape_02_filename, LILITH_TAPE_NAME_02)
+        )
 
 class Stage0MonitorTests(ParallelExecutionTests):
     stack_start = 0x600
