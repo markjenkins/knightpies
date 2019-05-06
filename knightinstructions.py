@@ -254,9 +254,10 @@ def get_args_for_3OP(vm, c):
 
 def ADDU(vm, c):
     registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
-    registerfile[reg0] = (
-        (registerfile[reg1] + registerfile[reg2]) &
-        ( (1<<(registerfile.itemsize*8)) -1 ) )
+    mask = (1<<(registerfile.itemsize*8)) -1
+    assert(mask == (2**(registerfile.itemsize*8))-1 )
+    registerfile[reg0] = (registerfile[reg1] + registerfile[reg2]) & mask
+
     return next_ip
 
 # for ADD, vm_instructions.c worries about values being signed and
