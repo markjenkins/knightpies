@@ -224,3 +224,9 @@ class Stage0MonitorTests(ParallelExecutionTests):
 
 class Stage0MonitorTestsOptimise(Stage0MonitorTests):
     optimize = True
+
+if __name__ == '__main__':
+    # to invoke, ensure top level directory is in python path, for example
+    # PYTHONPATH=. ./tests/test_parallel_execution.py
+    from unittest import main
+    main()

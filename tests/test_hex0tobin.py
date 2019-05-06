@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from unittest import TestCase
 from io import BytesIO
 from hashlib import sha256
@@ -88,3 +90,9 @@ class TestHex0ToBin16(TestStage0Monitorexecute):
 
 class TestHex0ToBin16Optimize(TestHex0ToBin16):
     optimize = True
+
+if __name__ == '__main__':
+    # to invoke, ensure top level directory is in python path, for example
+    # PYTHONPATH=. ./tests/test_hex0tobin.py
+    from unittest import main
+    main()

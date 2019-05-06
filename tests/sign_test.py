@@ -89,3 +89,8 @@ class SixtyFourBitRegisters(EdgeCaseSignedIntegerTests):
 class SixtyFourBitRegistersNoOptimize(SixtyFourBitRegisters):
     optimize = False
 
+if __name__ == '__main__':
+    # to invoke, ensure top level directory is in python path, for example
+    # PYTHONPATH=. ./tests/sign_test.py
+    from unittest import main
+    main()
