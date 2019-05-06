@@ -132,7 +132,8 @@ class ParallelExecutionTests(TestCase):
         
         py_instruction = read_instruction(self.py_vm)
         py_vm_new = eval_instruction(
-            self.py_vm, py_instruction, optimize=self.optimize)
+            self.py_vm, py_instruction,
+            optimize=self.optimize, halt_print=False)
 
         self.assertTrue(
             0<= py_vm_new[IP] < self.program_size,

@@ -52,7 +52,7 @@ class TestHex0ToBin(TestCase):
         load_hex_program(vm, STAGE_0_MONITOR_HEX_FILEPATH)
         self.assertEqual( self.stage0_bin_fd.getbuffer(), vm[MEM].tobytes() )
         grow_memory(vm, STACK_START+STACK_SIZE)
-        execute_vm(vm)
+        execute_vm(vm, halt_print=False)
         input_file_fd.close()
         tape_file = open(tape_01_temp_file_path, 'rb')
         checksum = sha256(tape_file.read())

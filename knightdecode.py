@@ -168,7 +168,7 @@ def vm_with_new_ip(vm, new_ip):
 def make_eval_instruction_for_registersize(registersizebits):
     EVAL_TABLE = make_eval_tables_for_register_size(registersizebits)
 
-    def eval_instruction(vm, current_instruction):
+    def eval_instruction(vm, current_instruction, halt_print=True):
         vm = increment_vm_perf_count(vm)
         if DEBUG:
             print_func("Executing: %s" %
@@ -192,10 +192,11 @@ def make_eval_instruction_for_registersize(registersizebits):
                                   EVAL_TABLE[raw0](vm, current_instruction) )
         elif raw0 == HALT_OP:  # Deal with HALT
             vm = halt_vm(vm)
-            print_func(
-                "Computer Program has Halted\nAfter Executing %d instructions"
-                % vm[PERF_COUNT],
-                file=stderr)
+            if halt_print:
+                print_func(
+                    "Computer Program has Halted\nAfter Executing %d "
+                    "instructions" % vm[PERF_COUNT],
+                    file=stderr)
             # if TRACE: # TODO
             #    record_trace("HALT") # TODO
             #    print_traces() # TODO
@@ -798,21 +799,22 @@ def get_eval_instruction_for_register_size(regsize_bytes):
             make_eval_instruction_for_registersize(regsize_bytes*8)
     return EVAL_INSTRUCTION_FOR_REGISTER_SIZES[regsize_bytes]
 
-def eval_instruction(vm, current_instruction, optimize=True):
+def eval_instruction(vm, current_instruction, optimize=True, halt_print=True):
     if optimize:
-        return get_eval_instruction_for_register_size(vm[REG].itemsize)(
-            vm, current_instruction)
+        return get_eval_instruction_for_register_size(
+            vm[REG].itemsize)(vm, current_instruction, halt_print=halt_print)
     else:
         return get_eval_instruction_for_register_size(0)(
-            vm, current_instruction)
+            vm, current_instruction, halt_print=halt_print)
 
 def make_read_and_eval_for_registersize(registersizebits):
     global EVAL_INSTRUCTION_FOR_REGISTER_SIZES
     eval_instruction_specific_bit = get_eval_instruction_for_register_size(
         registersizebits//8)
-    def read_and_eval(vm):
+    def read_and_eval(vm, halt_print=True):
         try:
-            vm = eval_instruction_specific_bit(vm, read_instruction(vm))
+            c = read_instruction(vm)
+            vm = eval_instruction_specific_bit(vm, c, halt_print=halt_print)
             if vm==None or vm[IP]==None:
                 assert False # this shouldn't happen
                 # catch if asserts are off
@@ -841,12 +843,14 @@ def get_read_and_eval_for_register_size(regsize_bytes):
             make_read_and_eval_for_registersize(regsize_bytes*8)
     return READ_AND_EVAL_TABLE[regsize_bytes]
 
-def read_and_eval(vm, optimize=True):
+def read_and_eval(vm, optimize=True, halt_print=True):
         if optimize:
-            return get_read_and_eval_for_register_size(vm[REG].itemsize)(vm)
+            return get_read_and_eval_for_register_size(vm[REG].itemsize)(
+                vm, halt_print=halt_print)
         else:
             # this forces the generic version
-            return get_read_and_eval_for_register_size(0)(vm)
+            return get_read_and_eval_for_register_size(0)(
+                vm, halt_print=halt_print)
 
 if __name__ == "__main__":
     vm = create_vm(2**16) # (64*1024)

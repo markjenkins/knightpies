@@ -51,11 +51,11 @@ def load_hex_program(vm, hexromfilename):
     f.close()
 
 
-def execute_vm(vm):
+def execute_vm(vm, halt_print=True):
     read_and_eval_register_size_specific = get_read_and_eval_for_register_size(
         vm[REG].itemsize*8)
     while not vm[HALTED]:
-        vm = read_and_eval_register_size_specific(vm)
+        vm = read_and_eval_register_size_specific(vm, halt_print=halt_print)
 
 def do_minimal_vm(romfile, romhex=False, memory_size=1<<21):
     vm = create_vm(size=0, registersize=32)
