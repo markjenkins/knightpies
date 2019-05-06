@@ -49,7 +49,13 @@ class SimpleInstructionTests16NoOptimize(SimpleInstructionTests16):
     optimize = False
 
 if __name__ == '__main__':
-    # to invoke, ensure top level directory is in python path, for example
-    # PYTHONPATH=. ./knighttests/test_simple.py
+    # to invoke, run
+    # $ python3 -m knighttests.test_simple
+    # or
+    # $ ./runtestmodule.py knighttests/test_simple.py
+    #
+    # direct invocation like ./test_simple.py will not work
+    # PYTHONPATH=. ./knighttests/test_simple.py still works
+    # but don't count on it staying that way
     from unittest import main
     main()

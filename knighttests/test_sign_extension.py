@@ -90,7 +90,13 @@ class SixtyFourBitRegistersNoOptimize(SixtyFourBitRegisters):
     optimize = False
 
 if __name__ == '__main__':
-    # to invoke, ensure top level directory is in python path, for example
-    # PYTHONPATH=. ./knighttests/sign_test.py
+    # to invoke, run
+    # $ python3 -m knighttests.test_sign_extension
+    # or
+    # $ ./runtestmodule.py knighttests/test_sign_extension.py
+    #
+    # direct invocation like ./test_sign_extension.py will not work
+    # PYTHONPATH=. ./knighttests/test_sign_extension.py still works
+    # but don't count on it staying that way
     from unittest import main
     main()

@@ -92,7 +92,13 @@ class TestHex0ToBin16Optimize(TestHex0ToBin16):
     optimize = True
 
 if __name__ == '__main__':
-    # to invoke, ensure top level directory is in python path, for example
-    # PYTHONPATH=. ./knighttests/test_hex0tobin.py
+    # to invoke, run
+    # $ python3 -m knighttests.test_hex0tobin
+    # or
+    # $ ./runtestmodule.py knighttests/test_hex0tobin.py
+    #
+    # direct invocation like ./test_hex0tobin.py will not work
+    # PYTHONPATH=. ./knighttests/test_hex0tobin.py still works
+    # but don't count on it staying that way
     from unittest import main
     main()

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from sys import path as sys_path
 from ctypes import create_string_buffer
 from os import unlink
@@ -21,7 +19,7 @@ from constants import (
     HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER, HAL_IO_DEVICE_STDIO,
     )
 from hex0tobin import write_binary_filefd_from_hex0_filefd
-
+from .util import get_closed_named_temp_file
 
 LILITH_TAPE_NAME_01, LILITH_TAPE_NAME_02 = ("tape_01", "tape_02")
 LILITH_IP_REGISTER_INDEX, LILITH_PERF_COUNT_REGISTER_INDEX = (16, 17)
@@ -32,11 +30,6 @@ def get_hal_code_from_raw(py_instruction):
                  (py_instruction[RAW][2]<<8) |
                  (py_instruction[RAW][3]) )
     return hal_code
-
-def get_closed_named_temp_file():
-    return_file = NamedTemporaryFile(delete=False)
-    return_file.close()
-    return return_file.name
 
 class ParallelExecutionTests(TestCase):
     optimize = False
@@ -226,7 +219,12 @@ class Stage0MonitorTestsOptimise(Stage0MonitorTests):
     optimize = True
 
 if __name__ == '__main__':
-    # to invoke, ensure top level directory is in python path, for example
-    # PYTHONPATH=. ./knighttests/test_parallel_execution.py
+    # to invoke, run
+    # $ python3 -m knighttests.test_parallel_execution
+    # or
+    # $ ./runtestmodule.py knighttests/test_parallel_execution.py
+    #
+    # direct invocation like ./test_parallel_execution.py will not work
+    # anymore due to the relative import at the top
     from unittest import main
     main()
