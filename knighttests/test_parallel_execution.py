@@ -227,6 +227,6 @@ class Stage0MonitorTestsOptimise(Stage0MonitorTests):
 
 if __name__ == '__main__':
     # to invoke, ensure top level directory is in python path, for example
-    # PYTHONPATH=. ./tests/test_parallel_execution.py
+    # PYTHONPATH=. ./knighttests/test_parallel_execution.py
     from unittest import main
     main()

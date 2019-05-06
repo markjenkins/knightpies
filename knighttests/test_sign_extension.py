@@ -91,6 +91,6 @@ class SixtyFourBitRegistersNoOptimize(SixtyFourBitRegisters):
 
 if __name__ == '__main__':
     # to invoke, ensure top level directory is in python path, for example
-    # PYTHONPATH=. ./tests/sign_test.py
+    # PYTHONPATH=. ./knighttests/sign_test.py
     from unittest import main
     main()
