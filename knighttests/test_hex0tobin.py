@@ -83,6 +83,16 @@ class TestStage0Monitorexecute(TestHex0Common):
             "stage0/stage0_monitor.hex0",
             "roms/stage0_monitor")
 
+    def test_encode_stage1_assembler_0(self):
+        self.execute_test_hex_load(
+            "stage1/stage1_assembler-0.hex0",
+            "roms/stage1_assembler-0")
+
+    def test_encode_stage1_assembler_1(self):
+        self.execute_test_hex_load(
+            "stage1/stage1_assembler-1.hex0",
+            "roms/stage1_assembler-1")
+
 class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
     optimize = True
 
