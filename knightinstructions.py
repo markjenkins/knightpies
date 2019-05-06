@@ -141,6 +141,19 @@ def set_comparison_flags(tmp1, tmp2, registerfile, registerindex):
     else:
         registerfile[registerindex] = CONDITION_BIT_LT
 
+def register_negative(register_file, reg0):
+    # naive version
+    #return 0 > interpret_nbits_as_signed(register_file.itemsize*BITS_PER_BYTE)
+
+    # optimize by checking the sign bit
+    #
+    # we could do better for specific register sizes by having
+    # 2**(nbits-1)-1 precomputed and just check if we're greater than that
+    return bool(register_file[reg0]>>(register_file.itemsize*BITS_PER_BYTE-1))
+
+def register_positive(register_file, reg0):
+    return not register_negative(register_file, reg0)
+
 # 4 OP integer instructions
 
 def ADD_CI(vm, c):
@@ -659,10 +672,18 @@ def JUMP_NZ(vm, c):
     pass
 
 def JUMP_P(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    if register_negative(register_file, reg0):
+        return next_ip
+    else:
+        return next_ip + raw_immediate
 
 def JUMP_NP(vm, c):
-    pass
+    register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    if register_negative(register_file, reg0):
+        return next_ip + raw_immediate
+    else:
+        return next_ip
 
 def CALLI(vm, c):
     pass
