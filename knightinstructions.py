@@ -638,7 +638,11 @@ def LOADU32(vm, c):
     pass
 
 def CMPUI(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    set_comparison_flags(
+        register_file[reg1], raw_immediate, register_file, reg0)
+    return next_ip
 
 def STORE(vm, c):
     pass
