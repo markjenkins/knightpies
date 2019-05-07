@@ -26,7 +26,10 @@ from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 from constants import MEM
 
 from .util import get_closed_named_temp_file
-from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH, STAGE_0_MONITOR_RELATIVE_PATH
+from .stage0 import (
+    STAGE_0_MONITOR_HEX_FILEPATH, STAGE_0_MONITOR_RELATIVE_PATH,
+    STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH, STAGE_0_HEX0_ASSEMBLER_FILEPATH,
+    )
 
 STACK_START = 0x600
 STACK_SIZE = 8
@@ -163,6 +166,39 @@ class TestHex0ToBin16(TestStage0Monitorexecute):
     registersize = 16
 
 class TestHex0ToBin16Optimize(TestHex0ToBin16):
+    optimize = True
+
+class TestStage1Hex0Encode(TestHex0KnightExectuteCommon):
+    hex0_encoding_rom = STAGE_0_HEX0_ASSEMBLER_FILEPATH
+    def get_tape1_file_path(self, input_file_fd):
+        return input_file_fd.name
+
+    def get_stdin_for_vm(self, input_file_fd):
+        return BytesIO()
+
+    def get_output_file_path(self):
+        return self.tape_02_temp_file_path
+
+    def test_encode_stage1_hex0_encodes_self(self):
+        self.execute_test_hex_load_published_sha256(
+            STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH,
+            "roms/stage1_assembler-0",
+    )
+
+class TestStage1Hex0Encode32Optimize(TestStage1Hex0Encode):
+    optimize = True
+
+class TestStage1Hex0ToBin64(TestStage1Hex0Encode):
+    stack_size_multiplier = 2
+    registersize = 64
+
+class TestStage1Hex0ToBin64Optimize(TestStage1Hex0ToBin64):
+    optimize = True
+
+class TestStage1Hex0ToBin16(TestStage1Hex0Encode):
+    registersize = 16
+
+class TestStage1Hex0ToBin16Optimize(TestStage1Hex0ToBin16):
     optimize = True
 
 if __name__ == '__main__':
