@@ -27,7 +27,7 @@ from array import array
 
 import knightinstructions
 from pythoncompat import print_func, init_array_itemsize_8, \
-    get_binary_mode_stdout
+    get_binary_mode_stdout, COMPAT_FALSE, COMPAT_TRUE
 from constants import \
     EXIT_FAILURE, \
     IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TAPE1FILENAME, TAPE2FILENAME, \
@@ -48,7 +48,7 @@ MIN_SIZE_UNSIGNED_INT = 4
 
 MIN_INSTRUCTION_LEN = 4
 
-DEBUG = False
+DEBUG = COMPAT_FALSE
 
 OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
 
@@ -90,8 +90,8 @@ def create_vm(size, registersize=32,
     assert memory.itemsize == SIZE_UNSIGNED_CHAR # 1
 
 
-    halted = False
-    exception = False
+    halted = COMPAT_FALSE
+    exception = COMPAT_FALSE
     performance_counter = 0
 
     vm = (instruction_pointer, registers, memory,
@@ -123,18 +123,18 @@ def read_instruction(vm):
             current_ip, # CURIP
             next_ip, # NEXTIP
             [unpack_byte(a) for a in instruction_bytes[1:]], # RESTOF
-            False # INVALID
+            COMPAT_FALSE # INVALID
     )
 
 def halt_vm(vm):
-    # recontruct vm tuple with vm[HALTED] = True
-    return vm[0:HALTED] + (True,) + vm[HALTED+1:]
+    # recontruct vm tuple with vm[HALTED] = COMPAT_TRUE
+    return vm[0:HALTED] + (COMPAT_TRUE,) + vm[HALTED+1:]
 
 def increment_vm_perf_count(vm):
     return vm[0:PERF_COUNT] + (vm[PERF_COUNT]+1,) + vm[PERF_COUNT+1:]
         
 def invalidate_instruction(i):
-    return i[0:INVALID] + (True,) + i[INVALID+1:]
+    return i[0:INVALID] + (COMPAT_TRUE,) + i[INVALID+1:]
 
 def illegal_instruction(vm, current_instruction):
     print_func("Invalid instruction was recieved at address:%08X" %
@@ -168,7 +168,7 @@ def vm_with_new_ip(vm, new_ip):
 def make_eval_instruction_for_registersize(registersizebits):
     EVAL_TABLE = make_eval_tables_for_register_size(registersizebits)
 
-    def eval_instruction(vm, current_instruction, halt_print=True):
+    def eval_instruction(vm, current_instruction, halt_print=COMPAT_TRUE):
         vm = increment_vm_perf_count(vm)
         if DEBUG:
             print_func("Executing: %s" %
@@ -205,7 +205,7 @@ def make_eval_instruction_for_registersize(registersizebits):
             illegal_instruction(vm, current_instruction)
 
         # we shouldn't make it this far, other branches call exit()
-        assert False
+        assert COMPAT_FALSE
         return None
 
     return eval_instruction
@@ -578,7 +578,7 @@ EVAL_1OPI_INT_TABLE_STRING = {
     }
 
 def eval_N_OP_int(vm, c, n, lookup_val, lookup_table,
-                  immediate=False, illegal_table=None):
+                  immediate=COMPAT_FALSE, illegal_table=None):
     next_ip = None
     if immediate:
         name = "ILLEGAL_%dOPI" % n
@@ -631,7 +631,7 @@ def get_instruction_module_for_registersize_bits(registersizebits):
 def make_eval_tables_for_register_size(registersizebits):
     knightmodule = get_instruction_module_for_registersize_bits(
         registersizebits)
-    def lookup_instruction_and_debug_str(x, replace_underscore=True):
+    def lookup_instruction_and_debug_str(x, replace_underscore=COMPAT_TRUE):
         table_key, instruction_str = x
         if replace_underscore:
             instruction_str_debug = instruction_str.replace("_", ".")
@@ -645,7 +645,8 @@ def make_eval_tables_for_register_size(registersizebits):
         ) # outer tuple
 
     def lookup_instruction_and_debug_str_no_sub(x):
-        return lookup_instruction_and_debug_str(x, replace_underscore=False)
+        return lookup_instruction_and_debug_str(
+            x, replace_underscore=COMPAT_FALSE)
 
     EVAL_4OP_INT_TABLE = dict( map(
         lookup_instruction_and_debug_str,
@@ -693,12 +694,12 @@ def make_eval_tables_for_register_size(registersizebits):
 
     def eval_2OPI_Int(vm, c):
         return eval_N_OP_int(vm, c, 2, c[RAW][2], EVAL_2OPI_INT_TABLE,
-                             immediate=True)
+                             immediate=COMPAT_TRUE)
 
     def eval_Integer_1OPI(vm, c):
         return eval_N_OP_int(vm, c, 2,
                              c[RAW][2]*16 + c[RAW_XOP], EVAL_1OPI_INT_TABLE,
-                             immediate=True)
+                             immediate=COMPAT_TRUE)
 
     def eval_Integer_0OPI(vm, c):
         next_ip = None
@@ -800,7 +801,8 @@ def get_eval_instruction_for_register_size(regsize_bytes):
             make_eval_instruction_for_registersize(regsize_bytes*8)
     return EVAL_INSTRUCTION_FOR_REGISTER_SIZES[regsize_bytes]
 
-def eval_instruction(vm, current_instruction, optimize=True, halt_print=True):
+def eval_instruction(vm, current_instruction,
+                     optimize=COMPAT_TRUE, halt_print=COMPAT_TRUE):
     if optimize:
         return get_eval_instruction_for_register_size(
             vm[REG].itemsize)(vm, current_instruction, halt_print=halt_print)
@@ -812,12 +814,12 @@ def make_read_and_eval_for_registersize(registersizebits):
     global EVAL_INSTRUCTION_FOR_REGISTER_SIZES
     eval_instruction_specific_bit = get_eval_instruction_for_register_size(
         registersizebits//8)
-    def read_and_eval(vm, halt_print=True):
+    def read_and_eval(vm, halt_print=COMPAT_TRUE):
         try:
             c = read_instruction(vm)
             vm = eval_instruction_specific_bit(vm, c, halt_print=halt_print)
             if vm==None or vm[IP]==None:
-                assert False # this shouldn't happen
+                assert COMPAT_FALSE # this shouldn't happen
                 # catch if asserts are off
                 raise Exception(
                     "eval_instruction did not return a new vm state")
@@ -844,7 +846,7 @@ def get_read_and_eval_for_register_size(regsize_bytes):
             make_read_and_eval_for_registersize(regsize_bytes*8)
     return READ_AND_EVAL_TABLE[regsize_bytes]
 
-def read_and_eval(vm, optimize=True, halt_print=True):
+def read_and_eval(vm, optimize=COMPAT_TRUE, halt_print=COMPAT_TRUE):
     if optimize:
         return get_read_and_eval_for_register_size(vm[REG].itemsize)(
             vm, halt_print=halt_print)

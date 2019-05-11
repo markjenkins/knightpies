@@ -23,6 +23,13 @@ from array import array
 from constants import \
     ARRAY_TYPE_UNSIGNED_INT_LONG, ARRAY_TYPE_UNSIGNED_LONG_LONG
 
+if sys.version_info[0:2] >= (2,3):
+    COMPAT_FALSE = False
+    COMPAT_TRUE = True
+else:
+    COMPAT_FALSE = 0
+    COMPAT_TRUE = 1
+
 if sys.version_info[0] >= 3:
     if isinstance(__builtins__, dict):
         print_func = __builtins__["print"]

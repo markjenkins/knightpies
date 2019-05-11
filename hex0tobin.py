@@ -3,7 +3,7 @@
 from string import hexdigits
 import re
 
-from pythoncompat import write_byte, open_ascii
+from pythoncompat import write_byte, open_ascii, COMPAT_FALSE, COMPAT_TRUE
 
 def hex_and_whitespace_from_hex0(hex0fd):
     line = hex0fd.readline()

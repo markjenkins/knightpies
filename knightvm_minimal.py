@@ -22,7 +22,7 @@
 from sys import stderr, exit
 from string import hexdigits
 
-from pythoncompat import print_func
+from pythoncompat import print_func, COMPAT_FALSE, COMPAT_TRUE
 from constants import REG, EXIT_SUCCESS, EXIT_FAILURE
 from knightdecode import \
     MEM, HALTED, \
@@ -51,7 +51,7 @@ def load_hex_program(vm, hexromfilename):
     f.close()
 
 
-def execute_vm(vm, optimize=True, halt_print=True):
+def execute_vm(vm, optimize=COMPAT_TRUE, halt_print=COMPAT_TRUE):
     if optimize:
         read_and_eval_register_size_specific = \
             get_read_and_eval_for_register_size(vm[REG].itemsize)
@@ -62,7 +62,7 @@ def execute_vm(vm, optimize=True, halt_print=True):
         vm = read_and_eval_register_size_specific(
             vm, halt_print=halt_print)
 
-def do_minimal_vm(romfile, romhex=False, memory_size=1<<21):
+def do_minimal_vm(romfile, romhex=COMPAT_FALSE, memory_size=1<<21):
     vm = create_vm(size=0, registersize=32)
     if romhex:
         load_hex_program(vm, romfile)

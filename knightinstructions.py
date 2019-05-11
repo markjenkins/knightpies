@@ -30,7 +30,7 @@ from constants import \
     CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT, \
     HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER, HAL_IO_DEVICE_STDIO
 
-from pythoncompat import write_byte
+from pythoncompat import write_byte, COMPAT_TRUE, COMPAT_FALSE
 from knightdecodeutil import outside_of_world
 
 BITS_PER_BYTE = 8
@@ -47,13 +47,13 @@ def prove_8_bits_per_array_byte():
         unsigned_byte_array.append(single_byte_value)
     except OverflowError:
     # this could only happen if 1 byte was < 8 bits
-        assert False
+        assert COMPAT_FALSE
 
     try: # now we expect this to cause an overflow
         unsigned_byte_array[0]+=1
     except OverflowError:
-        return True
-    return False
+        return COMPAT_TRUE
+    return COMPAT_FALSE
 assert prove_8_bits_per_array_byte()
 
 MAX_16_SIGNED = (2**15)-1
@@ -148,7 +148,7 @@ def register_negative(register_file, reg0):
     #
     # we could do better for specific register sizes by having
     # 2**(nbits-1)-1 precomputed and just check if we're greater than that
-    return bool(register_file[reg0]>>(register_file.itemsize*BITS_PER_BYTE-1))
+    return register_file[reg0]>>(register_file.itemsize*BITS_PER_BYTE-1)
 
 def register_positive(register_file, reg0):
     return not register_negative(register_file, reg0)
@@ -574,7 +574,7 @@ def RET(vm, c):
     register_file[reg0] = address_of_pc_on_stack
 
     # Read in the new PC
-    next_ip = readin_bytes(mem, address_of_pc_on_stack, False, reg_size)
+    next_ip = readin_bytes(mem, address_of_pc_on_stack, COMPAT_FALSE, reg_size)
 
     # Clear Stack Values
     writeout_bytes(mem, address_of_pc_on_stack, 0, reg_size)
@@ -942,7 +942,7 @@ def lookup_tapeindex_and_filename(vm, io_device_register=0):
     else:
         return None, None, None
 
-def lookup_fd(vm, io_device_register=0, write_context=False):
+def lookup_fd(vm, io_device_register=0, write_context=COMPAT_FALSE):
     tapeindex, tapefilenameindex, io_device = lookup_tapeindex_and_filename(
         vm, io_device_register=io_device_register)
     if None==tapeindex and io_device==HAL_IO_DEVICE_STDIO:
@@ -955,7 +955,7 @@ def lookup_fd(vm, io_device_register=0, write_context=False):
     else:
         exit("Error looking up relevant tape device")
 
-def tapeopen(vm, flags, do_exists=False):
+def tapeopen(vm, flags, do_exists=COMPAT_FALSE):
     tapeindex, tapefilenameindex, io_device = lookup_tapeindex_and_filename(vm)
     if None in (tapeindex, tapefilenameindex):
         exit("no tape device selected for read/write")
@@ -966,7 +966,7 @@ def tapeopen(vm, flags, do_exists=False):
     vm[TAPEFD][tapeindex] = open(filename, flags)
 
 def vm_FOPEN_READ(vm):
-    tapeopen(vm, 'rb', do_exists=True)
+    tapeopen(vm, 'rb', do_exists=COMPAT_TRUE)
 
 def vm_FOPEN_WRITE(vm):
     tapeopen(vm, 'wb')
@@ -983,7 +983,7 @@ def vm_FSEEK(vm):
 
 def vm_FGETC(vm):
     byte_read = lookup_fd(
-        vm, write_context=False,
+        vm, write_context=COMPAT_FALSE,
         io_device_register=HAL_IO_DEVICE_REGISTER).read(1)
     if len(byte_read)==0:
         vm[REG][HAL_IO_DATA_REGISTER] = \
@@ -996,7 +996,7 @@ def vm_FGETC(vm):
 def vm_FPUTC(vm):
     output_byte = vm[REG][HAL_IO_DATA_REGISTER] & 0xFF
     fd = lookup_fd(
-        vm, write_context=True,
+        vm, write_context=COMPAT_TRUE,
         io_device_register=HAL_IO_DEVICE_REGISTER)
     write_byte(fd, output_byte)
 
