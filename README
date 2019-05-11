@@ -36,8 +36,8 @@ $ ./runtestmodule.py knighttests/test_module.py
 direct invocation of some of the test files does not work.
 
 Run the entire test suite with
-$ ./run_tests.sh
-add -v for verbose output
+$ ./run_tests.py
+add -v for verbose output, other python unittest discover sub-command flags work too
 
 The most interesting test is
 python3 -m knighttests.test_parallel_execution
