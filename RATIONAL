@@ -2,7 +2,7 @@ My interest in implementing Knight ISA in Python is two fold:
  * As an educational exercise to further my understanding of the https://bootstrappable.org effort and how to simulate a register machine.
 
  * Leverage the amazing work of stage0 [0] and mes [1] to bootstrap the free world from platforms where a C compiler or Scheme is not available or trusted, but where Python is available. This includes
- i) 16+ years of GNU/Linux pressed installer discs that are still out there with python 2.2+ but absent gcc
+ i) 16+ years of GNU/Linux pressed installer discs that are still out there with python 2.2+ but absent gcc and guile (scheme)
 
 ii) computers that shipped direct from the manufacturer with the above functionality
 
