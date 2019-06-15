@@ -2,7 +2,8 @@
  - Additional instructions required to interpret stage1_assembler-0
  - hex0 encoding fuzzing test (helped catch issue #1)
  - Mention of IronPython removed from README and RATIONAL as CPython on Windows (including versions available through the Microsoft Store) are sufficient from a diverse double compiling perspective because they are built with MSVC
- - initial fixes re use of True/False/bool which breaks Python 2.2 support
+ - Initial fixes re use of True/False/bool which breaks Python 2.2 support
+ - Test runner shell script replaced with pure Python
 
 0.1 -- 2019-05-04
  - Enough instructions implemented to interpret stage0_monitor
