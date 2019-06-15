@@ -7,7 +7,7 @@ Currently incomplete, knightpies can only run the instructions used by the stage
 
 See RATIONAL for why I'm writing this.
 
-Attempts have been made to remain compatible with Python 2.2 and later in the main code and Python 3.2 and later in the test suite. I'm interested in remaining compatible with PyPy (pypy.org) and IronPython (ironpython.net) (see RATIONAL) as well. These compatibility goals hasn't been tested yet.
+Attempts have been made to remain compatible with Python 2.2 and later in the main code and Python 3.2 and later in the test suite. I'm interested in remaining compatible with both CPython (python.org) and PyPy (pypy.org) implementations. These compatibility goals hasn't been tested yet.
 
 Programs you can invoke:
 

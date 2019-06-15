@@ -1,14 +1,5 @@
 * items are implemented, but under tested by the current test suite 
 
-0.2
- - Implement enough instructions to execute stage1_assembler-0.hex0
-* FOPEN_READ (this will test)
-CMPSKIPI.GE
-CMPSKIPI.G
-CMPSKIPI.E
-* ADD
-SWAP
-
 0.2.5
  - Implement enough instructions to execute stage1_assembler-1.hex0
 NOT

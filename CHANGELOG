@@ -1,9 +1,15 @@
+0.2 -- 2019-06-15
+ - Additional instructions required to interpret stage1_assembler-0
+ - hex0 encoding fuzzing test (helped catch issue #1)
+ - Mention of IronPython removed from README and RATIONAL as CPython on Windows (including versions available through the Microsoft Store) are sufficient from a diverse double compiling perspective because they are built with MSVC
+ - initial fixes re use of True/False/bool which breaks Python 2.2 support
+
 0.1 -- 2019-05-04
-- Enough instructions implemented to interpret stage0_monitor
-- An initial test suite exercising above, including
- * Parallel execution with the original C knightvm with comparison of state and output
- * Our own implementation of hex0 file encoding and this is compared against published stage0 SHA256SUMS and execution of stage0_monitor on additional hex0 files from stage0 project
-- Git sub-module reference to stage0 Release_0.2.0
-  (2988d0e3913f9767b2026ccb95df55ec303576f3)
+ - Enough instructions implemented to interpret stage0_monitor
+ - An initial test suite exercising above, including
+  * Parallel execution with the original C knightvm with comparison of state and output
+  * Our own implementation of hex0 file encoding and this is compared against published stage0 SHA256SUMS and execution of stage0_monitor on additional hex0 files from stage0 project
+ - Git sub-module reference to stage0 Release_0.2.0
+   (2988d0e3913f9767b2026ccb95df55ec303576f3)
 
 
