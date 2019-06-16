@@ -31,6 +31,9 @@ class SimpleInstructionTests(TestCase):
     def load_1OP_int_prefix(self):
         self.vm[MEM].frombytes( bytes.fromhex('0D0000') )
 
+    def load_2OP_int_prefix(self):
+        self.vm[MEM].frombytes( bytes.fromhex('0900') )
+
     def test_FALSE(self):
         self.load_1OP_int_prefix()
         self.vm[MEM].frombytes( bytes.fromhex('20') ) # FALSE r0
@@ -48,6 +51,12 @@ class SimpleInstructionTests(TestCase):
         # and we compare that to 2**self.registersize (1 larger than max)
         self.assertEqual( -~self.vm[REG][0], 1<<self.registersize )
         self.assertEqual( self.vm[REG][0], (1<<self.registersize)-1 )
+
+    def test_NOT(self):
+        self.load_2OP_int_prefix()
+        self.vm[MEM].frombytes( bytes.fromhex('0601') ) # NOT r0 r1
+        read_and_eval(self.vm)
+        self.assertEqual( self.vm[REG][0], 2**(self.registersize)-1)
 
 class SimpleInstructionTests32NoOptimize(SimpleInstructionTests):
     optimize = False

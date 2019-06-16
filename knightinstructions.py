@@ -466,7 +466,10 @@ def MOVE(vm, c):
     pass
 
 def NOT(vm, c):
-    pass
+    mem, register_file, reg0, reg1, next_ip = get_args_for_2OP(vm, c)
+    mask = (1<<(register_file.itemsize*8)) -1
+    register_file[reg0] = (~register_file[reg1]) & mask
+    return next_ip
 
 def BRANCH(vm, c):
     pass
