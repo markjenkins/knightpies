@@ -34,6 +34,9 @@ class SimpleInstructionTests(TestCase):
     def load_2OP_int_prefix(self):
         self.vm[MEM].frombytes( bytes.fromhex('0900') )
 
+    def load_2OPI_prefix(self):
+        self.vm[MEM].frombytes( bytes.fromhex('E100') )
+
     def test_FALSE(self):
         self.load_1OP_int_prefix()
         self.vm[MEM].frombytes( bytes.fromhex('20') ) # FALSE r0
@@ -58,6 +61,12 @@ class SimpleInstructionTests(TestCase):
         read_and_eval(self.vm)
         self.assertEqual( self.vm[REG][0], 2**(self.registersize)-1)
 
+    def test_ADDUI(self):
+        self.load_2OPI_prefix()
+        self.vm[MEM].frombytes( bytes.fromhex('0F010001') ) # ADDUI r0 r1 1
+        read_and_eval(self.vm)
+        self.assertEqual( self.vm[REG][0], 1)
+        
 class SimpleInstructionTests32NoOptimize(SimpleInstructionTests):
     optimize = False
         
