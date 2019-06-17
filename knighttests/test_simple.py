@@ -34,6 +34,9 @@ class SimpleInstructionTests(TestCase):
     def load_2OP_int_prefix(self):
         self.vm[MEM].frombytes( bytes.fromhex('0900') )
 
+    def load_3OP_int_prefix(self):
+        self.vm[MEM].frombytes( bytes.fromhex('05') )
+
     def load_2OPI_prefix(self):
         self.vm[MEM].frombytes( bytes.fromhex('E100') )
 
@@ -60,6 +63,22 @@ class SimpleInstructionTests(TestCase):
         self.vm[MEM].frombytes( bytes.fromhex('0601') ) # NOT r0 r1
         read_and_eval(self.vm)
         self.assertEqual( self.vm[REG][0], 2**(self.registersize)-1)
+
+    def test_LOADX16_STOREX16(self):
+        self.vm[MEM].frombytes( bytes.fromhex('00000000') ) # NOP
+        self.load_3OP_int_prefix()
+        self.vm[MEM].frombytes( bytes.fromhex('04A012') ) # STOREX16 r0 r1 r2
+        self.load_3OP_int_prefix()
+        self.vm[MEM].frombytes( bytes.fromhex('03C312') ) # LOADXU16 r3 r1 r2
+        self.vm[REG][0] = 0xDE
+        self.vm[REG][1] = 0
+        self.vm[REG][2] = 0
+        self.vm = read_and_eval(self.vm) # run the NOP
+        self.vm = read_and_eval(self.vm) # run the STOREX16
+        self.vm = read_and_eval(self.vm) # run the LOADXU16
+        self.assertEqual(
+            self.vm[REG][0], self.vm[REG][3]
+        )
 
     def test_ADDUI(self):
         self.load_2OPI_prefix()
