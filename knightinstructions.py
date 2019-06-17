@@ -247,12 +247,13 @@ def SORTU(vm, c):
 # 3 OP integer instructions
 
 def get_args_for_3OP(vm, c):
-    return (vm[REG],
+    return (vm[MEM],
+            vm[REG],
             c[I_REGISTERS][0], c[I_REGISTERS][1], c[I_REGISTERS][2],
             c[NEXTIP])
 
 def ADDU(vm, c):
-    registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
     mask = (1<<(registerfile.itemsize*8)) -1
     assert(mask == (2**(registerfile.itemsize*8))-1 )
     registerfile[reg0] = (registerfile[reg1] + registerfile[reg2]) & mask
@@ -274,7 +275,7 @@ def SUBU(vm, c):
     pass
 
 def CMP(vm, c):
-    registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     tmp1 = interpret_nbits_as_signed(registerfile[reg1], N_BITS)
     tmp2 = interpret_nbits_as_signed(registerfile[reg2], N_BITS)
@@ -282,7 +283,7 @@ def CMP(vm, c):
     return next_ip
 
 def CMPU(vm, c):
-    registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
     set_comparison_flags(
         registerfile[reg1], registerfile[reg2], registerfile, reg0)
     return next_ip
