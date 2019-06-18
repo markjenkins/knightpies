@@ -17,7 +17,6 @@
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
 from string import hexdigits
-import re
 
 from pythoncompat import write_byte, open_ascii, COMPAT_FALSE, COMPAT_TRUE
 
