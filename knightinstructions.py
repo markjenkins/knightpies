@@ -846,7 +846,9 @@ def SALI(vm, c):
     pass
 
 def SARI(vm, c):
-    pass
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    register_file[reg0] = register_file[reg0]>>raw_immediate
+    return next_ip
 
 def SL0I(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
