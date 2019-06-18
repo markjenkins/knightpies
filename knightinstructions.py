@@ -582,7 +582,8 @@ def TRUE(vm, c):
     return next_ip
 
 def JSR_COROUTINE(vm, c):
-    pass
+    mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    return register_file[reg0]
 
 def RET(vm, c):
     mem, register_file, reg0, next_ip_discard = get_args_for_1OP(vm, c)
