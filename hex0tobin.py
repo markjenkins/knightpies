@@ -21,22 +21,22 @@ from string import hexdigits
 from pythoncompat import write_byte, open_ascii, COMPAT_FALSE, COMPAT_TRUE
 
 def int_bytes_from_hex0_fd(input_file_fd):
-    first_nyble = True
+    first_nyble = COMPAT_TRUE
     accumulator = 0
-    comment = False
+    comment = COMPAT_FALSE
     character = input_file_fd.read(1)
     while len(character)>0:
         if not comment and (character==';' or character=='#'):
-            comment = True
+            comment = COMPAT_TRUE
         elif comment and (character=='\r' or character=='\n'):
-            comment = False
+            comment = COMPAT_FALSE
         elif not comment and character in hexdigits:
             accumulator += int(character, 16)
             if first_nyble:
                 accumulator = accumulator << 4
-                first_nyble = False
+                first_nyble = COMPAT_FALSE
             else:
-                first_nyble = True
+                first_nyble = COMPAT_TRUE
                 yield accumulator
                 accumulator = 0
         # else: pass # ignore everything that's not a hexdigit
