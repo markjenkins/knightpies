@@ -80,6 +80,16 @@ class SimpleInstructionTests(TestCase):
             self.vm[REG][0], self.vm[REG][3]
         )
 
+    def test_SUB(self):
+        self.load_3OP_int_prefix()
+        self.vm[MEM].frombytes( bytes.fromhex('002012') ) # SUB r0 r1 r2
+        self.vm[REG][1] = 0
+        self.vm[REG][2] = 1
+        read_and_eval(self.vm)
+        self.assertEqual(
+            self.vm[REG][0], (2**self.registersize)-1
+        )
+
     def test_ADDUI(self):
         self.load_2OPI_prefix()
         self.vm[MEM].frombytes( bytes.fromhex('0F010001') ) # ADDUI r0 r1 1

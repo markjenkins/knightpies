@@ -269,7 +269,13 @@ def ADDU(vm, c):
 ADD = ADDU
 
 def SUB(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    tmp1 = interpret_nbits_as_signed(registerfile[reg1], N_BITS)
+    tmp2 = interpret_nbits_as_signed(registerfile[reg2], N_BITS)
+    registerfile[reg0] = (tmp1-tmp2) & mask
+    return next_ip
 
 def SUBU(vm, c):
     pass
