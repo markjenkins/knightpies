@@ -14,23 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from stage0dir import get_stage0_file
+from hex0tobin import write_binary_filefd_from_hex0_filefd
+from hex1tobin import write_binary_filefd_from_hex1_filefd
 
-STAGE_0_MONITOR_RELATIVE_PATH = 'stage0/stage0_monitor.hex0'
+from .hexcommon import (
+    HexCommon, Encoding_rom_256_Common,
+    make_get_sha256sum_of_file_after_encode,
+)
+from .stage0 import STAGE_0_HEX0_ASSEMBLER_FILEPATH
 
-STAGE_0_MONITOR_HEX_FILEPATH = get_stage0_file(STAGE_0_MONITOR_RELATIVE_PATH)
+get_sha256sum_of_file_after_hex1_encode = \
+    make_get_sha256sum_of_file_after_encode(
+        write_binary_filefd_from_hex1_filefd)
 
-STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH = 'stage1/stage1_assembler-0.hex0'
+class Hex1Common(HexCommon):
+    encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
+    rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
 
-STAGE_0_HEX0_ASSEMBLER_FILEPATH = get_stage0_file(
-    STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH)
+class Test_hex_assembler0_256Sum(Hex1Common, Encoding_rom_256_Common):
+    sha256sumfilename = 'roms/stage1_assembler-0'
 
-STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH = 'stage1/stage1_assembler-1.hex0'
-
-STAGE_0_HEX1_ASSEMBLER_FILEPATH = get_stage0_file(
-    STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH)
-
-STAGE_0_HEX2_ASSEMBLER_RELATIVE_PATH = 'stage1/stage1_assembler-2.hex1'
-
-STAGE_0_HEX2_ASSEMBLER_FILEPATH = get_stage0_file(
-    STAGE_0_HEX2_ASSEMBLER_RELATIVE_PATH)

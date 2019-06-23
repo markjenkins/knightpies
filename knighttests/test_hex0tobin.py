@@ -25,21 +25,22 @@ from knightdecode import create_vm
 from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 from constants import MEM
 
+from .hexcommon import (
+    Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
+    make_get_sha256sum_of_file_after_encode
+    )
 from .util import get_closed_named_temp_file
 from .stage0 import (
     STAGE_0_MONITOR_HEX_FILEPATH, STAGE_0_MONITOR_RELATIVE_PATH,
     STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH, STAGE_0_HEX0_ASSEMBLER_FILEPATH,
     )
 
+get_sha256sum_of_file_after_hex0_encode = \
+    make_get_sha256sum_of_file_after_encode(
+        write_binary_filefd_from_hex0_filefd)
+
 STACK_START = 0x600
 STACK_SIZE = 8
-
-def get_sha256sum_of_file_after_hex0_encode(filename):
-    with BytesIO() as outputmemfile:
-        with open(filename) as hex0file:
-            write_binary_filefd_from_hex0_filefd(hex0file, outputmemfile)
-            hexdigest = sha256(outputmemfile.getbuffer()).hexdigest()
-    return hexdigest
 
 ADDITIONAL_SHA256SUMS = [
     (filename,
@@ -51,31 +52,24 @@ ADDITIONAL_SHA256SUMS = [
     ) # end tuple fed to for filename in
 ]
 
-class TestHex0Common(TestCase):
-    hex0_encoding_rom = STAGE_0_MONITOR_HEX_FILEPATH
+class Hex0Common(HexCommon):
+    encoding_rom_filename = STAGE_0_MONITOR_HEX_FILEPATH
+    rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
 
-    def setUp(self):
-        self.stage0_bin_fd = BytesIO()
-        with open( self.hex0_encoding_rom ) as stage0hex0fd:
-            write_binary_filefd_from_hex0_filefd(
-                stage0hex0fd, self.stage0_bin_fd)
+class Test_monitor_256Sum(Hex0Common, Encoding_rom_256_Common):
+    sha256sumfilename = 'roms/stage0_monitor'
 
-    def tearDown(self):
-        self.stage0_bin_fd.close()
+class Hex0EncodeSpecificFile(TestCase):
+    def compute_sha256_digest(self):
+        return get_sha256sum_of_file_after_hex0_encode(
+            self.sha256_compare_filename)
 
-class TestHex0ToBin(TestHex0Common):
-    def test_monitor_matches_known_sha256(self):
-        stage0_monitor_sha256sum_HEX = get_stage0_test_sha256sum(
-            'roms/stage0_monitor')
-        s = sha256(self.stage0_bin_fd.getbuffer())
-        self.assertEqual( s.hexdigest(), stage0_monitor_sha256sum_HEX )
+class Test_dehex_256Sum(
+        Hex256SumMatch, Hex0EncodeSpecificFile):
+    sha256sumfilename = 'roms/DEHEX'
+    sha256_compare_filename = get_stage0_file('stage1/dehex.hex0')
 
-    def test_vm_minimal_hex_load(self):
-        vm = create_vm(size=0)
-        load_hex_program(vm, STAGE_0_MONITOR_HEX_FILEPATH)
-        self.assertEqual( self.stage0_bin_fd.getbuffer(), vm[MEM].tobytes() )
-
-class TestHex0KnightExectuteCommon(TestHex0Common):
+class TestHex0KnightExectuteCommon(Hex0Common):
     registersize = 32
     stack_size_multiplier = 1
     optimize = False
@@ -111,8 +105,8 @@ class TestHex0KnightExectuteCommon(TestHex0Common):
                 stdin=self.get_stdin_for_vm(input_file_fd),
                 stdout=output_mem_buffer,
             )
-            load_hex_program(vm, self.hex0_encoding_rom )
-            self.assertEqual( self.stage0_bin_fd.getbuffer(),
+            load_hex_program(vm, self.encoding_rom_filename )
+            self.assertEqual( self.encoding_rom_binary.getbuffer(),
                               vm[MEM].tobytes() )
             grow_memory(vm, self.stack_end)
             execute_vm(vm, optimize=self.optimize, halt_print=False)
@@ -169,7 +163,7 @@ class TestHex0ToBin16Optimize(TestHex0ToBin16):
     optimize = True
 
 class TestStage1Hex0Encode(TestHex0KnightExectuteCommon):
-    hex0_encoding_rom = STAGE_0_HEX0_ASSEMBLER_FILEPATH
+    encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
     def get_tape1_file_path(self, input_file_fd):
         return input_file_fd.name
 
