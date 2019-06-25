@@ -17,8 +17,22 @@
 from unittest import TestCase
 from io import BytesIO
 from hashlib import sha256
+from os import unlink
 
-from stage0dir import get_stage0_test_sha256sum
+from knightdecode import create_vm
+from knightvm_minimal import grow_memory, execute_vm
+from knightvm_minimal import load_hex_program
+from stage0dir import get_stage0_file, get_stage0_test_sha256sum
+from constants import MEM
+
+from .stage0 import (
+    STAGE_0_MONITOR_HEX_FILEPATH, STAGE_0_MONITOR_RELATIVE_PATH,
+    STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH, STAGE_0_HEX0_ASSEMBLER_FILEPATH,
+    )
+from .util import get_closed_named_temp_file
+
+STACK_START = 0x600
+STACK_SIZE = 8
 
 def make_get_sha256sum_of_file_after_encode(encode_func):
     def func_get_sha256sum_of_file_after_encode(filename):
@@ -58,3 +72,60 @@ class Encoding_rom_256_Common(Hex256SumMatch):
     def compute_sha256_digest(self):
         s = sha256( self.encoding_rom_binary.getbuffer() )
         return s.hexdigest()
+
+class TestHexKnightExectuteCommon:
+    registersize = 32
+    stack_size_multiplier = 1
+    optimize = False
+
+    def setup_stack_and_tmp_files(self):
+        self.stack_end = STACK_START+STACK_SIZE*self.stack_size_multiplier
+        self.tape_01_temp_file_path = get_closed_named_temp_file()
+        self.tape_02_temp_file_path = get_closed_named_temp_file()
+
+    def remove_tmp_files(self):
+        unlink(self.tape_01_temp_file_path)
+        unlink(self.tape_02_temp_file_path)
+
+    def execute_test_hex_load(self, stage0hexfile, sha256hex):
+        output_mem_buffer = BytesIO()
+
+        with open(get_stage0_file(stage0hexfile), 'rb') as input_file_fd:
+            vm = create_vm(
+                size=0, registersize=self.registersize,
+                tapefile1=self.get_tape1_file_path(input_file_fd),
+                tapefile2=self.tape_02_temp_file_path,
+                stdin=self.get_stdin_for_vm(input_file_fd),
+                stdout=output_mem_buffer,
+            )
+            self.load_encoding_rom(vm)
+            self.assertEqual( self.encoding_rom_binary.getbuffer(),
+                              vm[MEM].tobytes() )
+            grow_memory(vm, self.stack_end)
+            execute_vm(vm, optimize=self.optimize, halt_print=False)
+
+        with open(self.get_output_file_path(), 'rb') as tape_file:
+            checksum = sha256(tape_file.read())
+
+        self.assertEqual(
+            checksum.hexdigest(),
+            sha256hex,
+            stage0hexfile
+        )
+
+    def execute_test_hex_load_published_sha256(
+            self, stage0hexfile, sha256sumentry):
+        self.execute_test_hex_load(
+            stage0hexfile,
+            get_stage0_test_sha256sum(sha256sumentry) )
+        
+class CommonStage1HexEncode:
+    encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
+    def get_tape1_file_path(self, input_file_fd):
+        return input_file_fd.name
+
+    def get_stdin_for_vm(self, input_file_fd):
+        return BytesIO()
+
+    def get_output_file_path(self):
+        return self.tape_02_temp_file_path
