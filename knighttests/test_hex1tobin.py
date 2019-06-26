@@ -15,13 +15,23 @@
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
 from hex0tobin import write_binary_filefd_from_hex0_filefd
-from hex1tobin import write_binary_filefd_from_hex1_filefd
+from hex1tobin import (
+    write_binary_filefd_from_hex1_filefd,
+    int_bytes_from_hex1_fd,
+    )
 
 from .hexcommon import (
     HexCommon, Encoding_rom_256_Common,
     make_get_sha256sum_of_file_after_encode,
+    TestHexKnightExectuteCommon,
+    CommonStage1HexEncode,
 )
-from .stage0 import STAGE_0_HEX0_ASSEMBLER_FILEPATH
+from .stage0 import (
+    STAGE_0_HEX0_ASSEMBLER_FILEPATH,
+    STAGE_0_HEX1_ASSEMBLER_FILEPATH,
+    STAGE_0_HEX2_ASSEMBLER_RELATIVE_PATH,
+    )
+from constants import MEM
 
 get_sha256sum_of_file_after_hex1_encode = \
     make_get_sha256sum_of_file_after_encode(
@@ -34,3 +44,24 @@ class Hex1Common(HexCommon):
 class Test_hex_assembler0_256Sum(Hex1Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage1_assembler-0'
 
+class TestHex1KnightExectuteCommon(Hex1Common, TestHexKnightExectuteCommon):
+    def setUp(self):
+        Hex1Common.setUp(self)
+        self.setup_stack_and_tmp_files()
+
+    def tearDown(self):
+        Hex1Common.tearDown(self)
+        self.remove_tmp_files()
+
+    def load_encoding_rom(self, vm):
+        with open(self.encoding_rom_filename) as encoding_rom_file:
+            for input_byte in int_bytes_from_hex1_fd(encoding_rom_file):
+                vm[MEM].append(input_byte)
+
+class TestStage1Hex1Encode(CommonStage1HexEncode, TestHex1KnightExectuteCommon):
+    encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
+    def test_encode_stage1_hex2_with_stage1_hex1(self):
+        self.execute_test_hex_load_published_sha256(
+            STAGE_0_HEX2_ASSEMBLER_RELATIVE_PATH,
+            "roms/stage1_assembler-2",
+    )
