@@ -93,12 +93,12 @@ class TestStage0Monitorexecute(TestHex0KnightExectuteCommon):
 
     def test_encode_stage1_assembler_0(self):
         self.execute_test_hex_load_published_sha256(
-            "stage1/stage1_assembler-0.hex0",
+            STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH,
             "roms/stage1_assembler-0")
 
     def test_encode_stage1_assembler_1(self):
         self.execute_test_hex_load_published_sha256(
-            "stage1/stage1_assembler-1.hex0",
+            STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH,
             "roms/stage1_assembler-1")
 
     def test_additional_hex0_files(self):
