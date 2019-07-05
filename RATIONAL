@@ -1,69 +1,47 @@
-My interest in implementing Knight ISA in Python is two fold:
+My interest in implementing Knight ISA in Python is three fold:
  * As an educational exercise to further my understanding of the https://bootstrappable.org effort and how to simulate a register machine.
 
- * Leverage the amazing work of stage0 [0] and mes [1] to bootstrap the free world from platforms where a C compiler or Scheme is not available or trusted, but where Python is available. This includes
- i) 16+ years of GNU/Linux pressed installer discs that are still out there with python 2.2+ but absent gcc and guile (scheme)
+ * Create tooling for testing the well documented binary hex blobs in stage0 [0] and mescc-tools [1] . This includes the techniques of fuzzing [2] and diverse double compiling [3], the later of which will benefit from a Knight ISA implementation because stage0/stage2/cc_x86.s (x86 M2 compiler in Knight ISA assembler) can be compared against Linux\ Bootstrap/x86/cc_x86.M1 (x86 M2 compiler in x86 assembler). These kinds of tests are not a substitute for hand auditing that the hex 0/1/2 files co-respond to their assembler equivalents, but they'll provide empirical evidence.
 
-ii) computers that shipped direct from the manufacturer with the above functionality
+ * Leverage the amazing work of stage0 [0], mes [4], and the ongoing effort [5] to rewrite mes in M2 [6] to provide a portable bootstrap of the free world on platforms where a C compiler or Scheme is not available or trusted, where the architecture and/or linker formats of stage0 bootstraps, mescc-tools and m2-planet are incompatible, but where Python is still available for bootstrapping. This includes
 
-iii) Macintoshes from Mac OS X 10.2 onward that came with Python 2.2+ . (deprecated as of macOS 10.15, set to be out of the default install in a later release)
+i) Macintoshes from Mac OS X 10.2 onward that came with Python 2.2+, including Power . (deprecated as of macOS 10.15, set to be out of the default install in a later release)
+
+ii) Windows 10 releases that support a trusted version of CPython from the Microsoft store (now triggered by a python.exe available in default installs from 17763.0 [May 2n019] onward), including machines that ship in S mode (Windows store apps only). Windows is also interesting from a diverse double-compiling [3] perspective as these builds of CPython are compiled with Microsoft's C compiler (MSVC) which does not have GCC in its build heritage.
 
 and
- iv) Windows 10 releases that support a trusted version of CPython from the Microsoft store (now triggered by a python.exe available in default installs from 17763.0 [May 2019] onward), including machines that ship in S mode (Windows store apps only)
+iii) Other exotic computers that may have Python such as SPARC machines running Solaris, GNU/Linux MIPS machines (Lemote), and PowerPC Amigas.
 
-To become a bootstrap pathway, the effort [2] to rewrite mes in M2 [3] needs to be completed. This would only work on x86 systems compatible with stage0/stage1/cc_x86 and mescc-tools [4].
+Implementing the Knight ISA and using these other projects won't provide a bootstrap path on its own. There would need to be something like stage0/stage2/cc_knight.s (M2 compiler written in knight ISA targeting knight ISA) or some other M2 to Knight ISA compiler as a way to compile M2-Planet to Knight ISA.
 
-To support more exotic platforms such as 32 bit PowerPC Macintoshes, SPARC or MIPS without having to add architecture support to mescc and M2-Planet, and executable format/linker support to mescc-tools, I would need to either write stage0/stage2/cc_knight.s (M2 compiler written in knight ISA targeting knight ISA) or write a M2 to Knight ISA compiler so as to have a way of compiling M2-Planet to Knight ISA.
+But, I don't expect the performance of interpreting a Knight ISA build of mescc (c compiler written in Scheme) in Python on an exotic old computer to be acceptable, even for a patient, one-time escape to the free world.
 
-But I don't expect the performance of interpreting a Knight ISA build of mescc (c compiler written in Scheme) in Python on an exotic old computer to be acceptable, even for a patient, one-time escape to the free world.
+If the performance ends up unacceptable, I hope to have inspiration for my next bootstrap project, to write a Scheme compiler that compiles to stack-based virtual machines (easier than targeting register machines).
 
-This may inspire my next bootstrap project, to write a Scheme compiler that compiles to stack-based virtual machines (easier than targeting register machines).
-
-Once I can run mescc one way or another, I'd like to enable a quick escape to the free world. My idea, use mescc to build tccboot [12] [13] (which is for x86) using the mes modified tcc [14]. I could then move that to a compatible old x86 machine, have tccboot compile linux 2.4 on boot and have that execute and compile a userland where tcc-i386 is guided to bootstrap more. (including a GCC cross compiler targeting my original exotic equipment)
-
-Implementing Knight ISA in Python will have also have a benefit to users of other implementations like the the original in C. The test suite (knighttests) already provides empirical evidence that the well commented blob stage0_monitor.hex0 behaves as promised, as the results it produces are bit identical with those produced by hex0tobin.py. (a gold standard audit is still checking by hand the assemblly of stage0_monitor.s to hex0).  Subsequent releases will demonstrate the same for stage1_assembler-0.hex0 and stage1_assembler-1.hex0. This testing could be further enhanced by using the technique of fuzzing [15]. These techniques could be extended to test hex1 files and so on.
-
+Once I bootstrap mescc from Python on exotic computers one way or another, I'd like to enable a quick escape to the free world. My idea, use mescc to build tccboot [7] [8] (which is for x86) using the mes modified tcc [9]. I could then move that to a compatible old x86 machine, have tccboot compile linux 2.4 on boot and have that execute and compile a userland where tcc-i386 is guided to bootstrap more. (including a GCC cross compiler targeting my original exotic equipment)
 
 -----
-A final note. What's with my interest in CPython on Windows? (including builds from the Microsoft Store?) It's interesting from a diverse double-compiling [16] perspective as these builds of CPython are compiled with Microsoft's C compiler (MSVC) which does not have GCC in its build heritage.
-
 
 Footnotes
 [0] https://github.com/oriansj/stage0
 
-[1] https://www.gnu.org/software/mes/
+[1] https://github.com/oriansj/mescc-tools
 
-[2] https://github.com/oriansj/mes-m2
+[2] https://en.wikipedia.org/wiki/Fuzzing
 
-[3] https://github.com/oriansj/m2-planet
+[3] Diverse-Double Compiling, David A. Wheeler, https://dwheeler.com/trusting-trust/
 
-[4] https://github.com/oriansj/mescc-tools
+[4] https://www.gnu.org/software/mes/
 
-[4] https://docs.python.org/3/library/dis.html
+[5] https://github.com/oriansj/mes-m2
 
-[5] https://opensource.com/article/18/4/introduction-python-bytecode
+[6] https://github.com/oriansj/m2-planet
 
-[6] https://leanpub.com/insidethepythonvirtualmachine/read
+[7] https://bellard.org/tcc/tccboot.html
 
-[7] https://en.wikipedia.org/wiki/Java_bytecode
+[8] https://github.com/seyko2/tccboot
 
-[8] https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings
-
-[9] https://docs.oracle.com/javase/specs/jvms/se8/html/index.html
-
-[10] https://en.wikipedia.org/wiki/Common_Language_Runtime
-
-[11] https://www.gnu.org/software/kawa/
-
-[12] https://bellard.org/tcc/tccboot.html
-
-[13] https://github.com/seyko2/tccboot
-
-[14] https://gitlab.com/janneke/tinycc , see mes and wip-bootstrapable branches
-
-[15] https://en.wikipedia.org/wiki/Fuzzing
-
-[16] Diverse-Double Compiling, David A. Wheeler, https://dwheeler.com/trusting-trust/
+[9] https://gitlab.com/janneke/tinycc , see mes and wip-bootstrapable branches
 
 Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
