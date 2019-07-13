@@ -44,6 +44,29 @@ TRANSITIONS = {
         },
     }
 
+# Confirming a relevant fact of ascii encoding which stage1_assembler-1 relies
+# on, almost all of the characters between 'G' and prior to
+# 'a' (decimal 97) do not have their 6th bit set (2**5==32)
+# so you can mask 0xdf== int('11011111', 2) to do a lower to
+# upper case conversion of a-f
+#
+# the exception is decimal 64+32==96, which is backtick "`"
+#
+# stage1_assember-1 handles both lower and uppercase a-f/A-F by masking
+# 0xdf==int('11011111', 2) and checking aginst decimal 70  [ord('F')]
+# backtick is caught up in this and ends up acting like '9'
+if __debug__:
+    assert ord('G') == 71
+    assert ord('_') == 95
+    for i in range(ord('G'), ord('_')+1):
+        assert (i & int('11011111', 2) ) > ord('F')
+    assert ord("`") == (64+32) # 96
+    assert ( ord("`")>ord('F') and
+             ord("`") & int('11011111', 2) <= ord('F') )
+
+UPPER_HEX_TO_DECIMAL = ord('A') - int('A', 16)
+assert UPPER_HEX_TO_DECIMAL == 55
+
 def get_next_token_and_state(c, state):
     assert state != STATE_EOF
     if len(c)==0:
@@ -56,6 +79,26 @@ def get_next_token_and_state(c, state):
         elif token_type == TOK_HEX:
             if c in hexdigits:
                 token = (TOK_HEX, c)
+            # we replicate the funky behavior of stage1_assembler-1
+            # which treates backtick "`" (ascii decimal 96) like '9'
+            # because upper and lower case A-F/a-f are handled the same
+            # by way of a upper to lower case conversion by
+            # masking out the 6th bit 2**5==32, comparing against
+            # 'F' (ascii decimal 70), and subtracting 55
+            # to convert from ascii A-F/a-f to decimal
+            elif ( ord(c)>ord('F') and
+                   ord(c) & int('11011111', 2) <= ord('F') ):
+                # the only character in ascii that meets these conditions
+                assert(c) == '`'
+                lower_to_upper_conversion = ord(c) & int('11011111', 2)
+                hex_to_decimal_conversion = (
+                    lower_to_upper_conversion - UPPER_HEX_TO_DECIMAL) & 0xF
+                decimal_to_hexchar = hex(hex_to_decimal_conversion)[2:]
+                assert len(decimal_to_hexchar)==1 # the 0xF mask assures this
+                token = (
+                    TOK_HEX,
+                    decimal_to_hexchar)
+                assert token[1] == '9' # what "`" will encode to
             else:
                 token = (None, c)
         else:
