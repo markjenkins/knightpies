@@ -39,7 +39,6 @@ TRANSITIONS = {
         },
     STATE_COMMENT: {
         '\n': (STATE_MAIN, None),
-        '\r': (STATE_MAIN, None),
         None: (STATE_COMMENT, None),
         },
     }
