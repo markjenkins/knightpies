@@ -39,7 +39,7 @@ if sys.version_info[0] >= 3:
     gen_range = range
 
     def open_ascii(filename):
-        return open(filename, encoding='ascii')
+        return open(filename, encoding='ascii', newline='')
 
     def get_binary_mode_stdout():
         return sys.stdout.buffer
