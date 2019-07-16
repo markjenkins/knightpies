@@ -53,10 +53,7 @@ class TestHex1KnightExectuteCommon(Hex1Common, TestHexKnightExectuteCommon):
         Hex1Common.tearDown(self)
         self.remove_tmp_files()
 
-    def load_encoding_rom(self, vm):
-        with open(self.encoding_rom_filename) as encoding_rom_file:
-            for input_byte in int_bytes_from_hex1_fd(encoding_rom_file):
-                vm[MEM].append(input_byte)
+    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex1_fd)
 
 class TestStage1Hex1Encode(CommonStage1HexEncode, TestHex1KnightExectuteCommon):
     encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH

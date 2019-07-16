@@ -87,6 +87,12 @@ class TestHexKnightExectuteCommon:
         unlink(self.tape_01_temp_file_path)
         unlink(self.tape_02_temp_file_path)
 
+    def load_encoding_rom(self, vm):
+        with open(self.encoding_rom_filename) as encoding_rom_file:
+            for input_byte in self.int_bytes_from_rom_encode_file(
+                    encoding_rom_file):
+                vm[MEM].append(input_byte)
+
     def execute_test_hex_load(self, stage0hexfile, sha256hex):
         output_mem_buffer = BytesIO()
 
