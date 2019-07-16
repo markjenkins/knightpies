@@ -73,7 +73,7 @@ class Encoding_rom_256_Common(Hex256SumMatch):
         s = sha256( self.encoding_rom_binary.getbuffer() )
         return s.hexdigest()
 
-class TestHexKnightExectuteCommon:
+class TestHexKnightExecuteCommonSetup:
     registersize = 32
     stack_size_multiplier = 1
     optimize = False
@@ -93,6 +93,7 @@ class TestHexKnightExectuteCommon:
                     encoding_rom_file):
                 vm[MEM].append(input_byte)
 
+class TestHexKnightExectuteCommon(TestHexKnightExecuteCommonSetup):
     def execute_test_hex_load(self, stage0hexfile, sha256hex):
         output_mem_buffer = BytesIO()
 
