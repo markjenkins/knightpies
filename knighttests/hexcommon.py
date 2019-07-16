@@ -93,7 +93,7 @@ class TestHexKnightExecuteCommonSetup:
                     encoding_rom_file):
                 vm[MEM].append(input_byte)
 
-class TestHexKnightExectuteCommon(TestHexKnightExecuteCommonSetup):
+class TestHexKnightExecuteCommon(TestHexKnightExecuteCommonSetup):
     def execute_test_hex_load(self, stage0hexfile, sha256hex):
         output_mem_buffer = BytesIO()
 

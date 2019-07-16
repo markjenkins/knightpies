@@ -24,7 +24,7 @@ from knightdecode import create_vm
 from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 
 from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH
-from .test_hex0tobin import TestHex0KnightExectuteCommon
+from .test_hex0tobin import TestHex0KnightExecuteCommon
 
 def get_random_for_str(seed_str):
     r = Random()
@@ -49,7 +49,7 @@ def get_n_representative_character_bytes(random_source, n):
     return ''.join( get_representative_character_byte(random_source)
                     for i in range(n) )
 
-class Hex0FuzzTest(TestHex0KnightExectuteCommon):
+class Hex0FuzzTest(TestHex0KnightExecuteCommon):
     random_source_orig = GNU_MANIFESTO_RANDOM
     hex0_encoding_rom = STAGE_0_MONITOR_HEX_FILEPATH
 

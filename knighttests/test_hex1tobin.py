@@ -23,7 +23,7 @@ from hex1tobin import (
 from .hexcommon import (
     HexCommon, Encoding_rom_256_Common,
     make_get_sha256sum_of_file_after_encode,
-    TestHexKnightExectuteCommon,
+    TestHexKnightExecuteCommon,
     CommonStage1HexEncode,
 )
 from .stage0 import (
@@ -44,7 +44,7 @@ class Hex1Common(HexCommon):
 class Test_hex_assembler0_256Sum(Hex1Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage1_assembler-0'
 
-class TestHex1KnightExectuteCommon(Hex1Common, TestHexKnightExectuteCommon):
+class TestHex1KnightExecuteCommon(Hex1Common, TestHexKnightExecuteCommon):
     def setUp(self):
         Hex1Common.setUp(self)
         self.setup_stack_and_tmp_files()
@@ -55,7 +55,7 @@ class TestHex1KnightExectuteCommon(Hex1Common, TestHexKnightExectuteCommon):
 
     int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex1_fd)
 
-class TestStage1Hex1Encode(CommonStage1HexEncode, TestHex1KnightExectuteCommon):
+class TestStage1Hex1Encode(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
     encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
     def test_encode_stage1_hex2_with_stage1_hex1(self):
         self.execute_test_hex_load_published_sha256(

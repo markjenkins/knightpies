@@ -24,7 +24,7 @@ from knightvm_minimal import load_hex_program
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
     make_get_sha256sum_of_file_after_encode,
-    TestHexKnightExectuteCommon,
+    TestHexKnightExecuteCommon,
     CommonStage1HexEncode,
     )
 from .stage0 import (
@@ -64,7 +64,7 @@ class Test_dehex_256Sum(
     sha256sumfilename = 'roms/DEHEX'
     sha256_compare_filename = get_stage0_file('stage1/dehex.hex0')
 
-class TestHex0KnightExectuteCommon(Hex0Common, TestHexKnightExectuteCommon):
+class TestHex0KnightExecuteCommon(Hex0Common, TestHexKnightExecuteCommon):
     def setUp(self):
         Hex0Common.setUp(self)
         self.setup_stack_and_tmp_files()
@@ -85,7 +85,7 @@ class TestHex0KnightExectuteCommon(Hex0Common, TestHexKnightExectuteCommon):
     def get_output_file_path(self):
         return self.tape_01_temp_file_path
 
-class TestStage0Monitorexecute(TestHex0KnightExectuteCommon):
+class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
     def test_stage0_monitor_encodes_self(self):
         self.execute_test_hex_load_published_sha256(
             STAGE_0_MONITOR_RELATIVE_PATH,
@@ -121,7 +121,7 @@ class TestHex0ToBin16(TestStage0Monitorexecute):
 class TestHex0ToBin16Optimize(TestHex0ToBin16):
     optimize = True
 
-class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExectuteCommon):
+class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
     def test_encode_stage1_hex0_encodes_self(self):
         self.execute_test_hex_load_published_sha256(
             STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH,
