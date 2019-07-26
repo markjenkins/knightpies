@@ -70,6 +70,7 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
         self.python_output_bytes = BytesIO()
         self.input_bytes.write(
             self.get_n_representative_tokens_byte_encoded(self.test_size) )
+        self.input_bytes.write('\n')
         self.input_bytes.seek(0)
         self.encode_input_bytes_w_python_implementation()
         self.input_bytes.seek(0)
