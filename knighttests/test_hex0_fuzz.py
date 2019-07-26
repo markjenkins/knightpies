@@ -18,13 +18,21 @@ from random import Random
 from string import hexdigits, printable
 from copy import copy
 from io import StringIO, BytesIO
+from unittest import TestCase
 
-from hex0tobin import write_binary_filefd_from_hex0_filefd
+from hex0tobin import (
+    write_binary_filefd_from_hex0_filefd,
+    int_bytes_from_hex0_fd,
+    )
 from knightdecode import create_vm
 from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 
-from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH
+from .stage0 import (
+    STAGE_0_MONITOR_HEX_FILEPATH,
+    STAGE_0_HEX1_ASSEMBLER_FILEPATH,
+    )
 from .test_hex0tobin import TestHex0KnightExecuteCommon
+from .fuzzcommon import CommonStage1Fuzz
 
 def get_random_for_str(seed_str):
     r = Random()
@@ -37,9 +45,15 @@ GNU_MANIFESTO_RANDOM = get_random_for_str(
 hexdigits_as_ascii_bytes = hexdigits # bytes(hexdigits, encoding='ascii')
 printable_as_ascii_bytes = printable # bytes(printable, encoding='ascii')
 
+printable_without_cr = ''.join(c for c in printable
+                               if c!= '\r' )
+
 # 7 hexdigits for every 3 printable chars
 hex_or_printable = ( (hexdigits_as_ascii_bytes,)*7 +
                      (printable_as_ascii_bytes,)*3 )
+
+hex_or_printable_without_cr = ( (hexdigits,)*7 +
+                                (printable_without_cr,)*3 )
 
 def get_representative_character_byte(random_source):
     char_set = random_source.choice(hex_or_printable)
@@ -89,6 +103,27 @@ class Hex0FuzzTest(TestHex0KnightExecuteCommon):
                 tape_out,
                 py_out,
             )
+
+class Hex0FuzzCommon:
+    input_encode_python_implementation = \
+        staticmethod(write_binary_filefd_from_hex0_filefd)
+
+    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex0_fd)
+
+class Hex0FuzzTestAssembler1(CommonStage1Fuzz, Hex0FuzzCommon, TestCase):
+    encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
+
+    test_size = 1024*256
+
+    def setUp(self):
+        CommonStage1Fuzz.setUp(self)
+
+    def tearDown(self):
+        CommonStage1Fuzz.tearDown(self)
+
+    @staticmethod
+    def get_top_level_char_set():
+        return hex_or_printable_without_cr
 
 if __name__ == '__main__':
     # to invoke, run
