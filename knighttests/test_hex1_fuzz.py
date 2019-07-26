@@ -72,7 +72,7 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
         if char_set[0]==DEF:
             try:
                 symbol = self.avail_symbols.pop()
-            except IndexError:
+            except IndexError: # when pop() no longer works
                 return '\n'
             else:
                 self.used_symbols.append(symbol)
