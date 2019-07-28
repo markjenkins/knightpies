@@ -24,7 +24,7 @@ from hex0tobin import (
 
 from .stage0 import (
     STAGE_0_MONITOR_HEX_FILEPATH,
-    STAGE_0_HEX1_ASSEMBLER_FILEPATH,
+    STAGE_0_HEX0_ASSEMBLER_FILEPATH,
     )
 
 from .fuzzcommon import CommonHexFuzzTest, CommonStage1Fuzz
@@ -78,7 +78,7 @@ class Hex0FuzzTest(Hex0FuzzCommon, CommonHexFuzzTest, TestCase):
         return hex_or_printable
 
 class Hex0FuzzTestAssembler1(CommonStage1Fuzz, Hex0FuzzCommon, TestCase):
-    encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
+    encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
 
     test_size = 1024*256
 
