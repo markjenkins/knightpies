@@ -1,16 +1,5 @@
 * items are implemented, but under tested by the current test suite 
 
-0.2.5
- - Implement enough instructions to execute stage1_assembler-1.hex0
-NOT
-ADDUI
-STOREX16
-*REWIND
-LOADXU16
-SUB
-SARI
-JSR_COROUTINE
-
 0.3
  - Implement enough instructions to execute stage1/stage1_assembler-2.hex1
    (use it to assemble stage1/M0-macro.hex2 and stage1/SET.hex2)

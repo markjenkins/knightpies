@@ -1,3 +1,9 @@
+0.2.5 -- 2019-07-27
+ - Additional instructions to interpret stage1_assembler-1
+ - Python implementation of hex1 encoding
+ - Shared test infrastructure for fuzz testing hex0-2 encoding
+ - Fuzz testing for stage0/stage1/stage1_assembler-0 and stage1_assembler-1
+
 0.2 -- 2019-06-15
  - Additional instructions required to interpret stage1_assembler-0
  - hex0 encoding fuzzing test (helped catch issue #1)
