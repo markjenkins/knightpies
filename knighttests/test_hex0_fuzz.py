@@ -42,19 +42,24 @@ hex_or_printable = ( (hexdigits_as_ascii_bytes,)*7 +
 hex_or_printable_without_cr = ( (hexdigits,)*7 +
                                 (printable_without_cr,)*3 )
 
-def get_representative_character_byte(random_source):
-    char_set = random_source.choice(hex_or_printable)
+def get_representative_character_byte(random_source, top_level_char_set):
+    char_set = random_source.choice(top_level_char_set)
     return random_source.choice(char_set)
 
-def get_n_representative_character_bytes(random_source, n):
-    return ''.join( get_representative_character_byte(random_source)
-                    for i in range(n) )
+def get_n_representative_character_bytes(random_source, n, top_level_char_set):
+    return ''.join(
+        get_representative_character_byte(random_source, top_level_char_set)
+        for i in range(n) )
 
 class Hex0FuzzCommon:
     input_encode_python_implementation = \
         staticmethod(write_binary_filefd_from_hex0_filefd)
 
     int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex0_fd)
+
+    def get_n_representative_tokens_byte_encoded(self, n):
+        return get_n_representative_character_bytes(
+            self.random_source, n, self.get_top_level_char_set() )
 
 class Hex0FuzzTest(Hex0FuzzCommon, CommonHexFuzzTest, TestCase):
     encoding_rom_filename = STAGE_0_MONITOR_HEX_FILEPATH

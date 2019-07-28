@@ -35,22 +35,6 @@ def get_random_for_str(seed_str):
 GNU_MANIFESTO_RANDOM = get_random_for_str(
     "What's GNU? Gnu's Not Unix!")
 
-hexdigits_as_ascii_bytes = hexdigits # bytes(hexdigits, encoding='ascii')
-printable_as_ascii_bytes = printable # bytes(printable, encoding='ascii')
-
-# 7 hexdigits for every 3 printable chars
-hex_or_printable = ( (hexdigits_as_ascii_bytes,)*7 +
-                     (printable_as_ascii_bytes,)*3 )
-
-def get_representative_character_byte(random_source, top_level_char_set):
-    char_set = random_source.choice(top_level_char_set)
-    return random_source.choice(char_set)
-
-def get_n_representative_character_bytes(random_source, n, top_level_char_set):
-    return ''.join(
-        get_representative_character_byte(random_source, top_level_char_set)
-        for i in range(n) )
-
 class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
     # implementing sub-classes to provide
     # get_n_representative_tokens_byte_encode()
@@ -81,17 +65,6 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
     def encode_input_bytes_w_python_implementation(self):
         self.input_encode_python_implementation(
             self.input_bytes, self.python_output_bytes)
-
-    input_encode_python_implementation = \
-        staticmethod(write_binary_filefd_from_hex0_filefd)
-
-    def get_n_representative_tokens_byte_encoded(self, n):
-        return get_n_representative_character_bytes(
-            self.random_source, n, self.get_top_level_char_set() )
-
-    @staticmethod
-    def get_top_level_char_set():
-        return hex_or_printable
 
     def write_random_input_to_file(self, filename):
         with open(filename, 'w') as randominputfile:
