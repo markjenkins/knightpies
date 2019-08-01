@@ -479,7 +479,9 @@ def SWAP(vm, c):
     return next_ip
 
 def COPY(vm, c):
-    pass
+    mem, register_file, reg0, reg1, next_ip = get_args_for_2OP(vm, c)
+    register_file[reg0] = register_file[reg1]
+    return next_ip
 
 def MOVE(vm, c):
     pass
