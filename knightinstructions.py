@@ -565,8 +565,19 @@ def get_args_for_1OP(vm, c):
 def READPC(vm, c):
     pass
 
+READSCID_TABLE = {
+    32: 5, # 256//8
+    16: 4, # 128//8
+    8:  3, #  64//8
+    4:  2, #  32//8
+}
+READSCID_DEFAULT = 1
+
 def READSCID(vm, c):
-    pass
+    mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
+    register_file[reg0] = READSCID_TABLE.get(
+        register_file.itemsize, READSCID_DEFAULT)
+    return next_ip
 
 def FALSE(vm, c):
     mem, register_file, reg0, next_ip = get_args_for_1OP(vm, c)
