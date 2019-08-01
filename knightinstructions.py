@@ -367,7 +367,10 @@ def SAR(vm, c):
     pass
 
 def SL0(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    mask = (1<<(registerfile.itemsize*8)) -1
+    registerfile[reg0] = (registerfile[reg1]<<registerfile[reg2]) & mask
+    return next_ip
 
 def SR0(vm, c):
     pass
