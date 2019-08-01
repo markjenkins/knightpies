@@ -52,6 +52,8 @@ DEBUG = COMPAT_FALSE
 
 OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
 
+class InstructionNotImplemented(Exception):
+    pass
 
 def grow_memory(vm, size):
     while len(vm[MEM])<size:
@@ -819,10 +821,7 @@ def make_read_and_eval_for_registersize(registersizebits):
             c = read_instruction(vm)
             vm = eval_instruction_specific_bit(vm, c, halt_print=halt_print)
             if vm==None or vm[IP]==None:
-                assert COMPAT_FALSE # this shouldn't happen
-                # catch if asserts are off
-                raise Exception(
-                    "eval_instruction did not return a new vm state")
+                raise InstructionNotImplemented(c)
             return vm
         except OutsideOfWorldException:
             e = exc_info()[1] # to remain backwards and forwards compatible
