@@ -507,7 +507,11 @@ def CALL(vm, c):
     pass
 
 def PUSHR(vm, c):
-    pass
+    mem, register_file, reg0, reg1, next_ip = get_args_for_2OP(vm, c)
+    reg_size = register_file.itemsize
+    writeout_bytes(mem, register_file[reg1], register_file[reg0], reg_size)
+    register_file[reg1] += reg_size
+    return next_ip
 
 def PUSH8(vm, c):
     pass
