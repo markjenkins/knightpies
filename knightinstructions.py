@@ -715,7 +715,11 @@ def STORE(vm, c):
     return next_ip
 
 def STORE8(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    writeout_bytes(mem, register_file[reg1] + raw_immediate,
+                   register_file[reg0], 1);
+    return next_ip
 
 def STORE16(vm, c):
     pass
