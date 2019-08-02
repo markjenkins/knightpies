@@ -388,7 +388,11 @@ def ROR(vm, c):
     pass
 
 def LOADX(vm, c):
-    pass
+    mem, register_file, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    register_file[reg0] = \
+        readin_bytes(mem, register_file[reg1] + register_file[reg2],
+                     COMPAT_TRUE, register_file.itemsize)
+    return next_ip
 
 def LOADXU8(vm, c):
     pass
