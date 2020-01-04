@@ -153,6 +153,12 @@ class ParallelExecutionTests(TestCase):
             self.py_vm, py_instruction,
             optimize=self.optimize, halt_print=False)
 
+        self.assertIsNotNone(
+            py_vm_new[IP],
+            "instruction at %.2X did ip None %s" % (
+                old_ip, repr(py_instruction) )
+            )
+
         self.assertTrue(
             0<= py_vm_new[IP] < self.program_size,
             "instruction at %.2X put us out of program %s" % (
