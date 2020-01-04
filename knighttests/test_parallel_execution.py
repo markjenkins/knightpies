@@ -57,7 +57,7 @@ class ParallelExecutionTests(TestCase):
         import User_Interface
         self.c_vm = User_Interface.vm
 
-        self.vm_size = self.stack_start+self.stack_size
+        self.vm_size = self.get_vm_size()
         self.c_vm.initialize_lilith(self.vm_size)
         self.output_mem_buffer = BytesIO()
         self.skipped_instructions = 0
@@ -83,12 +83,18 @@ class ParallelExecutionTests(TestCase):
     def check_memory_match(self, debug_tuple=None):
         py_memory = self.py_vm[MEM]
         # just check the stack
-        for i in range(self.stack_start, self.vm_size):
+        for i in range(self.stack_start, self.get_address_after_stack() ):
             self.assertEqual(
                 self.c_vm.get_byte(i),
                 py_memory[i],
                 "memory mismatch at 0x%s : %d" % (hex(i), i)
                 )
+
+    def get_vm_size(self):
+        return self.stack_start+self.stack_size
+
+    def get_address_after_stack(self):
+        return self.stack_start+self.stack_size
 
     def check_register_match(self, debug_tuple=None):
         registerfile = self.py_vm[REG]
