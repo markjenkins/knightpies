@@ -126,11 +126,27 @@ def compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
 def compare_immediate_to_register_e(register_file, reg0, raw_immediate):
     return register_file[reg0] == raw_immediate
 
-def compare_immediate_to_register_g(register_file, reg0, raw_immediate):
+def compare_immediate_to_register_g_unsigned(
+        register_file, reg0, raw_immediate):
     return register_file[reg0] > raw_immediate
 
-def compare_immediate_to_register_ge(register_file, reg0, raw_immediate):
+def compare_immediate_to_register_ge_unsigned(
+        register_file, reg0, raw_immediate):
     return register_file[reg0] >= raw_immediate
+
+def compare_immediate_to_register_g_signed(
+        register_file, reg0, raw_immediate):
+    return \
+        interpret_nbits_as_signed(register_file[reg0],
+                                  register_file.itemsize*8) > \
+        interpret_sixteenbits_as_signed(raw_immediate)
+
+def compare_immediate_to_register_ge_signed(
+        register_file, reg0, raw_immediate):
+    return \
+        interpret_nbits_as_signed(register_file[reg0],
+                                  register_file.itemsize*8) >= \
+        interpret_sixteenbits_as_signed(raw_immediate)
 
 def set_comparison_flags(tmp1, tmp2, registerfile, registerindex):
     if tmp1 > tmp2:
@@ -952,14 +968,16 @@ def STORER32(vm, c):
 
 def CMPSKIPI_G(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
-    if compare_immediate_to_register_g(register_file, reg0, raw_immediate):
+    if compare_immediate_to_register_g_signed(
+            register_file, reg0, raw_immediate):
         return next_ip + get_instruction_size(vm, next_ip)
     else:
         return next_ip
 
 def CMPSKIPI_GE(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
-    if compare_immediate_to_register_ge(register_file, reg0, raw_immediate):
+    if compare_immediate_to_register_ge_signed(
+            register_file, reg0, raw_immediate):
         return next_ip + get_instruction_size(vm, next_ip)
     else:
         return next_ip
