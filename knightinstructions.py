@@ -360,7 +360,9 @@ def MINU(vm, c):
     pass
 
 def AND(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    registerfile[reg0] = registerfile[reg1] & registerfile[reg2]
+    return next_ip
 
 def OR(vm, c):
     pass
