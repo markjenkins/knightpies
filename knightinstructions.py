@@ -199,6 +199,13 @@ def readin_bytes(mem, pointer, signed, byte_count):
 
 # 4 OP integer instructions
 
+def get_args_for_4OP(vm, c):
+    return (vm[MEM],
+            vm[REG],
+            c[I_REGISTERS][0], c[I_REGISTERS][1],
+            c[I_REGISTERS][2], c[I_REGISTERS][3],
+            c[NEXTIP])
+
 def ADD_CI(vm, c):
     pass
 
@@ -248,7 +255,13 @@ def DIVIDEU(vm, c):
     pass
 
 def MUX(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, reg2, reg3, next_ip = \
+        get_args_for_4OP(vm, c)
+    registerfile[reg0] = (
+        ( registerfile[reg2] & ~(registerfile[reg1]) ) |
+	( registerfile[reg3] & registerfile[reg1] )
+    )
+    return next_ip
 
 def NMUX(vm, c):
     pass
