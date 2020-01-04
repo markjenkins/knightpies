@@ -16,6 +16,7 @@
 
 from unittest import TestCase
 from io import BytesIO
+from os.path import exists
 
 from stage0dir import get_stage0_file
 from hex0tobin import write_binary_filefd_from_hex0_filefd
@@ -37,6 +38,10 @@ get_sha256sum_of_file_after_hex0_encode = \
     make_get_sha256sum_of_file_after_encode(
         write_binary_filefd_from_hex0_filefd)
 
+ADDITIONAL_SHA256SUMS_may_not_exist_exemptions = {
+    'Linux Bootstrap/xeh.hex0',
+    }
+
 ADDITIONAL_SHA256SUMS = [
     (filename,
      get_sha256sum_of_file_after_hex0_encode( get_stage0_file(filename) ) )
@@ -45,6 +50,8 @@ ADDITIONAL_SHA256SUMS = [
             'stage1/dehex.hex0',
             'Linux Bootstrap/xeh.hex0',
     ) # end tuple fed to for filename in
+    if (filename not in ADDITIONAL_SHA256SUMS_may_not_exist_exemptions or
+        exists(filename) )
 ]
 
 class Hex0Common(HexCommon):
