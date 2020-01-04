@@ -14,12 +14,13 @@ PUSHR
 STORE8
 POPR
 LOADX
+LOADXU8
+LOAD
 
 0.4
  - Implement enough instructions to execute stage1/M0-macro.hex2
    (use it to assemble all .s files)
 STORE32
-LOADXU8
 *CMP
 LOAD32
 LOAD8
@@ -44,7 +45,6 @@ CMPSKIP.E
 CMPSKIP.G
 OR
 AND
-LOAD
 CMPJUMPI.LE
 NEG
 * JUMP.NZ
