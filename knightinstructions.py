@@ -1036,7 +1036,7 @@ def tapeopen(vm, flags, do_exists=COMPAT_FALSE):
     filename = vm[tapefilenameindex]
     if do_exists:
         if not exists(filename):
-            exit("File named %s does not exist" %  filename)
+            exit("File named %s does not exist -- python-tapeopen" %  filename)
     vm[TAPEFD][tapeindex] = open(filename, flags)
 
 def vm_FOPEN_READ(vm):
