@@ -708,7 +708,12 @@ def CMPI(vm, c):
     pass
 
 def LOAD(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    register_file[reg0] = \
+        readin_bytes(mem, register_file[reg1] + raw_immediate,
+                     COMPAT_FALSE, register_file.itemsize)
+    return next_ip
 
 def LOAD8(vm, c):
     pass
