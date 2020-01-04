@@ -62,7 +62,7 @@ def make_nbit_optimized_functions(nbits):
     # 3 OP
 
     def CMP_N_BITS(vm, c):
-        registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+        mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
         tmp1 = interpret_nbits_as_signed(registerfile[reg1])
         tmp2 = interpret_nbits_as_signed(registerfile[reg2])
         set_comparison_flags(tmp1, tmp2, registerfile, reg0)
