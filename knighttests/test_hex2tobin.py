@@ -14,13 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from stage0dir import get_stage0_file
 from hex0tobin import write_binary_filefd_from_hex0_filefd
+from hex1tobin import write_binary_filefd_from_hex1_filefd
 
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
     make_get_sha256sum_of_file_after_encode
     )
-from .test_hex1tobin import get_sha256sum_of_file_after_hex1_encode
+from .test_hex1tobin import (
+    get_sha256sum_of_file_after_hex1_encode,
+    CommonStage1HexEncode, TestHex1KnightExecuteCommon,
+    )
 from .stage0 import (
     STAGE_0_HEX1_ASSEMBLER_FILEPATH,
     STAGE_0_HEX2_ASSEMBLER_FILEPATH,
@@ -39,3 +44,22 @@ class Test_hex_assember2_256Sum(Hex2Common, Hex256SumMatch):
     def compute_sha256_digest(self):
         return get_sha256sum_of_file_after_hex1_encode(
             STAGE_0_HEX2_ASSEMBLER_FILEPATH)
+
+class TestStage1Hex2Encode(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
+    encoding_rom_filename = STAGE_0_HEX2_ASSEMBLER_FILEPATH
+    rom_encode_func = staticmethod(write_binary_filefd_from_hex1_filefd)
+
+    def get_end_of_memory(self):
+        return 0x700+1024*4
+
+    def test_encode_SET_with_stage1_hex2(self):
+        self.execute_test_hex_load_published_sha256(
+            get_stage0_file('stage1/SET.hex2'),
+            "roms/SET",
+    )
+
+    def test_encode_M0_with_stage1_hex2(self):
+        self.execute_test_hex_load_published_sha256(
+            get_stage0_file('stage1/M0-macro.hex2'),
+            "roms/M0",
+    )
