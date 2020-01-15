@@ -84,7 +84,7 @@ def get_next_token_and_state(c, state, inputbuffer):
         elif token_type == TOK_HEX:
             if c in hexdigits:
                 token = (TOK_HEX, c)
-            # we replicate the funky behavior of stage1_assembler-1
+            # we replicate the funky behavior of stage1_assembler-1 and -2
             # which treates backtick "`" (ascii decimal 96) like '9'
             # because upper and lower case A-F/a-f are handled the same
             # by way of a upper to lower case conversion by
