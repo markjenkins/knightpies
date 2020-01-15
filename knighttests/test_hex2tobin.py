@@ -17,6 +17,7 @@
 from stage0dir import get_stage0_file
 from hex0tobin import write_binary_filefd_from_hex0_filefd
 from hex1tobin import write_binary_filefd_from_hex1_filefd
+from hex2tobin import write_binary_filefd_from_hex2_filefd
 
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
@@ -31,6 +32,10 @@ from .stage0 import (
     STAGE_0_HEX2_ASSEMBLER_FILEPATH,
     )
 
+get_sha256sum_of_file_after_hex2_encode = \
+    make_get_sha256sum_of_file_after_encode(
+        write_binary_filefd_from_hex2_filefd)
+
 class Hex2Common(HexCommon):
     encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
@@ -44,6 +49,13 @@ class Test_hex_assember2_256Sum(Hex2Common, Hex256SumMatch):
     def compute_sha256_digest(self):
         return get_sha256sum_of_file_after_hex1_encode(
             STAGE_0_HEX2_ASSEMBLER_FILEPATH)
+
+class Test_SET_256Sum(Hex2Common, Hex256SumMatch):
+    sha256sumfilename = 'roms/SET'
+
+    def compute_sha256_digest(self):
+        return get_sha256sum_of_file_after_hex2_encode(
+            get_stage0_file('stage1/SET.hex2') )
 
 class TestStage1Hex2Encode(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
     encoding_rom_filename = STAGE_0_HEX2_ASSEMBLER_FILEPATH
