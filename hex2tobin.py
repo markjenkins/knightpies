@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import generators # for yield keyword in python 2.2
+
 from string import hexdigits
 from sys import version_info
 
@@ -116,34 +118,16 @@ def read_char_and_get_next_token_and_state(fileobj, state, inputbuffer):
     c = fileobj.read(1)
     return get_next_token_and_state(c, state, inputbuffer)
 
-if version_info[0:2] > (2,2): # for python 2.2 and later with yield keyword
-    def tokenize_file(fileobj):
-        state = STATE_MAIN
-        inputbuffer = ''
-        while state != STATE_EOF:
-            next_tok, next_state, inputbuffer = \
-                read_char_and_get_next_token_and_state(
-                    fileobj, state, inputbuffer)
-            if next_state!=STATE_EOF and next_tok[0] != None:
-                yield next_tok
-            state = next_state
-else: # for python 2.2, but no concern for earlier versions
-    def tokenize_file(fileobj):
-        # just build a list and return it all at the end
-        # for better performance / avoiding that much memory use,
-        # we would need to do something like
-        # define an interable class and return an instance of that instance
-        return_list = []
-        state = STATE_MAIN
-        inputbuffer = ''
-        while state != STATE_EOF:
-            next_tok, next_state, inputbuffer = \
-                read_char_and_get_next_token_and_state(
-                    fileobj, state, inputbuffer)
-            if next_state!=STATE_EOF and next_tok[0] != None:
-                return_list.append(next_tok)
-            state = next_state
-        return return_list
+def tokenize_file(fileobj):
+    state = STATE_MAIN
+    inputbuffer = ''
+    while state != STATE_EOF:
+        next_tok, next_state, inputbuffer = \
+            read_char_and_get_next_token_and_state(
+                fileobj, state, inputbuffer)
+        if next_state!=STATE_EOF and next_tok[0] != None:
+            yield next_tok
+        state = next_state
 
 def get_label_table(input_file):
     input_file.seek(0)
