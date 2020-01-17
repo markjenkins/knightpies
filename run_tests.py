@@ -29,6 +29,10 @@ if __name__ == "__main__":
         knighttests.testflags.PARALLEL_SKIP = True
         sys_argv_after_prog = [ a for a in sys_argv_after_prog
                                 if a != '--skip-parallel' ]
+    if '--skip-optimize' in sys_argv_after_prog:
+        knighttests.testflags.OPTIMIZE_SKIP = True
+        sys_argv_after_prog = [ a for a in sys_argv_after_prog
+                                if a != '--skip-optimize' ]
     arguments = [sys.argv[0], 'discover',
                  '-t', THIS_DIR,
                  '-s', path_join(THIS_DIR, 'knighttests'),
