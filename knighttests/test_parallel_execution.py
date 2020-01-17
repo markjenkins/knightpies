@@ -18,7 +18,7 @@ from sys import path as sys_path
 from ctypes import create_string_buffer
 from os import unlink
 from os.path import exists
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from filecmp import cmp as file_compare
@@ -38,6 +38,7 @@ from constants import (
 from hex0tobin import write_binary_filefd_from_hex0_filefd
 from .util import get_closed_named_temp_file
 from .stage0 import STAGE_0_MONITOR_HEX_FILEPATH
+from .testflags import PARALLEL_SKIP
 
 LILITH_TAPE_NAME_01, LILITH_TAPE_NAME_02 = ("tape_01", "tape_02")
 LILITH_IP_REGISTER_INDEX, LILITH_PERF_COUNT_REGISTER_INDEX = (16, 17)
@@ -51,7 +52,7 @@ def get_hal_code_from_raw(py_instruction):
 
 class ParallelExecutionTests(TestCase):
     optimize = False
-    
+    @skipIf(PARALLEL_SKIP, 'requested')
     def setUp(self):
         sys_path.append(get_stage0_dir())
         import User_Interface
