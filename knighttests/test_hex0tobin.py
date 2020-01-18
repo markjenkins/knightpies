@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from io import BytesIO
 from os.path import exists
 
@@ -33,6 +33,7 @@ from .stage0 import (
     STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH, STAGE_0_HEX0_ASSEMBLER_FILEPATH,
     STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH,
     )
+from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 get_sha256sum_of_file_after_hex0_encode = \
     make_get_sha256sum_of_file_after_encode(
@@ -114,19 +115,37 @@ class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
         
 class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage0Monitorexecute32Optimize, self).setUp(
+            *args, **kargs)
 
 class TestHex0ToBin64(TestStage0Monitorexecute):
     stack_size_multiplier = 2
     registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestHex0ToBin64, self).setUp(*args, **kargs)
 
 class TestHex0ToBin64Optimize(TestHex0ToBin64):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestHex0ToBin64Optimize, self).setUp(
+            *args, **kargs)
 
 class TestHex0ToBin16(TestStage0Monitorexecute):
     registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestHex0ToBin16, self).setUp(*args, **kargs)
 
 class TestHex0ToBin16Optimize(TestHex0ToBin16):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestHex0ToBin16Optimize, self).setUp(
+            *args, **kargs)
 
 class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
     def test_encode_stage1_hex0_encodes_self(self):
@@ -153,19 +172,34 @@ class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
 
 class TestStage1Hex0Encode32Optimize(TestStage1Hex0Encode):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0Encode32Optimize, self).setUp(*args, **kargs)
 
 class TestStage1Hex0ToBin64(TestStage1Hex0Encode):
     stack_size_multiplier = 2
     registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0ToBin64, self).setUp(*args, **kargs)
 
 class TestStage1Hex0ToBin64Optimize(TestStage1Hex0ToBin64):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0ToBin64Optimize, self).setUp(*args, **kargs)
 
 class TestStage1Hex0ToBin16(TestStage1Hex0Encode):
     registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0ToBin16, self).setUp(*args, **kargs)
 
 class TestStage1Hex0ToBin16Optimize(TestStage1Hex0ToBin16):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0ToBin16Optimize, self).setUp(*args, **kargs)
 
 if __name__ == '__main__':
     # to invoke, run

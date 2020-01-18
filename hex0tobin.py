@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import generators # for yield keyword in python 2.2
+
 from string import hexdigits
 
 from pythoncompat import write_byte, open_ascii, COMPAT_FALSE, COMPAT_TRUE

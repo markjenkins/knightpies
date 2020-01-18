@@ -94,6 +94,9 @@ class TestHexKnightExecuteCommonSetup:
                 vm[MEM].append(input_byte)
 
 class TestHexKnightExecuteCommon(TestHexKnightExecuteCommonSetup):
+    def get_end_of_memory(self):
+        return self.stack_end
+
     def execute_test_hex_load(self, stage0hexfile, sha256hex):
         output_mem_buffer = BytesIO()
 
@@ -108,7 +111,7 @@ class TestHexKnightExecuteCommon(TestHexKnightExecuteCommonSetup):
             self.load_encoding_rom(vm)
             self.assertEqual( self.encoding_rom_binary.getbuffer(),
                               vm[MEM].tobytes() )
-            grow_memory(vm, self.stack_end)
+            grow_memory(vm, self.get_end_of_memory())
             execute_vm(vm, optimize=self.optimize, halt_print=False)
 
         with open(self.get_output_file_path(), 'rb') as tape_file:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2019 Mark Jenkins <mark@markjenkins.ca>
+# Copyright (C) 2020 Mark Jenkins <mark@markjenkins.ca>
 # This file is part of knightpies
 #
 # knightpies is free software: you can redistribute it and/or modify
@@ -19,60 +19,66 @@
 from __future__ import generators # for yield keyword in python 2.2
 
 from string import hexdigits
+from sys import version_info
 
 from pythoncompat import write_byte, open_ascii, COMPAT_FALSE, COMPAT_TRUE
 
-STATE_MAIN, STATE_DECLARE, STATE_REF, STATE_COMMENT, STATE_EOF = range(5)
-TOK_HEX, TOK_LABEL, TOK_REF = range(3)
+(STATE_MAIN, STATE_DECLARE, STATE_REL, STATE_ABS_POINT, STATE_ABS_ADDR,
+ STATE_COMMENT, STATE_EOF) = range(7)
+TOK_HEX, TOK_LABEL, TOK_REL, TOK_ABS_POINT, TOK_ABS_ADDR = range(5)
 
 TRANSITIONS = {
     STATE_MAIN: {
         ';': (STATE_COMMENT, None),
         '#': (STATE_COMMENT, None),
         ':': (STATE_DECLARE, None),
-        '@': (STATE_REF, None),
+        '@': (STATE_REL, None),
+        '$': (STATE_ABS_POINT, None),
+        '&': (STATE_ABS_ADDR, None),
         None: (STATE_MAIN, TOK_HEX)
         },
-    STATE_DECLARE: {
-        None: (STATE_MAIN, TOK_LABEL)
-        },
-    STATE_REF: {
-        None: (STATE_MAIN, TOK_REF)
-        },
+
     STATE_COMMENT: {
         '\n': (STATE_MAIN, None),
         None: (STATE_COMMENT, None),
         },
+}
+
+BUFFER_TERMINATING_CHARS = {
+    ' ',
+    '\t',
+    '\n',
     }
 
-# Confirming a relevant fact of ascii encoding which stage1_assembler-1 relies
-# on, almost all of the characters between 'G' and prior to
-# 'a' (decimal 97) do not have their 6th bit set (2**5==32)
-# so you can mask 0xdf== int('11011111', 2) to do a lower to
-# upper case conversion of a-f
-#
-# the exception is decimal 64+32==96, which is backtick "`"
-#
-# stage1_assember-1 handles both lower and uppercase a-f/A-F by masking
-# 0xdf==int('11011111', 2) and checking aginst decimal 70  [ord('F')]
-# backtick is caught up in this and ends up acting like '9'
-if __debug__:
-    assert ord('G') == 71
-    assert ord('_') == 95
-    for i in range(ord('G'), ord('_')+1):
-        assert (i & int('11011111', 2) ) > ord('F')
-    assert ord("`") == (64+32) # 96
-    assert ( ord("`")>ord('F') and
-             ord("`") & int('11011111', 2) <= ord('F') )
+BUFFER_BUILDING_STATE_TRANSITIONS = {
+    STATE_DECLARE: (STATE_MAIN, TOK_LABEL),
+    STATE_REL: (STATE_MAIN, TOK_REL),
+    STATE_ABS_POINT: (STATE_MAIN, TOK_ABS_POINT),
+    STATE_ABS_ADDR: (STATE_MAIN, TOK_ABS_ADDR)
+}
 
 UPPER_HEX_TO_DECIMAL = ord('A') - int('A', 16)
 assert UPPER_HEX_TO_DECIMAL == 55
 
-def get_next_token_and_state(c, state):
+def get_next_token_and_state(c, state, inputbuffer):
     assert state != STATE_EOF
     if len(c)==0:
-        return (None, None), STATE_EOF
+        return ( (None, None), STATE_EOF, None )
     else:
+        # return early if we're in a buffer building state
+        if state in BUFFER_BUILDING_STATE_TRANSITIONS:
+            if c in BUFFER_TERMINATING_CHARS:
+                next_state, token_type = \
+                    BUFFER_BUILDING_STATE_TRANSITIONS[state]
+                token = (token_type, inputbuffer)
+                # '' means reset input buffer to blank, as the buffer is
+                # in the token
+                return (token, next_state, '')
+            else:
+                token = (None, c)
+                return (token, state, inputbuffer+c)
+
+        # else, do the fancier dance for non buffer building states
         next_state, token_type = \
             TRANSITIONS[state].get( c, TRANSITIONS[state][None] )
         if token_type == None:
@@ -80,7 +86,7 @@ def get_next_token_and_state(c, state):
         elif token_type == TOK_HEX:
             if c in hexdigits:
                 token = (TOK_HEX, c)
-            # we replicate the funky behavior of stage1_assembler-1
+            # we replicate the funky behavior of stage1_assembler-1 and -2
             # which treates backtick "`" (ascii decimal 96) like '9'
             # because upper and lower case A-F/a-f are handled the same
             # by way of a upper to lower case conversion by
@@ -105,18 +111,20 @@ def get_next_token_and_state(c, state):
         else:
             token = (token_type, c)
 
-        return (token, next_state)
+        return (token, next_state, inputbuffer)
 
-def read_char_and_get_next_token_and_state(fileobj, state):
+def read_char_and_get_next_token_and_state(fileobj, state, inputbuffer):
     assert state != STATE_EOF
     c = fileobj.read(1)
-    return get_next_token_and_state(c, state)
+    return get_next_token_and_state(c, state, inputbuffer)
 
 def tokenize_file(fileobj):
     state = STATE_MAIN
+    inputbuffer = ''
     while state != STATE_EOF:
-        next_tok, next_state = read_char_and_get_next_token_and_state(
-            fileobj, state)
+        next_tok, next_state, inputbuffer = \
+            read_char_and_get_next_token_and_state(
+                fileobj, state, inputbuffer)
         if next_state!=STATE_EOF and next_tok[0] != None:
             yield next_tok
         state = next_state
@@ -135,11 +143,13 @@ def get_label_table(input_file):
                 ip+=1
         elif token_type == TOK_LABEL:
             labels[c] = ip
-        elif token_type == TOK_REF:
+        elif token_type == TOK_REL or token_type==TOK_ABS_POINT:
             ip+=2
+        elif token_type == TOK_ABS_ADDR:
+            ip+=4
     return labels
 
-def int_bytes_from_hex1_fd(input_file):
+def int_bytes_from_hex2_fd(input_file):
     label_table = get_label_table(input_file)
     input_file.seek(0) # start again for a second pass
     ip = 0
@@ -156,24 +166,35 @@ def int_bytes_from_hex1_fd(input_file):
                 yield accumulator
                 accumulator = 0
                 ip+=1
-        elif token_type == TOK_REF:
+        elif token_type == TOK_REL:
             ip+=2
             label_abs_address = label_table[c]
             label_rel_address = label_abs_address - ip
             yield (label_rel_address>>8) & 0xFF
             yield label_rel_address & 0xFF
+        elif token_type == TOK_ABS_POINT:
+            ip+=2
+            label_abs_address = label_table[c]
+            yield (label_abs_address>>8) & 0xFF
+            yield label_abs_address & 0xFF
+        elif token_type == TOK_ABS_ADDR:
+            ip+=4
+            label_abs_address = label_table[c]
+            # output most significant byte down to least significant
+            for i in range(3,0-1,-1):
+                yield label_abs_address>>(8*i) & 0xFF
 
-def write_binary_filefd_from_hex1_filefd(input_file, output_file):
-    for output_byte in int_bytes_from_hex1_fd(input_file):
+def write_binary_filefd_from_hex2_filefd(input_file, output_file):
+    for output_byte in int_bytes_from_hex2_fd(input_file):
         write_byte(output_file, output_byte)
 
-def write_binary_file_from_hex1_file(input_filename, output_filename):
+def write_binary_file_from_hex2_file(input_filename, output_filename):
     input_file = open_ascii(input_filename)
     output_file = open(output_filename, 'wb') # binary output
-    write_binary_filefd_from_hex1_filefd(input_file, output_file)
+    write_binary_filefd_from_hex2_filefd(input_file, output_file)
     output_file.close()
     input_file.close()
 
 if __name__ == "__main__":
     from sys import argv
-    write_binary_file_from_hex1_file(*argv[1:2+1])
+    write_binary_file_from_hex2_file(*argv[1:2+1])
