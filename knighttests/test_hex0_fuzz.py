@@ -128,6 +128,36 @@ class Hex0FuzzTestAssembler1(CommonStage1Fuzz, Hex0FuzzCommon, TestCase):
     def get_top_level_char_set():
         return hex_or_printable_without_cr
 
+class Hex0FuzzTestOptimize(Hex0FuzzTestAssembler1):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(Hex0FuzzTestOptimize, self).setUp(*args, **kargs)
+
+class Hex0FuzzTest64(Hex0FuzzTestAssembler1):
+    registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(Hex0FuzzTest64, self).setUp(*args, **kargs)
+
+class Hex0FuzzTest64Optimize(Hex0FuzzTest64):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(Hex0FuzzTest64Optimize, self).setUp(*args, **kargs)
+
+class Hex0FuzzTest16(Hex0FuzzTestAssembler1):
+    registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(Hex0FuzzTest16, self).setUp(*args, **kargs)
+
+class Hex0FuzzTest16Optimize(Hex0FuzzTest16):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(Hex0FuzzTest16Optimize, self).setUp(*args, **kargs)
+
 if __name__ == '__main__':
     # to invoke, run
     # $ python3 -m knighttests.test_hex0tobin
