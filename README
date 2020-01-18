@@ -3,7 +3,7 @@ https://github.com/oriansj/stage0
 
 knightpies is licensed under GNU GPL v3 or later, see LICENSE
 
-Currently incomplete, knightpies can only run the instructions used by stage0/stage0_monitor, stage1/stage1_assembler-0, and stage1/stage1_assembler-1. See ROADMAP for the plans to add more on the pathway to a 1.0 release and to full compatibility with stage0/vm_instructions.c. Patches and pull requests targeting that order of attack are most welcome.
+Currently incomplete, knightpies can only run the instructions used by stage0/stage0_monitor, stage1/stage1_assembler-0, stage1/stage1_assembler-1, and stage1/stage1_assembler-2. See ROADMAP for the plans to add more on the pathway to a 1.0 release and to full compatibility with stage0/vm_instructions.c. Patches and pull requests targeting that order of attack are most welcome.
 
 See RATIONAL for why I'm writing this.
 
