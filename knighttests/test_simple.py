@@ -23,7 +23,7 @@ from knightdecode import create_vm, grow_memory, read_and_eval
 
 class SimpleInstructionTests(TestCase):
     registersize = 32
-    optimize = True
+    optimize = False
 
     def setUp(self):
         self.vm = create_vm(size=0, registersize=self.registersize)
@@ -96,20 +96,20 @@ class SimpleInstructionTests(TestCase):
         read_and_eval(self.vm)
         self.assertEqual( self.vm[REG][0], 1)
         
-class SimpleInstructionTests32NoOptimize(SimpleInstructionTests):
-    optimize = False
+class SimpleInstructionTests32Optimize(SimpleInstructionTests):
+    optimize = True
         
 class SimpleInstructionTests64(SimpleInstructionTests):
     registersize = 64
 
-class SimpleInstructionTests64NoOptimize(SimpleInstructionTests64):
-    optimize = False   
+class SimpleInstructionTests64Optimize(SimpleInstructionTests64):
+    optimize = True
 
 class SimpleInstructionTests16(SimpleInstructionTests):
     registersize = 16
 
-class SimpleInstructionTests16NoOptimize(SimpleInstructionTests16):
-    optimize = False
+class SimpleInstructionTests16Optimize(SimpleInstructionTests16):
+    optimize = True
 
 if __name__ == '__main__':
     # to invoke, run
