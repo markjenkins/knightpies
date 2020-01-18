@@ -16,10 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 from constants import MEM, REG
 from knightdecode import create_vm, grow_memory, read_and_eval
+from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 class SimpleInstructionTests(TestCase):
     registersize = 32
@@ -98,18 +99,34 @@ class SimpleInstructionTests(TestCase):
         
 class SimpleInstructionTests32Optimize(SimpleInstructionTests):
     optimize = True
-        
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SimpleInstructionTests32Optimize, self).setUp(
+            *args, **kargs)
+
 class SimpleInstructionTests64(SimpleInstructionTests):
     registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SimpleInstructionTests64, self).setUp(*args, **kargs)
 
 class SimpleInstructionTests64Optimize(SimpleInstructionTests64):
     optimize = True
+    def setUp(self, *args, **kargs):
+        return super(SimpleInstructionTests64Optimize, self).setUp(
+            *args, **kargs)
 
 class SimpleInstructionTests16(SimpleInstructionTests):
     registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SimpleInstructionTests16, self).setUp(*args, **kargs)
 
 class SimpleInstructionTests16Optimize(SimpleInstructionTests16):
     optimize = True
+    def setUp(self, *args, **kargs):
+        return super(SimpleInstructionTests16Optimize, self).setUp(
+            *args, **kargs)
 
 if __name__ == '__main__':
     # to invoke, run
