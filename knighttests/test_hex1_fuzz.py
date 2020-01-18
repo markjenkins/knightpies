@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from string import hexdigits, printable, whitespace
 
 from hex0tobin import int_bytes_from_hex0_fd
@@ -23,6 +23,7 @@ from hex1tobin import write_binary_filefd_from_hex1_filefd
 from .fuzzcommon import CommonStage1Fuzz
 
 from .stage0 import STAGE_0_HEX1_ASSEMBLER_FILEPATH
+from .testflags import OPTIMIZE_SKIP
 
 printable_less_colon_at = ''.join(
     c for c in printable
@@ -93,3 +94,9 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
         return ''.join(
             self.get_representative_character_byte()
             for i in range(n) )
+
+class Hex1FuzzTestOptimize(Hex1FuzzTest):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(Hex1FuzzTestOptimize, self).setUp(*args, **kargs)
