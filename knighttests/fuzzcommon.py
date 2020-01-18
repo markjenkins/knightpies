@@ -83,7 +83,7 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
         )
         self.load_encoding_rom(vm)
         grow_memory(vm, self.stack_end)
-        execute_vm(vm, optimize=True, halt_print=False)
+        execute_vm(vm, optimize=self.optimize, halt_print=False)
 
     def test_output_match(self):
         self.execute_fuzz_test()
