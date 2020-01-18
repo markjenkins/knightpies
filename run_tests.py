@@ -33,6 +33,10 @@ if __name__ == "__main__":
         knighttests.testflags.OPTIMIZE_SKIP = True
         sys_argv_after_prog = [ a for a in sys_argv_after_prog
                                 if a != '--skip-optimize' ]
+    if '--skip-diff-reg-size' in sys_argv_after_prog:
+        knighttests.testflags.DIFF_REG_SIZE_SKIP = True
+        sys_argv_after_prog = [ a for a in sys_argv_after_prog
+                                if a != '--skip-diff-reg-size' ]
     arguments = [sys.argv[0], 'discover',
                  '-t', THIS_DIR,
                  '-s', path_join(THIS_DIR, 'knighttests'),

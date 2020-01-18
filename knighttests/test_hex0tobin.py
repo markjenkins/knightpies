@@ -33,7 +33,7 @@ from .stage0 import (
     STAGE_0_HEX0_ASSEMBLER_RELATIVE_PATH, STAGE_0_HEX0_ASSEMBLER_FILEPATH,
     STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH,
     )
-from .testflags import OPTIMIZE_SKIP
+from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 get_sha256sum_of_file_after_hex0_encode = \
     make_get_sha256sum_of_file_after_encode(
@@ -123,6 +123,9 @@ class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
 class TestHex0ToBin64(TestStage0Monitorexecute):
     stack_size_multiplier = 2
     registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestHex0ToBin64, self).setUp(*args, **kargs)
 
 class TestHex0ToBin64Optimize(TestHex0ToBin64):
     optimize = True
@@ -133,6 +136,9 @@ class TestHex0ToBin64Optimize(TestHex0ToBin64):
 
 class TestHex0ToBin16(TestStage0Monitorexecute):
     registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestHex0ToBin16, self).setUp(*args, **kargs)
 
 class TestHex0ToBin16Optimize(TestHex0ToBin16):
     optimize = True
@@ -173,6 +179,9 @@ class TestStage1Hex0Encode32Optimize(TestStage1Hex0Encode):
 class TestStage1Hex0ToBin64(TestStage1Hex0Encode):
     stack_size_multiplier = 2
     registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0ToBin64, self).setUp(*args, **kargs)
 
 class TestStage1Hex0ToBin64Optimize(TestStage1Hex0ToBin64):
     optimize = True
@@ -182,6 +191,9 @@ class TestStage1Hex0ToBin64Optimize(TestStage1Hex0ToBin64):
 
 class TestStage1Hex0ToBin16(TestStage1Hex0Encode):
     registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex0ToBin16, self).setUp(*args, **kargs)
 
 class TestStage1Hex0ToBin16Optimize(TestStage1Hex0ToBin16):
     optimize = True

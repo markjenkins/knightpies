@@ -44,5 +44,9 @@ if __name__ == "__main__":
             knighttests.testflags.OPTIMIZE_SKIP = True
             sys_argv_after_prog = [a for a in sys_argv_after_prog
                                    if a != '--skip-optimize' ]
+        if '--skip-diff-reg-size' in sys_argv_after_prog:
+            knighttests.testflags.DIFF_REG_SIZE_SKIP = True
+            sys_argv_after_prog = [ a for a in sys_argv_after_prog
+                                    if a != '--skip-diff-reg-size' ]
         main( module=get_module_for_file(
             sys_argv_after_prog[0]), argv=(argv[0],) )
