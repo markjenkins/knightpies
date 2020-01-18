@@ -14,6 +14,9 @@ Programs you can invoke:
 $ ./hex0tobin.py
 Takes a hex0 file (first argument) and encodes the parts in hex into a binary output file (second argument), ignoring comments
 
+$ ./hex1tobin.py
+Takes a hex1 file (first argument), encodes the parts in hex into binary output, identifies 1 letter labels marked with colon ":",  replaces references to those labels prefixed with @ with relative 16 bit addresses, and ignores comments (";" and "#")
+
 $ ./knightvm_minimal.py
 This is largely compatible with stage0/vm_minimal.c, accepting a Knight rom binary file as its first argument and acting upon tape_01 and tape_02 files in the current working directory. The only difference is that an additional --rom-hex argument (after the file name, not before) can be provided if the rom is in the hex0 format of the stage0 project.
 Example invocations:
