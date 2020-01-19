@@ -1,0 +1,15 @@
+I've tagged and signed knightpies-0.2, my implementation of the Knight ISA in Python. (to eventually be merged with the stage0 project)
+https://github.com/markjenkins/knightpies/releases/tag/knightpies-0.2
+f1a284fc1fe4608931758d9c5f1a2663f4895e36
+
+This release can interpret the instructions used by stage0/stage1/stage1_assembler-0.hex0 .
+
+The other highlight of this release is the addition to the test suite of a test of hex0 encoding using fuzzing. This uncovered a bug (github issues/1) in my python hex0 encoder.
+
+This fuzz test provides empirical evidence that the well commented blob stage0/stage0/stage0_monitor.hex0 does what it says it does. That's not a substitute for hand auditing that stage0_monitor.s co-responds to stage0_monitor.hex0, but it may offer some additional comfort.
+
+The random generator for my fuzz test is seeded with the chosen plain text "What's GNU? Gnu's Not Unix!", the opening heading from the GNU Manifesto published in 1985.
+
+Other blobs from stage0 will get the same treatment in later releases.
+
+Mark Jenkins
