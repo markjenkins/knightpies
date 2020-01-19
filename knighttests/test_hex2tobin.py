@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
+from unittest import skipIf
+
 from stage0dir import get_stage0_file
 from hex0tobin import write_binary_filefd_from_hex0_filefd
 from hex1tobin import write_binary_filefd_from_hex1_filefd
@@ -31,6 +33,7 @@ from .stage0 import (
     STAGE_0_HEX1_ASSEMBLER_FILEPATH,
     STAGE_0_HEX2_ASSEMBLER_FILEPATH,
     )
+from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 get_sha256sum_of_file_after_hex2_encode = \
     make_get_sha256sum_of_file_after_encode(
@@ -75,3 +78,33 @@ class TestStage1Hex2Encode(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
             get_stage0_file('stage1/M0-macro.hex2'),
             "roms/M0",
     )
+
+class TestStage1Hex2EncodeOptimise(TestStage1Hex2Encode):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex2EncodeOptimise, self).setUp(*args, **kargs)
+
+class TestStage1Hex2Encode64(TestStage1Hex2Encode):
+    registersize = 64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex2Encode64, self).setUp(*args, **kargs)
+
+class TestStage1Hex2Encode64Optimise(TestStage1Hex2Encode64):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex2Encode64Optimise, self).setUp(*args, **kargs)
+
+class TestStage1Hex2Encode16(TestStage1Hex2Encode):
+    registersize = 16
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex2Encode16, self).setUp(*args, **kargs)
+
+class TestStage1Hex2Encode16Optimise(TestStage1Hex2Encode64):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(TestStage1Hex2Encode16Optimise, self).setUp(*args, **kargs)
