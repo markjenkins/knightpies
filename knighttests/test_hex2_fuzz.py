@@ -19,6 +19,7 @@ from string import hexdigits, printable, whitespace
 
 from hex1tobin import int_bytes_from_hex1_fd
 from hex2tobin import write_binary_filefd_from_hex2_filefd
+from pythoncompat import random_multi_choices
 
 from .fuzzcommon import CommonStage1Fuzz
 
@@ -72,10 +73,10 @@ class Hex2FuzzTest(CommonStage1Fuzz, TestCase):
         # make each of them 1-5 characters each in length
         self.avail_symbols = {
             ''.join(
-                self.random_source.choices(
+                random_multi_choices(self.random_source,
                     printable_not_whitespace_as_list,
                     k=self.random_source.choice(symbol_lengths)
-                ) # choices
+                ) # random_multi_choices
             ) # join
             for i in range(200)
         } # avail_symbols is a set to avoid duplicates
