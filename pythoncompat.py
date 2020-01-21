@@ -53,7 +53,7 @@ if sys.version_info[0] >= 3:
     else:
         def random_multi_choices(r, population, k):
             return ( r.choice(population)
-                     for i in k )
+                     for i in range(k) )
 
 else:
     def print_func(*args, **kargs):
