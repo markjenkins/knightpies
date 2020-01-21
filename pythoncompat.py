@@ -47,6 +47,13 @@ if sys.version_info[0] >= 3:
     def write_byte(fd, byte_write):
         value_to_write = bytes( (byte_write,) )
         fd.write(value_to_write)
+    if sys.version_info[0:2] >= (3,6):
+        def random_multi_choices(r, population, k):
+            return r.choices(population, k=k)
+    else:
+        def random_multi_choices(r, population, k):
+            return ( r.choice(population)
+                     for i in k )
 
 else:
     def print_func(*args, **kargs):
