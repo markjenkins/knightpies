@@ -1,21 +1,7 @@
 * items are implemented, but under tested by the current test suite 
 
-0.3
- - Implement enough instructions to execute stage1/stage1_assembler-2.hex1
-   (use it to assemble stage1/M0-macro.hex2 and stage1/SET.hex2)
-READSCID
-SL0
-COPY
-STOREX
-STORE
-MOVE
-SARI
-PUSHR
-STORE8
-POPR
-LOADX
-LOADXU8
-LOAD
+0.3.5
+ - Implement and test M1.py and M1tobin.py to assemble .s M1 files from all architechures
 
 0.4
  - Implement enough instructions to execute stage1/M0-macro.hex2
@@ -62,6 +48,9 @@ NEG
 0.8
  - Implement all knightvm instructions emitted by M2 planet (and make full use of its test suite)
 [instruction TODO list here]
+
+0.8.5
+ - Test by compiling M2-Planet to Knight ISA and then see if M2-knight binary can compile M2-Planet
 
 1.0
  - Implement all knightvm instructions found in stage0/vm_instructions.c

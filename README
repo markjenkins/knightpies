@@ -3,7 +3,7 @@ https://github.com/oriansj/stage0
 
 knightpies is licensed under GNU GPL v3 or later, see LICENSE
 
-Currently incomplete, knightpies can only run the instructions used by stage0/stage0_monitor, stage1/stage1_assembler-0, and stage1/stage1_assembler-1. See ROADMAP for the plans to add more on the pathway to a 1.0 release and to full compatibility with stage0/vm_instructions.c. Patches and pull requests targeting that order of attack are most welcome.
+Currently incomplete, knightpies can only run the instructions used by stage0/stage0_monitor, stage1/stage1_assembler-0, stage1/stage1_assembler-1, and stage1/stage1_assembler-2. See ROADMAP for the plans to add more on the pathway to a 1.0 release and to full compatibility with stage0/vm_instructions.c. Patches and pull requests targeting that order of attack are most welcome.
 
 See RATIONAL for why I'm writing this.
 
@@ -13,6 +13,12 @@ Programs you can invoke:
 
 $ ./hex0tobin.py
 Takes a hex0 file (first argument) and encodes the parts in hex into a binary output file (second argument), ignoring comments
+
+$ ./hex1tobin.py
+Takes a hex1 file (first argument), encodes the parts in hex into binary output, identifies 1 letter labels marked with colon ":",  replaces references to those labels prefixed with @ with relative 16 bit addresses, and ignores comments (";" and "#")
+
+$ ./hex2tobin.py
+Takes a hex2 file (first argument), encodes the parts in hex into binary output, identifies multi-character labels marked with colon ":",  replaces references to those labels prefixed with @ with relative 16 bit addresses, references prefixed with $ as 16 bit pointers, referenced prefixed with & as 32 bit addresses, and ignores comments (";" and "#")
 
 $ ./knightvm_minimal.py
 This is largely compatible with stage0/vm_minimal.c, accepting a Knight rom binary file as its first argument and acting upon tape_01 and tape_02 files in the current working directory. The only difference is that an additional --rom-hex argument (after the file name, not before) can be provided if the rom is in the hex0 format of the stage0 project.
@@ -29,6 +35,8 @@ https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
 You can also supply your own copy of the stage0 code instead of using the submodule feature. If you want to use stage0 from another directory, you could make a symlink or stage0dir.py allows you to specify another location.
 
+The test suite mostly works with stage0 revision 1c91bd1dbefc7f6da611d7bdfc9f435690286690 (Release_0.3.0), the exceptions are knighttests/test_parallel_execution.py and test_parallel_execution_stage1.py which need some further work to be compatible. These tests can be skipped, see below.
+
 You can run individual test cases with
 $ python3 -m knighttests.test_module_name
 or
@@ -37,11 +45,17 @@ direct invocation of some of the test files does not work.
 
 Run the entire test suite with
 $ ./run_tests.py
-add -v for verbose output, other python unittest discover sub-command flags work too
+add -v for verbose output, other python unittest discover sub-command flags work too.
 
-The most interesting test is
-python3 -m knighttests.test_parallel_execution
-which takes advantage of stage0/User_Interface.py and stage0/wrapper.c to run our python implementation and the original C implementation in parallel, comparing the respective registers and program memory after every instruction is run.
+On top of python unittest discover flags, both scripts accept  '--skip-optimize' and '--skip-diff-reg-size' to skip variations of the same tests using register size optimized versions of instructions and variations with 64 bit and 16 bit register sizes.
+
+$ ./run_tests.py also accepts --skip-parallel to skip the parallel tests.
+
+They are the most interesting tests, though.
+$ python3 -m knighttests.test_parallel_execution
+and
+$ python3 -m knighttests.test_parallel_execution_stage1
+take advantage of stage0/User_Interface.py and stage0/wrapper.c to run our python implementation and the original C implementation in parallel, comparing the respective registers and program stacks after every instruction is run.
 
 This requires libvm.so from stage0 to be built:
 $ cd stage0
@@ -49,6 +63,10 @@ $ make libvm.so
 $ cd ../
 $ ln -s stage0/libvm.so libvm.so
 $ python3 -m knighttests.test_parallel_execution
+
+so you may also find
+$ ./run_tests.py --skip-parallel
+convenient if you'd like to run the rest of the test suite, but building libvm.so isn't desired or possible.
 
 -- Mark Jenkins <mark@markjenkins.ca>
 

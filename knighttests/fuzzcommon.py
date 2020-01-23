@@ -62,6 +62,9 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
     def tearDown(self):
         self.remove_tmp_files()
 
+    def get_end_of_memory(self):
+        return self.stack_end
+
     def encode_input_bytes_w_python_implementation(self):
         self.input_encode_python_implementation(
             self.input_bytes, self.python_output_bytes)
@@ -82,8 +85,8 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
             stdout=BytesIO(),
         )
         self.load_encoding_rom(vm)
-        grow_memory(vm, self.stack_end)
-        execute_vm(vm, optimize=True, halt_print=False)
+        grow_memory(vm, self.get_end_of_memory())
+        execute_vm(vm, optimize=self.optimize, halt_print=False)
 
     def test_output_match(self):
         self.execute_fuzz_test()

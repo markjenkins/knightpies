@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Mark Jenkins <mark@markjenkins.ca>
+# Copyright (C) 2019-2020 Mark Jenkins <mark@markjenkins.ca>
 # This file is part of knightpies
 #
 # knightpies is free software: you can redistribute it and/or modify
@@ -17,12 +17,13 @@
 from unittest import TestCase, skipIf
 from string import hexdigits, printable, whitespace
 
-from hex0tobin import int_bytes_from_hex0_fd
-from hex1tobin import write_binary_filefd_from_hex1_filefd
+from hex1tobin import int_bytes_from_hex1_fd
+from hex2tobin import write_binary_filefd_from_hex2_filefd
+from pythoncompat import random_multi_choices
 
 from .fuzzcommon import CommonStage1Fuzz
 
-from .stage0 import STAGE_0_HEX1_ASSEMBLER_FILEPATH
+from .stage0 import STAGE_0_HEX2_ASSEMBLER_FILEPATH
 from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 printable_less_colon_at = ''.join(
@@ -42,8 +43,8 @@ hex_symbols_or_most_printable = ( (hexdigits,)*30 +
                                   (REF,)*3,
 )
 
-class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
-    encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
+class Hex2FuzzTest(CommonStage1Fuzz, TestCase):
+    encoding_rom_filename = STAGE_0_HEX2_ASSEMBLER_FILEPATH
 
     # default 1024*256 runs for 2 hours on my slow machine, *10 only 10 minutes
     # plus, we're not avoiding the use of symbols too big a relative
@@ -58,14 +59,28 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
         CommonStage1Fuzz.tearDown(self)
 
     input_encode_python_implementation = \
-        staticmethod(write_binary_filefd_from_hex1_filefd)
+        staticmethod(write_binary_filefd_from_hex2_filefd)
 
-    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex0_fd)
+    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex1_fd)
+
+    def get_end_of_memory(self):
+        return 0x700+1024*256
 
     def get_n_representative_tokens_byte_encoded(self, n):
-        self.avail_symbols = list(printable_not_whitespace)
+        symbol_lengths = (1, 2, 3, 4, 5)
+        printable_not_whitespace_as_list = list(printable_not_whitespace)
+        # pick up to 200 random symbols (some may be duplicates)
+        # make each of them 1-5 characters each in length
+        self.avail_symbols = {
+            ''.join(
+                random_multi_choices(self.random_source,
+                    printable_not_whitespace_as_list,
+                    k=self.random_source.choice(symbol_lengths)
+                ) # random_multi_choices
+            ) # join
+            for i in range(200)
+        } # avail_symbols is a set to avoid duplicates
         self.used_symbols = []
-        self.random_source.shuffle(self.avail_symbols)
         return self.get_n_representative_character_bytes(n)
 
     def get_representative_character_byte(self):
@@ -73,7 +88,7 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
         if char_set[0]==DEF:
             try:
                 symbol = self.avail_symbols.pop()
-            except IndexError: # when pop() no longer works
+            except KeyError: # when pop() no longer works
                 return '\n'
             else:
                 self.used_symbols.append(symbol)
@@ -85,8 +100,11 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
             # for now, test_size = 1024*10 is quite safe
             # as a relative offset of (2**(16-1) - 1 )==32767 is
             # greater than 1024*10/2
-            symbol = self.random_source.choice(self.used_symbols)
-            return '\n@%s\n' % symbol
+            if len(self.used_symbols)>0:
+                symbol = self.random_source.choice(self.used_symbols)
+                return '\n@%s\n' % symbol
+            else:
+                return '\n'
         else:
             return self.random_source.choice(char_set)
 
@@ -95,32 +113,32 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
             self.get_representative_character_byte()
             for i in range(n) )
 
-class Hex1FuzzTestOptimize(Hex1FuzzTest):
+class Hex2FuzzTestOptimize(Hex2FuzzTest):
     optimize = True
     @skipIf(OPTIMIZE_SKIP, 'requested')
     def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTestOptimize, self).setUp(*args, **kargs)
+        return super(Hex2FuzzTestOptimize, self).setUp(*args, **kargs)
 
-class Hex1FuzzTest64(Hex1FuzzTest):
+class Hex2FuzzTest64(Hex2FuzzTest):
     registersize = 64
     @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
     def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest64, self).setUp(*args, **kargs)
+        return super(Hex2FuzzTest64, self).setUp(*args, **kargs)
 
-class Hex1FuzzTest64Optimize(Hex1FuzzTest64):
+class Hex2FuzzTest64Optimize(Hex2FuzzTest64):
     optimize = True
     @skipIf(OPTIMIZE_SKIP, 'requested')
     def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest64Optimize, self).setUp(*args, **kargs)
+        return super(Hex2FuzzTest64Optimize, self).setUp(*args, **kargs)
 
-class Hex1FuzzTest16(Hex1FuzzTest):
+class Hex2FuzzTest16(Hex2FuzzTest):
     registersize = 16
     @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
     def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest16, self).setUp(*args, **kargs)
+        return super(Hex2FuzzTest16, self).setUp(*args, **kargs)
 
-class Hex1FuzzTest16Optimize(Hex1FuzzTest16):
+class Hex2FuzzTest16Optimize(Hex2FuzzTest16):
     optimize = True
     @skipIf(OPTIMIZE_SKIP, 'requested')
     def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest16Optimize, self).setUp(*args, **kargs)
+        return super(Hex2FuzzTest16Optimize, self).setUp(*args, **kargs)

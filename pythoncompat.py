@@ -47,6 +47,13 @@ if sys.version_info[0] >= 3:
     def write_byte(fd, byte_write):
         value_to_write = bytes( (byte_write,) )
         fd.write(value_to_write)
+    if sys.version_info[0:2] >= (3,6):
+        def random_multi_choices(r, population, k):
+            return r.choices(population, k=k)
+    else:
+        def random_multi_choices(r, population, k):
+            return ( r.choice(population)
+                     for i in range(k) )
 
 else:
     def print_func(*args, **kargs):
@@ -122,7 +129,7 @@ def init_array_itemsize_8():
             # ARRAY_TYPE_UNSIGNED_LONG_LONG isn't but might as well try
             # (on the 32bit x86 python2 and python3 implementations I've
             # tested int long is 4 bytes / 32 bits)
-            return try_to_make_8_byte_long_int_array
+            return try_to_make_8_byte_long_int_array()
         else: # ARRAY_TYPE_UNSIGNED_LONG_LONG 'Q' will not be <8
             assert False
     else:

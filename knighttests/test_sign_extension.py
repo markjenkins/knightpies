@@ -16,11 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 from constants import MEM, REG
 from knightdecode import create_vm, grow_memory, read_and_eval
 from knightinstructions import readin_bytes
+from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 testcases = (
     '0000',
@@ -74,7 +75,7 @@ def make_readin_bytes_test_case(sixteenbits_bigendian_hex_str):
 
 class EdgeCaseSignedIntegerTests(TestCase):
     registersize = 32
-    optimize = True
+    optimize = False
     def setUp(self):
         self.vm = create_vm(size=0, registersize=self.registersize)
         self.vm[MEM].frombytes( bytes.fromhex('E0002D10') ) # LOADI r0
@@ -84,15 +85,23 @@ for sixteenbits_bigendian_hex_str in testcases:
             "test_%s" % sixteenbits_bigendian_hex_str,
             make_LOADI_test_case(sixteenbits_bigendian_hex_str) )
 
-class ThirtyTwoBitRegistersNoOptimize(EdgeCaseSignedIntegerTests):
-    optimize = False
+class ThirtyTwoBitRegistersOptimize(EdgeCaseSignedIntegerTests):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(ThirtyTwoBitRegistersOptimize, self).setUp(*args, **kargs)
 
 class SixteenBitRegistersNoOptimize(EdgeCaseSignedIntegerTests):
     registersize=16
-    optimize = False
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SixteenBitRegistersNoOptimize, self).setUp(*args, **kargs)
     
 class SixteenBitRegistersOptimize(SixteenBitRegistersNoOptimize):
     optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SixteenBitRegistersOptimize, self).setUp(*args, **kargs)
 
 for sixteenbits_bigendian_hex_str in testcases:
     setattr(SixteenBitRegistersOptimize,
@@ -101,9 +110,15 @@ for sixteenbits_bigendian_hex_str in testcases:
 
 class SixtyFourBitRegisters(EdgeCaseSignedIntegerTests):
     registersize=64
+    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SixtyFourBitRegisters, self).setUp(*args, **kargs)
 
-class SixtyFourBitRegistersNoOptimize(SixtyFourBitRegisters):
-    optimize = False
+class SixtyFourBitRegistersOptimize(SixtyFourBitRegisters):
+    optimize = True
+    @skipIf(OPTIMIZE_SKIP, 'requested')
+    def setUp(self, *args, **kargs):
+        return super(SixtyFourBitRegistersOptimize, self).setUp(*args, **kargs)
 
 if __name__ == '__main__':
     # to invoke, run
