@@ -1,3 +1,15 @@
+0.3.0 -- 2020-01-23
+ - Additional instructions to interpret stage1_assembler-2
+ - Python implementation of hex2 encoding/symbol linking
+ - Test suite enhancements, including:
+  * Fuzz testing of stage1_assembler-2 and framework enhanced to include heap space
+  * Some of the testing from previous releases enhanced to cover variations in register size and optimized instructions for specific register sizes
+  * Flags for test runner scripts to skip parallel test suite and variations of register size and optimizations for register size
+  * Parallel testing suite enhanced to support style of I/O for stage1 roms and tested with stage1_assembler-2
+ - New instructions for compatibility with stage0 Release_0.3.0 (1c91bd1dbefc7f6da611d7bdfc9f435690286690), but, git sub-module reference to stage0 not yet updated as parallel test suite needs further work (github issue #1)
+ - Other minor bugs fixes, github issue #2, 397fe796d67808134f4a97e3a7b4f7bf2132c7a1, 3108a026a06217baff704e4b5c03d977591bd5e8, df36db496b7cd779c91e89cb700778dbcf4bb9af
+ - Improvements towards python 2.2 compatibility goal
+
 0.2.5 -- 2019-07-27
  - Additional instructions to interpret stage1_assembler-1
  - Python implementation of hex1 encoding
