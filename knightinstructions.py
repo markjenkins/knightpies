@@ -174,7 +174,7 @@ def writeout_bytes(mem, pointer, value, byte_count):
         mem, pointer,
         "Writeout bytes Address_1 is outside of World")
     outside_of_world(
-        mem, pointer+byte_count,
+        mem, pointer+byte_count-1,
         "Writeout bytes Address_2 is outside of World")
     # example invocation of range, byte_count=4 (32 bits)
     # range(24, -8, -8) = [24, 16, 8, 0]
