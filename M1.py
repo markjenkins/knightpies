@@ -136,8 +136,6 @@ def get_macros_defined_and_add_to_sym_table(f, symbols=None):
     return symbols
 
 def upgrade_token_stream_to_include_macro(input_tokens):
-    next_atom_symbol = COMPAT_FALSE
-    next_atom_macro_value = COMPAT_FALSE
     input_tokens_iter = iter(input_tokens)
     while COMPAT_TRUE:
         try:
