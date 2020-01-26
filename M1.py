@@ -238,40 +238,71 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
         else:
             assert tok_type == TOK_TYPE_MACRO
 
+def get_symbols_from_M1_file_objs(file_objs, rewind_after=COMPAT_TRUE):
+    symbols = {}
+    # first pass get the symbols
+    for f in file_objs:
+        get_macros_defined_and_add_to_sym_table(f, symbols)
+        if rewind_after:
+            f.seek(0) # return to start of file for next pass
+    return symbols
+
+def M1_file_objs_to_hex2_file(M1_file_objs, hex2_file_obj, symbols=None):
+    if symbols == None:
+        symbols = get_symbols_from_M1_file_objs(
+            M1_file_objs, rewind_after=COMPAT_TRUE)
+
+    for f in M1_file_objs:
+        output_file_from_tokens_with_macros_sub_and_string_sub(
+            upgrade_token_stream_to_include_macro(tokenize_file(f)),
+            hex2_file_obj, symbols)
+
 def main():
     from sys import argv, stdout
     dump_defs_used = COMPAT_FALSE
+    output_filename = None # default case will mean stdout
     arguments = []
-    for arg in argv[1:]:
+    arg_iter = iter(argv[1:])
+    while COMPAT_TRUE:
+        try:
+            arg = next(arg_iter)
+        except StopIteration:
+            break # break while COMPAT_TRUE
         if arg == '--dump-defs-used':
             dump_defs_used = COMPAT_TRUE
+        elif arg == '-o' or arg == '--output':
+            try:
+                output_filename = next(arg_iter)
+            except StopIteration:
+                raise Exception('--output (-o) followed by end of arguments')
         else:
             arguments.append(arg)
 
-    symbols = {}
-    file_objs = []
-    # first pass get the symbols
-    for filename in arguments:
-        f = open_ascii(filename)
-        file_objs.append(f)
-        get_macros_defined_and_add_to_sym_table(f, symbols)
-        f.seek(0) # return to start of file for next pass
+    M1_file_objs = [open_ascii(filename) for filename in arguments]
+    symbols = get_symbols_from_M1_file_objs(
+        M1_file_objs, rewind_after=COMPAT_TRUE)
 
     if dump_defs_used:
         # second pass figure out which symbols are used
-        symbols_used = get_symbols_used(file_objs, symbols)
+        symbols_used = get_symbols_used(M1_file_objs, symbols)
         symbols_used.sort()
         for symbol in symbols_used:
             print_func(symbol)
     # this will be the default case, outputting a processed version of the file
     else:
-        for f in file_objs:
-            output_file_from_tokens_with_macros_sub_and_string_sub(
-                upgrade_token_stream_to_include_macro(tokenize_file(f)),
-                stdout, symbols)
-                
-    for f in file_objs:
+        if output_filename == None:
+            output_file_obj = stdout
+        else:
+            output_file_obj = open(output_filename, 'w')
+
+        M1_file_objs_to_hex2_file(
+            M1_file_objs, output_file_obj, symbols=symbols)
+
+    for f in M1_file_objs:
         f.close()
+
+    if output_filename != None: # not stdout, but an open file
+        output_file_obj.close()
 
 if __name__ == '__main__':
     main()
