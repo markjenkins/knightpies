@@ -55,7 +55,7 @@ def read_atom(first_char, f):
 def read_until_newline_or_EOF(f):
     while COMPAT_TRUE:
         c = f.read(1)
-        if c == '' or c=='\n':
+        if c == '' or c=='\n' or c=='\r':
             return c
 
 def tokenize_file(f):
