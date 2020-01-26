@@ -28,10 +28,12 @@ from pythoncompat import \
 
 def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
     buf = ''
-    if not big_endian:
-        raise Exception(
-            "int_as_hex() support for little endian isn't ready yet")
-    for i, x in enumerate(range( 8*(byte_count-1), -8, -8)):
+    if big_endian:
+        bit_shift_seq = range( 8*(byte_count-1), -8, -8 )
+    else: # little endian
+        bit_shift_seq = range(0, 8*byte_count, 8)
+
+    for i, x in enumerate(bit_shift_seq):
         buf += '%.2x' % ( (value>>x) & 0xff )
     return buf
 
