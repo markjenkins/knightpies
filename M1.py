@@ -24,18 +24,7 @@
 from __future__ import generators # for yield keyword in python 2.2
 
 from pythoncompat import \
-    open_ascii, print_func, COMPAT_TRUE, COMPAT_FALSE
-
-def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
-    buf = ''
-    if big_endian:
-        bit_shift_seq = range( 8*(byte_count-1), -8, -8 )
-    else: # little endian
-        bit_shift_seq = range(0, 8*byte_count, 8)
-
-    for i, x in enumerate(bit_shift_seq):
-        buf += '%.2x' % ( (value>>x) & 0xff )
-    return buf
+    open_ascii, print_func, COMPAT_TRUE, COMPAT_FALSE, int_as_hex
 
 TOK_TYPE_MACRO, TOK_TYPE_ATOM, TOK_TYPE_STR, TOK_TYPE_NEWLINE = range(4)
 TOK_TYPE, TOK_EXPR, TOK_FILENAME, TOK_LINENUM = range(4)

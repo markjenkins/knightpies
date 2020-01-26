@@ -136,5 +136,23 @@ def init_array_itemsize_8():
         # this works on x86_64 python2
         return try_to_make_8_byte_long_int_array()
 
+if sys.version_info[0:2] >= (3, 5):
+    def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
+        return value.to_bytes(
+            byte_count,
+            byteorder='big' if big_endian else "little",
+            ).hex()
+else:
+    def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
+        buf = ''
+        if big_endian:
+            bit_shift_seq = range( 8*(byte_count-1), -8, -8 )
+        else: # little endian
+            bit_shift_seq = range(0, 8*byte_count, 8)
+
+        for i, x in enumerate(bit_shift_seq):
+            buf += '%.2x' % ( (value>>x) & 0xff )
+        return buf
+
 if __name__ == "__main__":
     print_func("hello world!")
