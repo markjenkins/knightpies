@@ -202,8 +202,8 @@ def output_regular_atom(output_file, atomstr):
         except ValueError:
             raise Exception("%s can't be parsed to hex" % atomstr)
         output_file.write( int_as_hex(hexatom_int, 2, big_endian=COMPAT_TRUE) )
-    elif atomstr[0] in (':', '@'):
-        if atomstr[0] == '@':
+    elif atomstr[0] in "!@$~%&:^":
+        if atomstr[0] != ':':
             output_file.write(' ')
         output_file.write(atomstr)
     else:
