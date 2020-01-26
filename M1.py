@@ -186,13 +186,13 @@ def output_string_as_hex(output_file, string_msg):
         output_file.write("%.2x" % ord(c))
     output_file.write('00')
 
-def output_regular_atom(output_file, atomstr):
+def output_regular_atom(output_file, atomstr, big_endian=COMPAT_TRUE):
     if atomstr[0:2] == '0x': # atom's prefixed with 0x are hex
         try:
             hexatom_int = int(atomstr[2:], 16)
         except ValueError:
             raise Exception("%s can't be parsed to hex" % atomstr)
-        output_file.write( int_as_hex(hexatom_int, 2, big_endian=COMPAT_TRUE) )
+        output_file.write( int_as_hex(hexatom_int, 2, big_endian=big_endian) )
     elif atomstr[0] in "!@$~%&:^":
         if atomstr[0] != ':':
             output_file.write(' ')
@@ -204,10 +204,10 @@ def output_regular_atom(output_file, atomstr):
         except ValueError:
             raise Exception("%s can't be parsed to decimal" % atomstr)
         output_file.write(
-            int_as_hex(a, 2, big_endian=COMPAT_TRUE) )
+            int_as_hex(a, 2, big_endian=big_endian) )
         
 def output_file_from_tokens_with_macros_sub_and_string_sub(
-    input_tokens, output_file, symbols):
+        input_tokens, output_file, symbols, big_endian=COMPAT_TRUE):
 
     for tok_type, tok_expr, tok_filename, tok_linenum in input_tokens:
         if tok_type == TOK_TYPE_ATOM:
@@ -219,7 +219,7 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
                 else:
                     assert COMPAT_FALSE
             else:
-                output_regular_atom(output_file, tok_expr)
+                output_regular_atom(output_file, tok_expr, big_endian)
         elif tok_type == TOK_TYPE_NEWLINE:
             output_file.write('\n')
         elif tok_type == TOK_TYPE_STR:
@@ -238,7 +238,8 @@ def get_symbols_from_M1_file_objs(file_objs, rewind_after=COMPAT_TRUE):
             f.seek(0) # return to start of file for next pass
     return symbols
 
-def M1_file_objs_to_hex2_file(M1_file_objs, hex2_file_obj, symbols=None):
+def M1_file_objs_to_hex2_file(
+        M1_file_objs, hex2_file_obj, symbols=None, big_endian=COMPAT_TRUE):
     if symbols == None:
         symbols = get_symbols_from_M1_file_objs(
             M1_file_objs, rewind_after=COMPAT_TRUE)
@@ -246,7 +247,7 @@ def M1_file_objs_to_hex2_file(M1_file_objs, hex2_file_obj, symbols=None):
     for f in M1_file_objs:
         output_file_from_tokens_with_macros_sub_and_string_sub(
             upgrade_token_stream_to_include_macro(tokenize_file(f)),
-            hex2_file_obj, symbols)
+            hex2_file_obj, symbols, big_endian)
 
 def main():
     from sys import argv, stdout
@@ -254,6 +255,8 @@ def main():
     output_filename = None # default case will mean stdout
     arguments = []
     arg_iter = iter(argv[1:])
+    big_endian = COMPAT_TRUE
+    endian_flag_seen = COMPAT_FALSE
     while COMPAT_TRUE:
         try:
             arg = next(arg_iter)
@@ -266,6 +269,24 @@ def main():
                 output_filename = next(arg_iter)
             except StopIteration:
                 raise Exception('--output (-o) followed by end of arguments')
+        elif arg == '--BigEndian':
+            if endian_flag_seen and big_endian:
+                raise Exception("--BigEndian flag seen more than once!")
+            elif endian_flag_seen and not big_endian:
+                raise Exception(
+                    "--BigEndian flag seen after --LittleEndian, "
+                    "Johnathan Swift says you can't have it both ways")
+            endian_flag_seen = COMPAT_TRUE
+            # big_endian is already COMPAT_TRUE
+        elif arg == '--LittleEndian':
+            if endian_flag_seen and not big_endian:
+                raise Exception("--LittleEndian flag seen more than once!")
+            elif endian_flag_seen and not big_endian:
+                raise Exception(
+                    "--LittleEndian flag seen after --BigEndian, "
+                    "Johnathan Swift says you can't have it both ways")
+            endian_flag_seen = COMPAT_TRUE
+            big_endian = COMPAT_FALSE
         else:
             arguments.append(arg)
 
@@ -286,8 +307,8 @@ def main():
         else:
             output_file_obj = open(output_filename, 'w')
 
-        M1_file_objs_to_hex2_file(
-            M1_file_objs, output_file_obj, symbols=symbols)
+        M1_file_objs_to_hex2_file(M1_file_objs, output_file_obj,
+                                  symbols=symbols, big_endian=big_endian)
 
     for f in M1_file_objs:
         f.close()
