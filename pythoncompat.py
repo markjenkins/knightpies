@@ -138,10 +138,11 @@ def init_array_itemsize_8():
 
 if sys.version_info[0:2] >= (3, 5):
     def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
-        return value.to_bytes(
-            byte_count,
-            byteorder='big' if big_endian else "little",
-            ).hex()
+        if big_endian:
+            byteorder = 'big'
+        else: # else little endian
+            byteorder = "little"
+        return value.to_bytes(byte_count, byteorder=byteorder).hex()
 else:
     def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
         buf = ''
