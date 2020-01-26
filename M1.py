@@ -111,13 +111,6 @@ def get_symbols_used(file_objs, symbols):
                 symbols_used[tok_expr] = None
     return list(symbols_used.keys())
 
-def process_string_token_as_macro_value(string_expr):
-    return ''.join(
-        '%.2x' % ord(c)
-        for c in
-        string_expr[1:-1] # remove leading and trailing quote chars
-    ) # join
-
 def get_macros_defined_and_add_to_sym_table(f, symbols=None):
     # start a new dictionary if one wasn't provided, putting this in the
     # function definition would cause there to be one dictionary at build time
@@ -196,10 +189,11 @@ def upgrade_token_stream_to_include_macro(input_tokens):
         else:
             yield tok
 
-def process_and_output_string_expr(output_file, string_expr):
+def output_string_as_hex(output_file, string_msg):
     # remove leading and trailing quote chars
-    for c in string_expr[1:-1]:
+    for c in string_msg:
         output_file.write("%.2x" % ord(c))
+    output_file.write('00')
 
 def output_regular_atom(output_file, atomstr):
     if atomstr[0:2] == '0x': # atom's prefixed with 0x are hex
@@ -228,16 +222,21 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
         if tok_type == TOK_TYPE_ATOM:
             if tok_expr in symbols: # exact match only
                 macro_value_token = symbols[tok_expr]
-                assert macro_value_token[TOK_TYPE] == TOK_TYPE_ATOM
-                output_file.write( macro_value_token[TOK_EXPR] )
+                if (macro_value_token[TOK_TYPE] == TOK_TYPE_ATOM or
+                    macro_value_token[TOK_TYPE] == TOK_TYPE_STR ):
+                    output_file.write( macro_value_token[TOK_EXPR] )
+                else:
+                    assert COMPAT_FALSE
             else:
                 output_regular_atom(output_file, tok_expr)
         elif tok_type == TOK_TYPE_NEWLINE:
             output_file.write('\n')
-        else: # token_type == TOK_TYPE_STR
-            process_and_output_string_expr(
+        elif tok_type == TOK_TYPE_STR:
+            output_string_as_hex(
                 output_file, tok_expr
                 )
+        else:
+            assert tok_type == TOK_TYPE_MACRO
 
 def main():
     from sys import argv, stdout
