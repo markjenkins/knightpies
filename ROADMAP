@@ -10,8 +10,14 @@ STORE32
 *CMP
 LOAD32
 LOAD8
+LOADU8
 SR0I
+CMPJUMPI.NE
+CMPSKIPI.E
 CMPSKIPI.L
+CMPSKIPI.LE
+CMPSKIPI.NE
+HALT
 MUL
 SUBI
 ADDU
@@ -43,7 +49,26 @@ NEG
 0.7
  - Implement all knightvm instructions used by stage2/cc_x86.s
  use it to build all stage0/stage3 c programs
-[instruction TODO list here]
+ADD
+ADDI
+AND
+CALL
+CMPJUMPI.E
+CMPJUMPI.L
+CMPSKIP.E
+CMPSKIP.LE
+CMPSKIP.NE
+DIV
+DIVIDE
+JUMP.NP
+JUMP.P
+LOADR
+LOADR32
+MULU
+NOP
+PUSH8
+STORER32
+STOREX8
 
 0.8
  - Implement all knightvm instructions emitted by M2 planet (and make full use of its test suite)
