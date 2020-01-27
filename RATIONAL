@@ -5,7 +5,7 @@ My interest in implementing Knight ISA in Python is three fold:
 
  * Leverage the amazing work of stage0 [0], mes [4], and the ongoing effort [5] to rewrite mes in M2 [6] to provide a portable bootstrap of the free world on platforms where a C compiler or Scheme is not available or trusted, where the architecture and/or linker formats of stage0 bootstraps, mescc-tools and m2-planet are incompatible, but where Python is still available for bootstrapping. This includes
 
-i) Macintoshes from Mac OS X 10.2 onward that came with Python 2.2+, including Power . (deprecated as of macOS 10.15, set to be out of the default install in a later release)
+i) Macintoshes from Mac OS X 10.2 onward that came with Python 2.2+, including Power Macs. (deprecated as of macOS 10.15, set to be out of the default install in a later release)
 
 ii) Windows 10 releases that support a trusted version of CPython from the Microsoft store (now triggered by a python.exe available in default installs from 17763.0 [May 2n019] onward), including machines that ship in S mode (Windows store apps only). Windows is also interesting from a diverse double-compiling [3] perspective as these builds of CPython are compiled with Microsoft's C compiler (MSVC) which does not have GCC in its build heritage.
 
