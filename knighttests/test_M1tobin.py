@@ -28,7 +28,7 @@ from .test_hex2tobin import (
     )
 
 class M1Common(HexCommon):
-    encoding_rom_filename = get_stage0_file(STAGE_0_HEX2_ASSEMBLER_FILEPATH)
+    encoding_rom_filename = STAGE_0_HEX2_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex1_filefd)
 
 class Test_hex_assembler2_256Sum(M1Common, Encoding_rom_256_Common):
