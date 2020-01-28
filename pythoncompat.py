@@ -142,19 +142,39 @@ def init_array_itemsize_8():
         return try_to_make_8_byte_long_int_array()
 
 if sys.version_info[0:2] >= (3, 5):
-    def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
+    def int_as_hex(value, byte_count,
+                   big_endian=COMPAT_TRUE, signed=COMPAT_FALSE):
         if big_endian:
             byteorder = 'big'
         else: # else little endian
             byteorder = "little"
-        return value.to_bytes(byte_count, byteorder=byteorder).hex()
+        return value.to_bytes(
+            byte_count, byteorder=byteorder, signed=signed).hex()
 else:
-    def int_as_hex(value, byte_count, big_endian=COMPAT_TRUE):
+    def int_as_hex(value, byte_count,
+                   big_endian=COMPAT_TRUE, signed=COMPAT_FALSE):
+        bit_count = byte_count*8
+        # we need to check for integers outside of acceptable range
+        # like the python 3.5 implementation above does
+        if not signed:
+            if value < 0:
+                # same exceptions thrown by int.to_bytes in python 3.5 version
+                raise OverflowError("can't convert negative int to unsigned")
+            elif value >= 2**bit_count:
+                raise OverflowError("int too big to convert")
+        elif signed and not ( -(2**(bit_count-1)) <= value < 2**(bit_count-1) ):
+            raise OverflowError("int too big to convert")
+
+        # but we don't need to deal with signed or not after that
+        # as the process of bit shifting preserves sign in python
+        # and the bit masking 0xff after shifting preserves the bits
+        # and gets rid of any sign in a correct manner
         buf = ''
         if big_endian:
             bit_shift_seq = range( 8*(byte_count-1), -8, -8 )
         else: # little endian
-            bit_shift_seq = range(0, 8*byte_count, 8)
+            bit_shift_seq = range(0, bit_count, 8)
+
 
         for i, x in enumerate(bit_shift_seq):
             buf += '%.2x' % ( (value>>x) & 0xff )

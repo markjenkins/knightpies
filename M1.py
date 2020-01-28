@@ -192,7 +192,9 @@ def output_regular_atom(output_file, atomstr, big_endian=COMPAT_TRUE):
             hexatom_int = int(atomstr[2:], 16)
         except ValueError:
             raise Exception("%s can't be parsed to hex" % atomstr)
-        output_file.write( int_as_hex(hexatom_int, 2, big_endian=big_endian) )
+        output_file.write(
+            int_as_hex(hexatom_int, 2,
+                       big_endian=big_endian, signed=COMPAT_FALSE) )
     elif atomstr[0] in "!@$~%&:^":
         if atomstr[0] != ':':
             output_file.write(' ')
@@ -204,7 +206,7 @@ def output_regular_atom(output_file, atomstr, big_endian=COMPAT_TRUE):
         except ValueError:
             raise Exception("%s can't be parsed to decimal" % atomstr)
         output_file.write(
-            int_as_hex(a, 2, big_endian=big_endian) )
+            int_as_hex(a, 2, big_endian=big_endian, signed=COMPAT_TRUE) )
         
 def output_file_from_tokens_with_macros_sub_and_string_sub(
         input_tokens, output_file, symbols, big_endian=COMPAT_TRUE):
