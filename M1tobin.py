@@ -16,15 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from pythoncompat import COMPAT_TRUE, open_ascii
+from pythoncompat import COMPAT_TRUE, open_ascii, open_in_memory_temp
 from M1 import M1_file_objs_to_hex2_file
 from hex2tobin import write_binary_filefd_from_hex2_filefd
 
-# TODO, look into python version compatibility
-from StringIO import StringIO
-
 def M1_files_objs_to_bin(input_file_objs, output_file_obj):
-    hex2_file_obj = StringIO()
+    hex2_file_obj = open_in_memory_temp()
     M1_file_objs_to_hex2_file(input_file_objs, hex2_file_obj)
     hex2_file_obj.seek(0) # rewind after above finishes reading
     write_binary_filefd_from_hex2_filefd(hex2_file_obj, output_file_obj)

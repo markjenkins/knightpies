@@ -55,6 +55,8 @@ if sys.version_info[0] >= 3:
             return ( r.choice(population)
                      for i in range(k) )
 
+    from io import StringIO
+    open_in_memory_temp = StringIO
 else:
     def print_func(*args, **kargs):
         sep = kargs.get('sep', " ")
@@ -102,6 +104,9 @@ else:
 
     def write_byte(fd, byte_write):
         fd.write( chr(byte_write) )
+
+    from StringIO import StringIO
+    open_in_memory_temp = StringIO
 
 def try_to_make_8_byte_long_int_array():
     a = array(ARRAY_TYPE_UNSIGNED_INT_LONG)
