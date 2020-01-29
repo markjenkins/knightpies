@@ -26,7 +26,8 @@ from __future__ import generators # for yield keyword in python 2.2
 from pythoncompat import \
     open_ascii, print_func, COMPAT_TRUE, COMPAT_FALSE, int_as_hex
 
-TOK_TYPE_MACRO, TOK_TYPE_ATOM, TOK_TYPE_STR, TOK_TYPE_NEWLINE = range(4)
+TOK_TYPE_MACRO, TOK_TYPE_ATOM, TOK_TYPE_STR, TOK_TYPE_DATA, TOK_TYPE_NEWLINE \
+    = range(5)
 TOK_TYPE, TOK_EXPR, TOK_FILENAME, TOK_LINENUM = range(4)
 MACRO_NAME, MACRO_VALUE = 0, 1
 
@@ -63,7 +64,12 @@ def tokenize_file(f):
         # interupted by newline or comments
         elif (string_char != None):
             if string_char == c:
-                yield (TOK_TYPE_STR, string_buf, f.name, line_num)
+                if string_char == '"':
+                    yield (TOK_TYPE_STR, string_buf, f.name, line_num)
+                elif string_char == "'":
+                    yield (TOK_TYPE_DATA, string_buf, f.name, line_num)
+                else:
+                    assert COMPAT_FALSE # we should never reach here
                 string_char, string_buf = None, None
             else:
                 string_buf += c
@@ -141,7 +147,8 @@ def upgrade_token_stream_to_include_macro(input_tokens):
 
             # enforce next token after DEFINE atom must be an atom,
             # not newline or string
-            if macro_name_tok[TOK_TYPE] == TOK_TYPE_STR:
+            if (macro_name_tok[TOK_TYPE] == TOK_TYPE_STR or
+                macro_name_tok[TOK_TYPE] == TOK_TYPE_DATA ):
                 raise Exception(
                     "Using a string for macro name %s not supported "
                     "line %s from %s" % (
@@ -180,11 +187,19 @@ def upgrade_token_stream_to_include_macro(input_tokens):
         else:
             yield tok
 
-def output_string_as_hex(output_file, string_msg):
-    # remove leading and trailing quote chars
+def output_string_as_hex(output_file, string_msg, pad_align=4):
+    string_len_w_null = len(string_msg) + 1 # at least one null byte
+    # number of null bytes required past the first one
+    # we find the difference between how many chars past the alignment
+    # and the alignment size, which would be 4, 3, 2, or 1 (when pad_align
+    # is 4), and if it's 4 (pad_align) we chop that back down to 0
+    extra_pad = (pad_align - (string_len_w_null % pad_align) ) % pad_align
     for c in string_msg:
         output_file.write("%.2x" % ord(c))
-    output_file.write('00')
+    output_file.write('00') # first null byte
+    output_file.write('00'*extra_pad ) # any extra null bytes for alignment
+    assert( 0<= extra_pad < pad_align )
+    assert( (len(string_msg) + 1 + extra_pad) % pad_align == 0 )
 
 def output_regular_atom(output_file, atomstr, big_endian=COMPAT_TRUE):
     if atomstr[0:2] == '0x': # atom's prefixed with 0x are hex
@@ -216,14 +231,19 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
             if tok_expr in symbols: # exact match only
                 macro_value_token = symbols[tok_expr]
                 if (macro_value_token[TOK_TYPE] == TOK_TYPE_ATOM or
-                    macro_value_token[TOK_TYPE] == TOK_TYPE_STR ):
+                    macro_value_token[TOK_TYPE] == TOK_TYPE_DATA ):
                     output_file.write( macro_value_token[TOK_EXPR] )
+                elif macro_value_token[TOK_TYPE] == TOK_TYPE_STR:
+                    output_string_as_hex(
+                        output_file, macro_value_token[TOK_EXPR] )
                 else:
                     assert COMPAT_FALSE
             else:
                 output_regular_atom(output_file, tok_expr, big_endian)
         elif tok_type == TOK_TYPE_NEWLINE:
             output_file.write('\n')
+        elif tok_type == TOK_TYPE_DATA:
+            output_file.write(tok_expr)
         elif tok_type == TOK_TYPE_STR:
             output_string_as_hex(
                 output_file, tok_expr
