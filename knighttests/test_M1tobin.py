@@ -71,3 +71,13 @@ class Test_M1AssemblerToBin_stage0_monitor(
         M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
     sha256sumfilename = 'roms/stage0_monitor'
     input_filelist = ['stage0/stage0_monitor.s']
+
+class Test_M1AssemblerToBin_stage0_lisp(
+        M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
+    sha256sumfilename = 'roms/lisp'
+    input_filelist = ['stage2/lisp.s']
+
+class Test_M1AssemblerToBin_stage0_forth(
+        M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
+    sha256sumfilename = 'roms/forth'
+    input_filelist = ['stage2/forth.s']
