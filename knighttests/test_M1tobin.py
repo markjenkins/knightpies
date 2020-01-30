@@ -102,6 +102,11 @@ class Test_M1AssemblerToBin_stage0_dehex(
     sha256sumfilename = 'roms/DEHEX'
     input_filelist = ['stage1/dehex.s']
 
+class Test_M1AssemblerToBin_stage0_cat(
+        M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
+    sha256sumfilename = 'roms/CAT'
+    input_filelist = ['stage1/CAT.s']
+
 class Test_M1AssemblerToBin_stage0_lisp(
         M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
     sha256sumfilename = 'roms/lisp'
