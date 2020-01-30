@@ -92,6 +92,16 @@ class Test_M1AssemblerToBin_stage1_assembler_1(
     sha256sumfilename = 'roms/stage1_assembler-1'
     input_filelist = ['stage1/stage1_assembler-1.s']
 
+class Test_M1AssemblerToBin_stage0_cc86(
+        M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
+    sha256sumfilename = 'roms/cc_x86'
+    input_filelist = ['stage2/cc_x86.s']
+
+class Test_M1AssemblerToBin_stage0_dehex(
+        M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
+    sha256sumfilename = 'roms/DEHEX'
+    input_filelist = ['stage1/dehex.s']
+
 class Test_M1AssemblerToBin_stage0_lisp(
         M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
     sha256sumfilename = 'roms/lisp'
@@ -108,8 +118,17 @@ MONKEY_PATCHES = {
     # stage1_assembler-2.s from stage0 Release 0.3.0
     'a4279c0e0144bb32e22fcb71608001a26f0a4762253ce2f542c8aed27d049b8b'
     } 
+
+DONT_MONKEY_PATCH = {
+    # stage1_assembler-2.s after fix for consistency with .hex1 on
+    # stack start
+    # from stage0 git commit git commit 67b61a541942e4fb6a72422183129d83a5bb26a1
+    'ac857f2a7295ccc14aaf2cbb376ab7fbf1b7ac540c85e2d354e88e7306931c71'
+    }
+
 def on_override_list(filename_to_lookup):
-    return sha256hexoffile(filename_to_lookup) in MONKEY_PATCHES
+    hexdigest = sha256hexoffile(filename_to_lookup)
+    return hexdigest in MONKEY_PATCHES or hexdigest in DONT_MONKEY_PATCH
 
 class Test_M1AssemblerToBin_stage1_assembler_2(
         M1AssembleToBin_Common_256Sum, Hex256SumMatch, TestCase):
@@ -135,8 +154,12 @@ class Test_M1AssemblerToBin_stage1_assembler_2(
         # a bit before 0x400 when $stack is assembled and linked
         # whereas stage1_assembler-2.hex1 just refers to the cleaner address
         # 0x400 because absolute references are not available in hex1 files
-        output_binfile.getbuffer()[4] = 0x04
-        output_binfile.getbuffer()[5] = 0x00
+        #
+        # but skip patched versions of stage1_assembler-2.s
+        if (sha256hexoffile(get_stage0_file(self.input_filelist[0]))
+            not in DONT_MONKEY_PATCH):
+            output_binfile.getbuffer()[4] = 0x04
+            output_binfile.getbuffer()[5] = 0x00
         hexdigest = sha256(output_binfile.getbuffer()).hexdigest()
         output_binfile.close()
         return hexdigest
