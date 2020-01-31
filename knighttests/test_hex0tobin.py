@@ -123,7 +123,7 @@ class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
         self.execute_test_hex0_load_against_computed_SHA256SUM(
             'stage1/dehex.hex0')
 
-    @skipIf( not exists(get_stage0_file('Linux Bootstrap/xeh.hex0') ),
+    @skipIf( 'Linux Bootstrap/xeh.hex0' not in ADDITIONAL_SHA256SUMS,
              'Linux Bootstrap/xeh.hex0 not available for testing'
     )
     def test_encode_linux_bootstrap_xeh_s(self):
@@ -196,7 +196,7 @@ class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
             ADDITIONAL_SHA256SUMS[filename]
             )
 
-    @skipIf( not exists(get_stage0_file('Linux Bootstrap/xeh.hex0') ),
+    @skipIf( 'Linux Bootstrap/xeh.hex0' not in ADDITIONAL_SHA256SUMS,
              'Linux Bootstrap/xeh.hex0 not available for testing'
     )
     def test_encode_linux_bootstrap_xeh_s(self):
