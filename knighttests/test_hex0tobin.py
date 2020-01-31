@@ -89,9 +89,14 @@ class TestHex0KnightExecuteCommon(Hex0Common, TestHexKnightExecuteCommon):
         return self.tape_01_temp_file_path
 
     def execute_test_hex0_load_against_computed_SHA256SUM(self, filename):
+        self.execute_test_hex0_load_against_computed_SHA256SUM_dict(
+            filename, ADDITIONAL_SHA256SUMS)
+
+    def execute_test_hex0_load_against_computed_SHA256SUM_dict(
+            self, filename, sha256sumdict):
         self.execute_test_hex_load(
             get_stage0_file(filename),
-            ADDITIONAL_SHA256SUMS[filename]
+            sha256sumdict[filename]
             )
 
 class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
