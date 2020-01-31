@@ -39,21 +39,16 @@ get_sha256sum_of_file_after_hex0_encode = \
     make_get_sha256sum_of_file_after_encode(
         write_binary_filefd_from_hex0_filefd)
 
-ADDITIONAL_SHA256SUMS_may_not_exist_exemptions = {
-    'Linux Bootstrap/xeh.hex0',
-    }
-
-ADDITIONAL_SHA256SUMS = [
-    (filename,
-     get_sha256sum_of_file_after_hex0_encode( get_stage0_file(filename) ) )
+ADDITIONAL_SHA256SUMS = {
+    filename: get_sha256sum_of_file_after_hex0_encode(
+        get_stage0_file(filename) )
     for filename in (
             'stage1/more.hex0',
             'stage1/dehex.hex0',
             'Linux Bootstrap/xeh.hex0',
     ) # end tuple fed to for filename in
-    if (filename not in ADDITIONAL_SHA256SUMS_may_not_exist_exemptions or
-        exists(filename) )
-]
+    if exists( get_stage0_file(filename) )
+}
 
 class Hex0Common(HexCommon):
     encoding_rom_filename = STAGE_0_MONITOR_HEX_FILEPATH
@@ -93,6 +88,12 @@ class TestHex0KnightExecuteCommon(Hex0Common, TestHexKnightExecuteCommon):
     def get_output_file_path(self):
         return self.tape_01_temp_file_path
 
+    def execute_test_hex0_load_against_computed_SHA256SUM(self, filename):
+        self.execute_test_hex_load(
+            get_stage0_file(filename),
+            ADDITIONAL_SHA256SUMS[filename]
+            )
+
 class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
     def test_stage0_monitor_encodes_self(self):
         self.execute_test_hex_load_published_sha256(
@@ -109,10 +110,21 @@ class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
             STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH,
             "roms/stage1_assembler-1")
 
-    def test_additional_hex0_files(self):
-        for filename, sha256hexdigest in ADDITIONAL_SHA256SUMS:
-            self.execute_test_hex_load(filename, sha256hexdigest)
-        
+    def test_encode_stage1_more(self):
+        self.execute_test_hex0_load_against_computed_SHA256SUM(
+            'stage1/more.hex0')
+
+    def test_encode_stage1_dehex(self):
+        self.execute_test_hex0_load_against_computed_SHA256SUM(
+            'stage1/dehex.hex0')
+
+    @skipIf( not exists(get_stage0_file('Linux Bootstrap/xeh.hex0') ),
+             'Linux Bootstrap/xeh.hex0 not available for testing'
+    )
+    def test_encode_linux_bootstrap_xeh_s(self):
+        self.execute_test_hex0_load_against_computed_SHA256SUM(
+            'Linux Bootstrap/xeh.hex0')
+
 class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
     optimize = True
     @skipIf(OPTIMIZE_SKIP, 'requested')
@@ -166,9 +178,25 @@ class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
             "roms/stage1_assembler-1",
     )
 
-    def test_additional_hex0_files(self):
-        for filename, sha256hexdigest in ADDITIONAL_SHA256SUMS:
-            self.execute_test_hex_load(filename, sha256hexdigest)
+    def test_encode_stage1_more(self):
+        self.execute_test_hex_load(
+            get_stage0_file('stage1/more.hex0'),
+            ADDITIONAL_SHA256SUMS['stage1/more.hex0']
+            )
+
+    def test_encode_stage1_dehex(self):
+        filename = 'stage1/dehex.hex0'
+        self.execute_test_hex_load(
+            get_stage0_file(filename),
+            ADDITIONAL_SHA256SUMS[filename]
+            )
+
+    @skipIf( not exists(get_stage0_file('Linux Bootstrap/xeh.hex0') ),
+             'Linux Bootstrap/xeh.hex0 not available for testing'
+    )
+    def test_encode_linux_bootstrap_xeh_s(self):
+        self.execute_test_hex0_load_against_computed_SHA256SUM(
+            'Linux Bootstrap/xeh.hex0')
 
 class TestStage1Hex0Encode32Optimize(TestStage1Hex0Encode):
     optimize = True
