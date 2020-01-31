@@ -45,9 +45,7 @@ ADDITIONAL_SHA256SUMS = {
     for filename in (
             'stage1/more.hex0',
             'stage1/dehex.hex0',
-            'Linux Bootstrap/xeh.hex0',
     ) # end tuple fed to for filename in
-    if exists( get_stage0_file(filename) )
 }
 
 class Hex0Common(HexCommon):
@@ -123,13 +121,6 @@ class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
         self.execute_test_hex0_load_against_computed_SHA256SUM(
             'stage1/dehex.hex0')
 
-    @skipIf( 'Linux Bootstrap/xeh.hex0' not in ADDITIONAL_SHA256SUMS,
-             'Linux Bootstrap/xeh.hex0 not available for testing'
-    )
-    def test_encode_linux_bootstrap_xeh_s(self):
-        self.execute_test_hex0_load_against_computed_SHA256SUM(
-            'Linux Bootstrap/xeh.hex0')
-
 class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
     optimize = True
     @skipIf(OPTIMIZE_SKIP, 'requested')
@@ -195,13 +186,6 @@ class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
             get_stage0_file(filename),
             ADDITIONAL_SHA256SUMS[filename]
             )
-
-    @skipIf( 'Linux Bootstrap/xeh.hex0' not in ADDITIONAL_SHA256SUMS,
-             'Linux Bootstrap/xeh.hex0 not available for testing'
-    )
-    def test_encode_linux_bootstrap_xeh_s(self):
-        self.execute_test_hex0_load_against_computed_SHA256SUM(
-            'Linux Bootstrap/xeh.hex0')
 
 class TestStage1Hex0Encode32Optimize(TestStage1Hex0Encode):
     optimize = True
