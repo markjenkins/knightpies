@@ -28,48 +28,53 @@ from .test_hex0tobin import (
     CommonStage1HexEncode,
     )
 
+LINUX_BOOTSTRAP_HEX0_FILES = (
+    ('xeh_orig', 'Linux Bootstrap/xeh.hex0'),
+    ('xeh', 'Linux Bootstrap/Legacy_pieces/xeh.hex0'),
+    ('exec_enable', 'Linux Bootstrap/Legacy_pieces/exec_enable.hex0'),
+    ('hex0_x86', 'Linux Bootstrap/x86/hex0_x86.hex0'),
+    ('hex1_x86', 'Linux Bootstrap/x86/hex1_x86.hex0'),
+    ('catm_x86', 'Linux Bootstrap/x86/catm_x86.hex0'),
+    ('hex0_amd64', 'Linux Bootstrap/AMD64/hex0_AMD64.hex0'),
+    ('hex1_amd64', 'Linux Bootstrap/AMD64/hex1_AMD64.hex0'),
+    ('catm_amd64', 'Linux Bootstrap/AMD64/catm_AMD64.hex0'),
+    )
+
 TARGET_SHA256SUMS = {
     filename: get_sha256sum_of_file_after_hex0_encode(
         get_stage0_file(filename) )
-    for filename in (
-        'Linux Bootstrap/xeh.hex0',
-        'Linux Bootstrap/Legacy_pieces/xeh.hex0',
-    ) # end tuple fed to for filename in
+    for shortfilename, filename in LINUX_BOOTSTRAP_HEX0_FILES
     if exists( get_stage0_file(filename) )
 }
+
+def make_linux_bootstrap_test_case(filename):
+    @skipIf( filename not in TARGET_SHA256SUMS,
+             '%s not available for testing' % filename )
+    def test_encode_linux_bootstrap_file(self):
+        self.execute_test_hex0_load_against_computed_SHA256SUM(
+            filename)
+    return test_encode_linux_bootstrap_file
 
 class TestHex0KnightSubmoduleExecuteCommon(TestHex0KnightExecuteCommon):
     def execute_test_hex0_load_against_computed_SHA256SUM(self, filename):
         self.execute_test_hex0_load_against_computed_SHA256SUM_dict(
             filename, TARGET_SHA256SUMS)
 
-class TestStage0Monitorexecute(TestHex0KnightSubmoduleExecuteCommon):
-    @skipIf( 'Linux Bootstrap/xeh.hex0' not in TARGET_SHA256SUMS,
-             'Linux Bootstrap/xeh.hex0 not available for testing'
-    )
-    def test_encode_linux_bootstrap_xeh_s(self):
-        self.execute_test_hex0_load_against_computed_SHA256SUM(
-            'Linux Bootstrap/xeh.hex0')
+class LinuxBootStrapTests():
+    pass
 
-    @skipIf( 'Linux Bootstrap/Legacy_pieces/xeh.hex0' not in TARGET_SHA256SUMS,
-             'Linux Bootstrap/Legacy_pieces/xeh.hex0 not available for testing'
-    )
-    def test_encode_linux_bootstrap_legacy_xeh_s(self):
-        self.execute_test_hex0_load_against_computed_SHA256SUM(
-            'Linux Bootstrap/Legacy_pieces/xeh.hex0')
+for shortfilename, filename in LINUX_BOOTSTRAP_HEX0_FILES:
+    setattr(LinuxBootStrapTests,
+            "test_encode_linux_bootstrap_%s" % shortfilename,
+            make_linux_bootstrap_test_case(filename) )
+
+class TestStage0Monitorexecute(
+        TestHex0KnightSubmoduleExecuteCommon,
+        LinuxBootStrapTests):
+    pass
 
 class TestStage1Hex0Encode(
-        CommonStage1HexEncode, TestHex0KnightSubmoduleExecuteCommon):
-    @skipIf( 'Linux Bootstrap/xeh.hex0' not in TARGET_SHA256SUMS,
-             'Linux Bootstrap/xeh.hex0 not available for testing'
-    )
-    def test_encode_linux_bootstrap_xeh_s(self):
-        self.execute_test_hex0_load_against_computed_SHA256SUM(
-            'Linux Bootstrap/xeh.hex0')    
+        CommonStage1HexEncode, TestHex0KnightSubmoduleExecuteCommon,
+        LinuxBootStrapTests):
+    pass
 
-    @skipIf( 'Linux Bootstrap/Legacy_pieces/xeh.hex0' not in TARGET_SHA256SUMS,
-             'Linux Bootstrap/Legacy_pieces/xeh.hex0 not available for testing'
-    )
-    def test_encode_linux_bootstrap_legacy_xeh_s(self):
-        self.execute_test_hex0_load_against_computed_SHA256SUM(
-            'Linux Bootstrap/Legacy_pieces/xeh.hex0')
