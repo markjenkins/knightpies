@@ -17,6 +17,7 @@
 from stage0dir import get_stage0_file
 from unittest import skipIf
 from os.path import exists
+from hashlib import sha256
 
 from .hexcommon import (
     TestHexKnightExecuteCommon,
@@ -28,7 +29,7 @@ from .test_hex0tobin import (
     CommonStage1HexEncode,
     )
 
-LINUX_BOOTSTRAP_HEX0_FILES = (
+LINUX_BOOTSTRAP_HEX0_FILES = [
     ('xeh_orig', 'Linux Bootstrap/xeh.hex0'),
     ('xeh', 'Linux Bootstrap/Legacy_pieces/xeh.hex0'),
     ('exec_enable', 'Linux Bootstrap/Legacy_pieces/exec_enable.hex0'),
@@ -38,7 +39,7 @@ LINUX_BOOTSTRAP_HEX0_FILES = (
     ('hex0_amd64', 'Linux Bootstrap/AMD64/hex0_AMD64.hex0'),
     ('hex1_amd64', 'Linux Bootstrap/AMD64/hex1_AMD64.hex0'),
     ('catm_amd64', 'Linux Bootstrap/AMD64/catm_AMD64.hex0'),
-    )
+    ]
 
 TARGET_SHA256SUMS = {
     filename: get_sha256sum_of_file_after_hex0_encode(
@@ -46,6 +47,30 @@ TARGET_SHA256SUMS = {
     for shortfilename, filename in LINUX_BOOTSTRAP_HEX0_FILES
     if exists( get_stage0_file(filename) )
 }
+
+# these versions of 'Linux Bootstrap/Legacy_pieces/read.hex0' have an
+# appropriate patch
+legacy_pieces_read_newline_fixes = {
+    '7eb77fdf6db920ed5188baf1d3af8ef08ba2ff802048dce2ee9995af39acbc9c'
+    }
+
+# and so if that file xists and matches a sha256sum above, we include
+# it as a target for the test suite
+LINUX_BOOTSTRAP_LEGACY_PIECES_READ = 'Linux Bootstrap/Legacy_pieces/read.hex0'
+LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL = \
+    get_stage0_file(LINUX_BOOTSTRAP_LEGACY_PIECES_READ)
+if exists(LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL):
+    with open(LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL, 'rb') as f:
+        if sha256(f.read()).hexdigest() in legacy_pieces_read_newline_fixes:
+            TARGET_SHA256SUMS[LINUX_BOOTSTRAP_LEGACY_PIECES_READ] = \
+                get_sha256sum_of_file_after_hex0_encode(
+                    LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL)
+# and then we add that file to the list no matter what, the idea being
+# the test will be added, but the @skipIf will skip it if it is not in
+# TARGET_SHA256SUMS
+LINUX_BOOTSTRAP_HEX0_FILES.append(
+    ('read', LINUX_BOOTSTRAP_LEGACY_PIECES_READ)
+)
 
 def make_linux_bootstrap_test_case(filename):
     @skipIf( filename not in TARGET_SHA256SUMS,
