@@ -16,6 +16,8 @@
 
 from tempfile import NamedTemporaryFile
 from hashlib import sha256
+from unittest import skipIf
+from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 
 def get_closed_named_temp_file():
     return_file = NamedTemporaryFile(delete=False)
@@ -26,3 +28,45 @@ def sha256hexoffile(filename):
     with open(filename, 'rb') as f:
         checksum = sha256(f.read())
     return checksum.hexdigest()
+
+def make_optimize_and_register_size_variations(class_to_sub):
+    class TestVariation32Optimize(class_to_sub):
+        optimize = True
+        @skipIf(OPTIMIZE_SKIP, 'requested')
+        def setUp(self, *args, **kargs):
+            return super(TestVariation32Optimize, self).setUp(
+                *args, **kargs)
+
+    class TestVariation64(class_to_sub):
+        registersize = 64
+        @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+        def setUp(self, *args, **kargs):
+            return super(TestVariation64, self).setUp(*args, **kargs)
+
+    class TestVariation64Optimize(TestVariation64):
+        optimize = True
+        @skipIf(OPTIMIZE_SKIP, 'requested')
+        def setUp(self, *args, **kargs):
+            return super(TestVariation64Optimize, self).setUp(
+                *args, **kargs)
+
+    class TestVariation16(class_to_sub):
+        registersize = 16
+        @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
+        def setUp(self, *args, **kargs):
+            return super(TestVariation16, self).setUp(*args, **kargs)
+
+    class TestVariation16Optimize(TestVariation16):
+        optimize = True
+        @skipIf(OPTIMIZE_SKIP, 'requested')
+        def setUp(self, *args, **kargs):
+            return super(TestVariation16Optimize, self).setUp(
+                *args, **kargs)
+
+    return (
+        TestVariation32Optimize,
+        TestVariation64,
+        TestVariation64Optimize,
+        TestVariation16,
+        TestVariation16Optimize,
+        )

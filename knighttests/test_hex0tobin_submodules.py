@@ -21,7 +21,10 @@ from os.path import exists
 from .hexcommon import (
     TestHexKnightExecuteCommon,
 )
-from .util import sha256hexoffile
+from .util import (
+    sha256hexoffile,
+    make_optimize_and_register_size_variations,
+    )
 from .test_hex0tobin import (
     TestHex0KnightExecuteCommon, 
     get_sha256sum_of_file_after_hex0_encode,
@@ -97,8 +100,23 @@ class TestStage0Monitorexecute(
         LinuxBootStrapTests):
     pass
 
+(
+    MonitorTestVariation32Optimize,
+    MonitorTestVariation64,
+    MonitorTestVariation64Optimize,
+    MonitorTestVariation16,
+    MonitorTestVariation16Optimize,
+) =  make_optimize_and_register_size_variations(TestStage0Monitorexecute)
+
 class TestStage1Hex0Encode(
         CommonStage1HexEncode, TestHex0KnightSubmoduleExecuteCommon,
         LinuxBootStrapTests):
     pass
 
+(
+    Stage1TestVariation32Optimize,
+    Stage1TestVariation64,
+    Stage1TestVariation64Optimize,
+    Stage1TestVariation16,
+    StageTestVariation16Optimize,
+) =  make_optimize_and_register_size_variations(TestStage1Hex0Encode)
