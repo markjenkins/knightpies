@@ -17,12 +17,11 @@
 from stage0dir import get_stage0_file
 from unittest import skipIf
 from os.path import exists
-from hashlib import sha256
 
 from .hexcommon import (
     TestHexKnightExecuteCommon,
 )
-
+from .util import sha256hexoffile
 from .test_hex0tobin import (
     TestHex0KnightExecuteCommon, 
     get_sha256sum_of_file_after_hex0_encode,
@@ -59,12 +58,12 @@ legacy_pieces_read_newline_fixes = {
 LINUX_BOOTSTRAP_LEGACY_PIECES_READ = 'Linux Bootstrap/Legacy_pieces/read.hex0'
 LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL = \
     get_stage0_file(LINUX_BOOTSTRAP_LEGACY_PIECES_READ)
-if exists(LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL):
-    with open(LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL, 'rb') as f:
-        if sha256(f.read()).hexdigest() in legacy_pieces_read_newline_fixes:
-            TARGET_SHA256SUMS[LINUX_BOOTSTRAP_LEGACY_PIECES_READ] = \
-                get_sha256sum_of_file_after_hex0_encode(
-                    LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL)
+if (exists(LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL) and
+    sha256hexoffile(LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL) in
+    legacy_pieces_read_newline_fixes ):
+    TARGET_SHA256SUMS[LINUX_BOOTSTRAP_LEGACY_PIECES_READ] = \
+        get_sha256sum_of_file_after_hex0_encode(
+            LINUX_BOOTSTRAP_LEGACY_PIECES_READ_FULL)
 # and then we add that file to the list no matter what, the idea being
 # the test will be added, but the @skipIf will skip it if it is not in
 # TARGET_SHA256SUMS

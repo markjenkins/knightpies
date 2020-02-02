@@ -32,11 +32,7 @@ from pythoncompat import open_ascii
 from .test_hex2tobin import (
     get_sha256sum_of_file_after_hex2_encode,
     )
-
-def sha256hexoffile(filename):
-    with open(filename, 'rb') as f:
-        checksum = sha256(f.read())
-    return checksum.hexdigest()
+from .util import sha256hexoffile
 
 def binfile_obj_after_M1_and_hex2(*filenames):
     outputmemfile = BytesIO()

@@ -15,8 +15,14 @@
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
 from tempfile import NamedTemporaryFile
+from hashlib import sha256
 
 def get_closed_named_temp_file():
     return_file = NamedTemporaryFile(delete=False)
     return_file.close()
     return return_file.name
+
+def sha256hexoffile(filename):
+    with open(filename, 'rb') as f:
+        checksum = sha256(f.read())
+    return checksum.hexdigest()
