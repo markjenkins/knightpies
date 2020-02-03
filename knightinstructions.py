@@ -799,10 +799,26 @@ def XNORI(vm, c):
     pass
 
 def CMPJUMPI_G(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) >
+        interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
+        return (next_ip + raw_immediate) & mask
+    else:
+        return next_ip
 
 def CMPJUMPI_GE(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) >=
+        interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
+        return (next_ip + raw_immediate) & mask
+    else:
+        return next_ip
 
 def CMPJUMPI_E(vm, c):
     pass
@@ -811,10 +827,26 @@ def CMPJUMPI_NE(vm, c):
     pass
 
 def CMPJUMPI_LE(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) <=
+        interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
+        return (next_ip + raw_immediate) & mask
+    else:
+        return next_ip
 
 def CMPJUMPI_L(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) <
+        interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
+        return (next_ip + raw_immediate) & mask
+    else:
+        return next_ip
 
 def CMPJUMPUI_G(vm, c):
     pass
