@@ -710,7 +710,14 @@ def ADDUI(vm, c):
     return next_ip
 
 def SUBI(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = register_file.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    register_file[reg0] = (
+        interpret_nbits_as_signed(register_file[reg1], N_BITS) -
+        raw_immediate ) & mask
+    return next_ip
 
 def SUBUI(vm, c):
     mem, register_file, reg0, reg1, raw_immediate, next_ip = \
