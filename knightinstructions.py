@@ -782,7 +782,18 @@ def LOADU16(vm, c):
     pass
 
 def LOAD32(vm, c):
-    pass
+    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    mask = 2**(register_file.itemsize * 8)-1
+    # all that we need when doing a LOAD32 to sign extend to a 64bit
+    # register bitwise and against a bitmask with 64 bits
+    # this has no negative effect on 32 bit registers
+    # and cuts things off on 16 bit registers
+    register_file[reg0]= readin_bytes(
+        mem,
+        (register_file[reg1] + raw_immediate ) & mask, # memory address
+        COMPAT_TRUE, 4) & mask
+    return next_ip
 
 def LOADU32(vm, c):
     pass
