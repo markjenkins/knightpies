@@ -334,7 +334,18 @@ def CMPU(vm, c):
     return next_ip
 
 def MUL(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = 2**N_BITS-1
+    tmp1 = interpret_nbits_as_signed(registerfile[reg1], N_BITS)
+    tmp2 = interpret_nbits_as_signed(registerfile[reg2], N_BITS)
+    # after multiplying the values, do modular arithmatic,
+    # mod 2**32 (0x100000000) to get just the bottom 32 bits
+    # the idea being MULH is for accessing the higher bits
+    # but I wonder what this means when register size (N_BITS) is 16,
+    # shouldn't we split MUL and MULH on that boundary?
+    registerfile[reg0] = ( (tmp1*tmp2) % 0x100000000 ) & mask
+    return next_ip
 
 def MULH(vm, c):
     pass
