@@ -1002,7 +1002,9 @@ def SL0I(vm, c):
     return next_ip
 
 def SR0I(vm, c):
-    pass
+    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
+    register_file[reg0] = register_file[reg0]>>raw_immediate
+    return next_ip
 
 def SL1I(vm, c):
     pass
