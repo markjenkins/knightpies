@@ -83,6 +83,8 @@ class Stage1(ParallelExecutionTests):
                          shallow=False),
             "%s vs %s" % (self.get_output_filename(), LILITH_TAPE_NAME_02)
         )
+
+class Stage1EncodeSet(Stage1):
     def test_stage1_hex2_encodes_set(self):
         self.run_execution_test(
             STAGE_0_HEX2_ASSEMBLER_FILEPATH,
