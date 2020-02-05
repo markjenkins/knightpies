@@ -21,7 +21,7 @@ from __future__ import division # prevent use of "/" in the old way
 
 from knightinstructions import \
     make_twos_complement_converter, sixteenbit_twos_complement, \
-    interpret_sixteenbits_as_signed, set_comparison_flags, \
+    set_comparison_flags, \
     MAX_16_SIGNED, MAX_16_UNSIGNED, \
     get_args_for_1OP, get_args_for_3OP, get_args_for_1OPI
 
@@ -77,13 +77,13 @@ def make_nbit_optimized_functions(nbits):
         if register_nbit_negative(register_file, reg0):
             return next_ip
         else: # positive
-            return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+            return next_ip + raw_immediate
 
     def JUMP_NP_N_BITS(vm, c):
         mem, register_file, reg0, raw_immediate, next_ip = \
             get_args_for_1OPI(vm, c)
         if register_nbit_negative(register_file, reg0):
-            return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+            return next_ip + raw_immediate
         else: # positive
             return next_ip
 

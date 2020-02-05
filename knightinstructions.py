@@ -107,12 +107,6 @@ def sign_extend_if_negative_and_unsign_bits(value, num_bits):
     # https://wiki.python.org/moin/BitwiseOperators
     return value & mask
 
-def stuff_int_as_signed_16bit_value_into_register(
-        value, register_file, regindex):
-    register_file[regindex] = sign_extend_if_negative_and_unsign_bits(
-        interpret_sixteenbits_as_signed(value),
-        register_file.itemsize*8)
-
 def get_instruction_size(vm, address):
     c = vm[MEM][address]
     if c==0xE0 or c==0xE1:
@@ -138,15 +132,13 @@ def compare_immediate_to_register_g_signed(
         register_file, reg0, raw_immediate):
     return \
         interpret_nbits_as_signed(register_file[reg0],
-                                  register_file.itemsize*8) > \
-        interpret_sixteenbits_as_signed(raw_immediate)
+                                  register_file.itemsize*8) > raw_immediate
 
 def compare_immediate_to_register_ge_signed(
         register_file, reg0, raw_immediate):
     return \
         interpret_nbits_as_signed(register_file[reg0],
-                                  register_file.itemsize*8) >= \
-        interpret_sixteenbits_as_signed(raw_immediate)
+                                  register_file.itemsize*8) >= raw_immediate
 
 def compare_immediate_to_register_le_signed(
         register_file, reg0, raw_immediate):
@@ -704,11 +696,15 @@ def POPPC(vm, c):
 
 # 2 OP integer immediate
 
-def get_args_for_2OPI(vm, c):
-    return (vm[MEM], vm[REG],
-            c[I_REGISTERS][0], c[I_REGISTERS][1],
-            c[RAW_IMMEDIATE], c[NEXTIP],
-            )
+def get_args_for_2OPI(vm, c, signed_immediate=COMPAT_TRUE):
+    raw_immediate = c[RAW_IMMEDIATE]
+    return (
+        vm[MEM], vm[REG],
+        c[I_REGISTERS][0], c[I_REGISTERS][1],
+        ( raw_immediate if not signed_immediate
+          else interpret_sixteenbits_as_signed(raw_immediate) ),
+        c[NEXTIP],
+    )
 
 def ADDI(vm, c):
     pass
@@ -917,15 +913,21 @@ def CMPJUMPUI_L(vm, c):
 
 # 1 OP integer immediate
 
-def get_args_for_1OPI(vm, c):
-    return vm[MEM], vm[REG], c[I_REGISTERS][0], c[RAW_IMMEDIATE], c[NEXTIP]
+def get_args_for_1OPI(vm, c, signed_immediate=COMPAT_TRUE):
+    raw_immediate = c[RAW_IMMEDIATE]
+    return (
+        vm[MEM], vm[REG], c[I_REGISTERS][0],
+        (raw_immediate if not signed_immediate
+         else interpret_sixteenbits_as_signed(raw_immediate) ),
+        c[NEXTIP]
+        )
 
 def make_condition_bit_jump(condition_mask):
     def JUMP_condition(vm, c):
         mem, register_file, reg0, raw_immediate, next_ip = \
             get_args_for_1OPI(vm, c)
         if register_file[reg0] & condition_mask:
-            return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+            return next_ip + raw_immediate
         else:
             return next_ip
     return JUMP_condition
@@ -945,13 +947,13 @@ def make_two_either_condition_bit_jump(condition_mask1, condition_mask2):
         # how vm_instructions.c (stage0) does this
         # if (register_file[reg0] & condition_mask1 or
         #     register_file[reg0] & condition_mask2):
-        #     return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+        #     return next_ip + raw_immediate
         # else:
         #     return next_ip
 
         # I haven't tested it, but I assume this is faster?
         if register_file[reg0] & combined_mask:
-            return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+            return next_ip + raw_immediate
         else:
             return next_ip
     return JUMP_two_condition
@@ -965,19 +967,19 @@ def JUMP_NE(vm, c):
     if register_file[reg0] & CONDITION_BIT_EQ:
         return next_ip
     else: # CONDITION_BIT_EQ not set
-        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+        return next_ip + raw_immediate
 
 def JUMP_Z(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if 0==register_file[reg0]:
-        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+        return next_ip + raw_immediate
     else:
         return next_ip
 
 def JUMP_NZ(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if 0!=register_file[reg0]:
-        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+        return next_ip + raw_immediate
     else:
         return next_ip
 
@@ -986,12 +988,12 @@ def JUMP_P(vm, c):
     if register_negative(register_file, reg0):
         return next_ip
     else:
-        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+        return next_ip + raw_immediate
 
 def JUMP_NP(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     if register_negative(register_file, reg0):
-        return next_ip + interpret_sixteenbits_as_signed(raw_immediate)
+        return next_ip + raw_immediate
     else:
         return next_ip
 
@@ -1003,9 +1005,18 @@ def CALLI(vm, c):
 
     register_file[reg0] += reg_size # Update our index
 
-    return next_ip + interpret_sixteenbits_as_signed(raw_immediate) # Update PC
+    return next_ip + raw_immediate # Update PC
 
 def LOADI(vm, c):
+    # FIXME, this can be gotten rid of by just generating the mask and
+    # masking value in LOADI, this has become the style elsewhere in
+    # the code
+    def stuff_int_as_signed_16bit_value_into_register(
+        value, register_file, regindex):
+        register_file[regindex] = sign_extend_if_negative_and_unsign_bits(
+            value, # already signed
+            register_file.itemsize*8)
+
     # 16 bit version just uses LOADUI
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
     stuff_int_as_signed_16bit_value_into_register(
@@ -1014,7 +1025,7 @@ def LOADI(vm, c):
 
 def LOADUI(vm, c):
     mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
-    register_file[reg0] = raw_immediate
+    register_file[reg0] = c[RAW_IMMEDIATE] # skip conversion to signed
     return next_ip
 
 def SALI(vm, c):
