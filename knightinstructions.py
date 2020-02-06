@@ -764,11 +764,11 @@ def LOAD8(vm, c):
     return next_ip
 
 def LOADU8(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
-        get_args_for_2OPI(vm, c)
+    mem, register_file, reg0, reg1, unsigned_immediate, next_ip = \
+        get_args_for_2OPI(vm, c, signed_immediate=COMPAT_FALSE)
     mask = 2**(register_file.itemsize * 8)-1
     register_file[reg0] = \
-        mem[ (register_file[reg1]+raw_immediate) & mask ] & mask
+        mem[ (register_file[reg1]+unsigned_immediate) & mask ] & mask
     return next_ip
 
 def LOAD16(vm, c):
