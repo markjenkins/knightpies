@@ -710,24 +710,24 @@ def ADDI(vm, c):
     pass
 
 def ADDUI(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     mask = (1<<(register_file.itemsize*8))-1
-    register_file[reg0] = (register_file[reg1] + raw_immediate) & mask
+    register_file[reg0] = (register_file[reg1] + signed_immediate) & mask
     return next_ip
 
 def SUBI(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = register_file.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
     register_file[reg0] = (
         interpret_nbits_as_signed(register_file[reg1], N_BITS) -
-        raw_immediate ) & mask
+        signed_immediate ) & mask
     return next_ip
 
 def SUBUI(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     # subtract and use a bitmask for register_file.itemsize*8 bits
     # to match the register size. A negative result from the subtraction
@@ -740,26 +740,26 @@ def SUBUI(vm, c):
     # the c long
     mask = (1<<(register_file.itemsize*8))-1
     assert(mask == ( (2**(register_file.itemsize*8)) -1 ))
-    register_file[reg0] = (register_file[reg1] - raw_immediate) & mask
+    register_file[reg0] = (register_file[reg1] - signed_immediate) & mask
     return next_ip
 
 def CMPI(vm, c):
     pass
 
 def LOAD(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     register_file[reg0] = \
-        readin_bytes(mem, register_file[reg1] + raw_immediate,
+        readin_bytes(mem, register_file[reg1] + signed_immediate,
                      COMPAT_FALSE, register_file.itemsize)
     return next_ip
 
 def LOAD8(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     mask = (2**(register_file.itemsize*BITS_PER_BYTE))-1
     register_file[reg0] = interpret_nbits_as_signed(
-        mem[ (register_file[reg1]+raw_immediate) & mask ],
+        mem[ (register_file[reg1]+signed_immediate) & mask ],
         BITS_PER_BYTE) & mask
     return next_ip
 
@@ -778,7 +778,7 @@ def LOADU16(vm, c):
     pass
 
 def LOAD32(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     mask = 2**(register_file.itemsize * 8)-1
     # all that we need when doing a LOAD32 to sign extend to a 64bit
@@ -787,7 +787,7 @@ def LOAD32(vm, c):
     # and cuts things off on 16 bit registers
     register_file[reg0]= readin_bytes(
         mem,
-        (register_file[reg1] + raw_immediate ) & mask, # memory address
+        (register_file[reg1] + signed_immediate ) & mask, # memory address
         COMPAT_TRUE, 4) & mask
     return next_ip
 
@@ -802,18 +802,18 @@ def CMPUI(vm, c):
     return next_ip
 
 def STORE(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     writeout_bytes(mem,
-                   register_file[reg1]+raw_immediate,
+                   register_file[reg1]+signed_immediate,
                    register_file[reg0],
                    register_file.itemsize)
     return next_ip
 
 def STORE8(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    writeout_bytes(mem, register_file[reg1] + raw_immediate,
+    writeout_bytes(mem, register_file[reg1] + signed_immediate,
                    register_file[reg0], 1);
     return next_ip
 
@@ -821,16 +821,16 @@ def STORE16(vm, c):
     pass
 
 def STORE32(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    writeout_bytes(mem, register_file[reg1] + raw_immediate,
+    writeout_bytes(mem, register_file[reg1] + signed_immediate,
                    register_file[reg0], 4)
     return next_ip
 
 def ANDI(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    register_file[reg0] = register_file[reg1] & raw_immediate
+    register_file[reg0] = register_file[reg1] & signed_immediate
     return next_ip
 
 def ORI(vm, c):
@@ -849,24 +849,24 @@ def XNORI(vm, c):
     pass
 
 def CMPJUMPI_G(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
     if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) >
         interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
-        return (next_ip + raw_immediate) & mask
+        return (next_ip + signed_immediate) & mask
     else:
         return next_ip
 
 def CMPJUMPI_GE(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
     if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) >=
         interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
-        return (next_ip + raw_immediate) & mask
+        return (next_ip + signed_immediate) & mask
     else:
         return next_ip
 
@@ -877,24 +877,24 @@ def CMPJUMPI_NE(vm, c):
     pass
 
 def CMPJUMPI_LE(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
     if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) <=
         interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
-        return (next_ip + raw_immediate) & mask
+        return (next_ip + signed_immediate) & mask
     else:
         return next_ip
 
 def CMPJUMPI_L(vm, c):
-    mem, register_file, reg0, reg1, raw_immediate, next_ip = \
+    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
     if (interpret_nbits_as_signed(registerfile[reg0], N_BITS) <
         interpret_nbits_as_signed(registerfile[reg1], N_BITS) ):
-        return (next_ip + raw_immediate) & mask
+        return (next_ip + signed_immediate) & mask
     else:
         return next_ip
 
