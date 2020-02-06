@@ -129,26 +129,26 @@ def compare_immediate_to_register_ge_unsigned(
     return register_file[reg0] >= unsigned_immediate
 
 def compare_immediate_to_register_g_signed(
-        register_file, reg0, raw_immediate):
+        register_file, reg0, signed_immediate):
     return \
         interpret_nbits_as_signed(register_file[reg0],
-                                  register_file.itemsize*8) > raw_immediate
+                                  register_file.itemsize*8) > signed_immediate
 
 def compare_immediate_to_register_ge_signed(
-        register_file, reg0, raw_immediate):
+        register_file, reg0, signed_immediate):
     return \
         interpret_nbits_as_signed(register_file[reg0],
-                                  register_file.itemsize*8) >= raw_immediate
+                                  register_file.itemsize*8) >= signed_immediate
 
 def compare_immediate_to_register_le_signed(
-        register_file, reg0, raw_immediate):
+        register_file, reg0, signed_immediate):
     return interpret_nbits_as_signed(
-        register_file[reg0], register_file.itemsize*8) <= raw_immediate
+        register_file[reg0], register_file.itemsize*8) <= signed_immediate
 
 def compare_immediate_to_register_l_signed(
-        register_file, reg0, raw_immediate):
+        register_file, reg0, signed_immediate):
     return interpret_nbits_as_signed(
-        register_file[reg0], register_file.itemsize*8) < raw_immediate
+        register_file[reg0], register_file.itemsize*8) < signed_immediate
 
 def set_comparison_flags(tmp1, tmp2, registerfile, registerindex):
     if tmp1 > tmp2:
