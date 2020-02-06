@@ -37,3 +37,5 @@ def get_all_stage0_test_sha256sums():
 def get_stage0_test_sha256sum(testfile):
     return get_all_stage0_test_sha256sums()[testfile]
 
+KNIGHT_DEFS_FILE_RELATIVE = 'High_level_prototypes/defs'
+KNIGHT_DEFS_FILE = get_stage0_file(KNIGHT_DEFS_FILE_RELATIVE)
