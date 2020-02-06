@@ -1030,9 +1030,9 @@ def LOADI(vm, c):
     return next_ip
 
 def LOADUI(vm, c):
-    mem, register_file, reg0, raw_immediate, next_ip = \
+    mem, register_file, reg0, unsigned_immediate, next_ip = \
         get_args_for_1OPI(vm, c, signed_immediate=COMPAT_FALSE)
-    register_file[reg0] = raw_immediate
+    register_file[reg0] = unsigned_immediate
     return next_ip
 
 def SALI(vm, c):
