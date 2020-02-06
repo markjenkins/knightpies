@@ -114,19 +114,19 @@ def get_instruction_size(vm, address):
     else:
         return 4
 
-def compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
-    return register_file[reg0] != raw_immediate
+def compare_immediate_to_register_ne(register_file, reg0, unsigned_immediate):
+    return register_file[reg0] != unsigned_immediate
 
-def compare_immediate_to_register_e(register_file, reg0, raw_immediate):
-    return register_file[reg0] == raw_immediate
+def compare_immediate_to_register_e(register_file, reg0, unsigned_immediate):
+    return register_file[reg0] == unsigned_immediate
 
 def compare_immediate_to_register_g_unsigned(
-        register_file, reg0, raw_immediate):
-    return register_file[reg0] > raw_immediate
+        register_file, reg0, unsigned_immediate):
+    return register_file[reg0] > unsigned_immediate
 
 def compare_immediate_to_register_ge_unsigned(
-        register_file, reg0, raw_immediate):
-    return register_file[reg0] >= raw_immediate
+        register_file, reg0, unsigned_immediate):
+    return register_file[reg0] >= unsigned_immediate
 
 def compare_immediate_to_register_g_signed(
         register_file, reg0, raw_immediate):
@@ -1107,15 +1107,19 @@ def CMPSKIPI_GE(vm, c):
         return next_ip
 
 def CMPSKIPI_E(vm, c):
-    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
-    if compare_immediate_to_register_e(register_file, reg0, raw_immediate):
+    mem, register_file, reg0, unsigned_immediate, next_ip = \
+        get_args_for_1OPI(vm, c, signed_immediate=COMPAT_FALSE)
+    if compare_immediate_to_register_e(
+            register_file, reg0, unsigned_immediate):
         return next_ip + get_instruction_size(vm, next_ip)
     else:
         return next_ip
 
 def CMPSKIPI_NE(vm, c):
-    mem, register_file, reg0, raw_immediate, next_ip = get_args_for_1OPI(vm, c)
-    if compare_immediate_to_register_ne(register_file, reg0, raw_immediate):
+    mem, register_file, reg0, unsigned_immediate, next_ip = \
+        get_args_for_1OPI(vm, c, signed_immediate=COMPAT_FALSE)
+    if compare_immediate_to_register_ne(
+            register_file, reg0, unsigned_immediate):
         return next_ip + get_instruction_size(vm, next_ip)
     else:
         return next_ip
