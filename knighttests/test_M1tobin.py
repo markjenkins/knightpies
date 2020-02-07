@@ -17,22 +17,41 @@
 from unittest import TestCase, skipIf
 from io import BytesIO
 from hashlib import sha256
+from tempfile import NamedTemporaryFile
 
 from .stage0 import STAGE_0_HEX2_ASSEMBLER_FILEPATH
 
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
+    CommonStage1HexEncode,
     )
 
-from stage0dir import get_stage0_file
+from knightdecode import create_vm
+from knightvm_minimal import grow_memory, execute_vm
+from constants import MEM
+from stage0dir import get_stage0_file, KNIGHT_DEFS_FILE
 from hex1tobin import write_binary_filefd_from_hex1_filefd
+from hex2tobin import (
+    write_binary_filefd_from_hex2_filefd,
+    int_bytes_from_hex2_fd,
+    )
 from M1tobin import M1_files_objs_to_bin
 from pythoncompat import open_ascii
 
 from .test_hex2tobin import (
     get_sha256sum_of_file_after_hex2_encode,
-    )
+    write_binary_filefd_from_hex2_filefd,
+)
+
 from .util import sha256hexoffile
+
+from .test_hex1tobin import (
+    TestHex1KnightExecuteCommon,
+    )
+from .stage0 import (
+    STAGE_0_M0_ASSEMBLER_RELATIVE_PATH,
+    STAGE_0_M0_ASSEMBLER_FILEPATH,
+    )
 
 def binfile_obj_after_M1_and_hex2(*filenames):
     outputmemfile = BytesIO()
@@ -169,3 +188,73 @@ class Test_M1AssemblerToBin_stage1_assembler_2(
         hexdigest = sha256(output_binfile.getbuffer()).hexdigest()
         output_binfile.close()
         return hexdigest
+
+class TestStage1M0Assemble(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
+    encoding_rom_filename = STAGE_0_M0_ASSEMBLER_FILEPATH
+    rom_encode_func = staticmethod(write_binary_filefd_from_hex2_filefd)
+    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex2_fd)
+
+    def setUp(self, *args, **kargs):
+        super(TestStage1M0Assemble, self).setUp(*args, **kargs)
+        self.concat_input_file_fd = NamedTemporaryFile('wb', delete=True)
+
+    def tearDown(self, *args, **kargs):
+        super(TestStage1M0Assemble, self).tearDown(*args, **kargs)
+        self.concat_input_file_fd.close()
+
+    def get_end_of_memory(self):
+        # start of heap seen in M0-macro.s
+        start_of_heap = 0x4000
+        # guess for size of heap
+        minimum_heap_size = 1024*24
+        # recommended amount for small binaries seen in stage0/makefile
+        end_of_memory = 48*1024
+
+        # pick the larger of the above two
+        return max(start_of_heap+minimum_heap_size, end_of_memory)
+
+    def get_tape1_file_path(self, input_file_fd):
+        return self.concat_input_file_fd.name
+
+    def execute_test_hex_load(self, stage0hexfile, sha256hex):
+        output_mem_buffer = BytesIO()
+
+        with open(KNIGHT_DEFS_FILE, 'rb') as kdf:
+            self.concat_input_file_fd.write( kdf.read() )
+
+        with open(get_stage0_file(stage0hexfile), 'rb') as input_file_fd:
+            self.concat_input_file_fd.write( input_file_fd.read() )
+            self.concat_input_file_fd.seek(0)
+
+            vm = create_vm(
+                size=0, registersize=self.registersize,
+                tapefile1=self.get_tape1_file_path(self.concat_input_file_fd),
+                tapefile2=self.tape_02_temp_file_path,
+                stdin=self.get_stdin_for_vm(input_file_fd),
+                stdout=output_mem_buffer,
+            )
+            self.load_encoding_rom(vm)
+            self.assertEqual( self.encoding_rom_binary.getbuffer(),
+                              vm[MEM].tobytes() )
+            grow_memory(vm, self.get_end_of_memory())
+            execute_vm(vm, optimize=self.optimize, halt_print=False)
+
+        with open(self.get_output_file_path(), 'r') as tape_file:
+            with BytesIO() as outputbin:
+                write_binary_filefd_from_hex2_filefd(tape_file,
+                                                     outputbin)
+                outputbin.flush()
+                checksum = sha256(outputbin.getbuffer())
+
+        self.assertEqual(
+            checksum.hexdigest(),
+            sha256hex,
+            stage0hexfile
+        )
+
+class TestSmallMemoryStage1M0Assemble(TestStage1M0Assemble):
+    def test_assembler_stage0_monitor_with_M0(self):
+        self.execute_test_hex_load_published_sha256(
+            'stage0/stage0_monitor.s',
+            "roms/stage0_monitor",
+    )
