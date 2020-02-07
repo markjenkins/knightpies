@@ -1,3 +1,10 @@
+0.4.0
+ - Developed Knight compatible M1.py
+ - Additional instructions to interpret M0-macro.hex2
+ - Test suite to test M1.py and interpretation of M0-macro.hex2
+ - ROADMAP revamped to reflect availability of cc_knight-native.s and
+   cc_knight-posix.s from stage0 Release_0.4.0
+
 0.3.0 -- 2020-01-23
  - Additional instructions to interpret stage1_assembler-2
  - Python implementation of hex2 encoding/symbol linking
