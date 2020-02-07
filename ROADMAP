@@ -1,5 +1,3 @@
-* items are implemented, but under tested by the current test suite 
-
 0.4.5
  - Test by assembling and executing stage0/stage1/CAT.s
 
@@ -17,7 +15,7 @@ OR
 AND
 CMPJUMPI.LE
 NEG
-* JUMP.NZ
+JUMP.NZ
 
 0.6
  - Implement enough instructions to execute stage0/stage2/lisp.s
