@@ -272,6 +272,9 @@ for testname, assemblerfile, SHA256_rom_file in (
         ('stage1assembler1',
          'stage1/stage1_assembler-1.s',
          "roms/stage1_assembler-1"),
+        ('cat',
+         'stage1/CAT.s',
+         "roms/CAT"),
 ):
     setattr( TestSmallMemoryStage1M0Assemble,
              "test_M0_assembler_%s" % testname,
@@ -294,3 +297,30 @@ class TestSmallMemoryStage1M0Assemble_hex2(TestStage1M0Assemble):
             'stage1/stage1_assembler-2.s',
             'roms/stage1_assembler-2'
         )
+
+class TestBigMemoryStage1M0Assemble(TestStage1M0Assemble):
+    def get_end_of_memory(self):
+        # start of heap seen in M0-macro.s
+        start_of_heap = 0x4000
+        # guess for size of heap
+        minimum_heap_size = 1024*24
+        # recommended amount for big binaries seen in stage0/makefile
+        end_of_memory = 256*1024
+
+        # pick the larger of the above two
+        return max(start_of_heap+minimum_heap_size, end_of_memory)
+
+for testname, assemblerfile, SHA256_rom_file in (
+    ('lisp',
+     'stage2/lisp.s',
+     "roms/lisp"),
+    ('cc_x86',
+     'stage2/cc_x86.s',
+     "roms/cc_x86"),
+    ('forth',
+     'stage2/forth.s',
+     "roms/forth"),
+):
+    setattr( TestBigMemoryStage1M0Assemble,
+             "test_M0_assembler_%s" % testname,
+             make_M0_test(testname, assemblerfile, SHA256_rom_file) )
