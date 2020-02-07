@@ -877,10 +877,24 @@ def CMPJUMPI_GE(vm, c):
         return next_ip
 
 def CMPJUMPI_E(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, signed_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    if registerfile[reg0] == registerfile[reg1]:
+        return (next_ip + signed_immediate) & mask
+    else:
+        return next_ip
 
 def CMPJUMPI_NE(vm, c):
-    pass
+    mem, registerfile, reg0, reg1, signed_immediate, next_ip = \
+        get_args_for_2OPI(vm, c)
+    N_BITS = registerfile.itemsize*BITS_PER_BYTE
+    mask = (1<<N_BITS)-1
+    if registerfile[reg0] != registerfile[reg1]:
+        return (next_ip + signed_immediate) & mask
+    else:
+        return next_ip
 
 def CMPJUMPI_LE(vm, c):
     mem, register_file, reg0, reg1, signed_immediate, next_ip = \
