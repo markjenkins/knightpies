@@ -253,8 +253,44 @@ class TestStage1M0Assemble(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
         )
 
 class TestSmallMemoryStage1M0Assemble(TestStage1M0Assemble):
-    def test_assembler_stage0_monitor_with_M0(self):
+    pass
+
+def make_M0_test(testname, assemblerfile, SHA256_rom_file):
+    def test_M0_assembler(self):
         self.execute_test_hex_load_published_sha256(
-            'stage0/stage0_monitor.s',
-            "roms/stage0_monitor",
+            assemblerfile, SHA256_rom_file
+        )
+    return test_M0_assembler
+
+for testname, assemblerfile, SHA256_rom_file in (
+        ('stage0monitor',
+         'stage0/stage0_monitor.s',
+         "roms/stage0_monitor"),
+        ('stage1assembler0',
+         'stage1/stage1_assembler-0.s',
+         "roms/stage1_assembler-0"),
+        ('stage1assembler1',
+         'stage1/stage1_assembler-1.s',
+         "roms/stage1_assembler-1"),
+):
+    setattr( TestSmallMemoryStage1M0Assemble,
+             "test_M0_assembler_%s" % testname,
+             make_M0_test(testname, assemblerfile, SHA256_rom_file) )
+
+class TestSmallMemoryStage1M0Assemble_hex2(TestStage1M0Assemble):
+    # skip unless the upstream patched version of stage1_assembler-2.s
+    # is present, we're not going to bother patching the binary for
+    # earlier versions like we did when testing our python hex2tobin
+    @skipIf( sha256hexoffile(get_stage0_file('stage1/stage1_assembler-2.s'))
+             not in DONT_MONKEY_PATCH,
+             'stage1_assembler-2.s is not patched version'
     )
+    def setUp(self, *args, **kargs):
+        return super(TestSmallMemoryStage1M0Assemble_hex2, self).setUp(
+            *args, **kargs)
+
+    def test_M0_assemble_hex2(self):
+        self.execute_test_hex_load_published_sha256(
+            'stage1/stage1_assembler-2.s',
+            'roms/stage1_assembler-2'
+        )
