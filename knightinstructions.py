@@ -520,7 +520,13 @@ def get_args_for_2OP(vm, c):
     return vm[MEM], vm[REG], c[I_REGISTERS][0], c[I_REGISTERS][1], c[NEXTIP]
 
 def NEG(vm, c):
-    pass
+    mem, register_file, reg0, reg1, next_ip = get_args_for_2OP(vm, c)
+    N_BITS = register_file.itemsize*8
+    mask = (1<<N_BITS) -1 # (2**N_BITS)-1
+    register_file[reg0] = (
+        - # negate
+        interpret_nbits_as_signed(register_file[reg1], N_BITS) ) & mask
+    return next_ip
 
 def ABS(vm, c):
     pass
