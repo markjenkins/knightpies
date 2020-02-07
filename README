@@ -30,6 +30,9 @@ $ ./hex2tobin stage0/stage0/stage0_monitor.hex2 stage0/roms/stage0_monitor
 $ sha256sum stage0/roms/stage0_monitor
 $ grep stage0_monitor stage0/test/SHA256SUMS
 
+M1.py also has a special mode --dump-defs-used for dumping which defined macros are used in a given set of assembler files. The output always goes to standard out:
+$ ./M1 --dump-defs-used stage0/High_level_prototypes/defs stage0/stage0/stage0_monitor.s
+
 $ ./M1tobin.py
 Combines knight assembly, linking and hex encoding (hex2) into one command. If you have all your knight definitions and code in one file you can us a simple two argument version
 $ ./M1tobin.py input_file output_file
