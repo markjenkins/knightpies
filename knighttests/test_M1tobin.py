@@ -19,8 +19,6 @@ from io import BytesIO
 from hashlib import sha256
 from tempfile import NamedTemporaryFile
 
-from .stage0 import STAGE_0_HEX2_ASSEMBLER_FILEPATH
-
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
     CommonStage1HexEncode,
@@ -49,6 +47,7 @@ from .test_hex1tobin import (
     TestHex1KnightExecuteCommon,
     )
 from .stage0 import (
+    STAGE_0_HEX2_ASSEMBLER_FILEPATH,
     STAGE_0_M0_ASSEMBLER_RELATIVE_PATH,
     STAGE_0_M0_ASSEMBLER_FILEPATH,
     )
