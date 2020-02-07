@@ -855,7 +855,7 @@ def XNORI(vm, c):
     pass
 
 def CMPJUMPI_G(vm, c):
-    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
+    mem, registerfile, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
@@ -866,7 +866,7 @@ def CMPJUMPI_G(vm, c):
         return next_ip
 
 def CMPJUMPI_GE(vm, c):
-    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
+    mem, registerfile, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
@@ -897,7 +897,7 @@ def CMPJUMPI_NE(vm, c):
         return next_ip
 
 def CMPJUMPI_LE(vm, c):
-    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
+    mem, registerfile, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
@@ -908,7 +908,7 @@ def CMPJUMPI_LE(vm, c):
         return next_ip
 
 def CMPJUMPI_L(vm, c):
-    mem, register_file, reg0, reg1, signed_immediate, next_ip = \
+    mem, registerfile, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
     N_BITS = registerfile.itemsize*BITS_PER_BYTE
     mask = (1<<N_BITS)-1
