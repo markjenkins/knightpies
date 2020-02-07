@@ -1,67 +1,43 @@
-0.4.5
- - Test by assembling and executing stage0/stage1/CAT.s
-
 0.5.0
- - Implement enough instructions to execute stage0/stage2/forth.s
-   (load stage0/stage3/inital_library.fs)
-HAL_MEM
-CMPSKIP.GE
-DIV
-SAL
-SAR
-CMPSKIP.E
-CMPSKIP.G
-OR
-AND
-CMPJUMPI.LE
-NEG
-JUMP.NZ
+ - Fix test suite compatibility with stage0 Release_0.3.0 and Release_0.4.0
+   and update stage0 git submodule reference
+ - Implement and test instructions needed to execute cc_knight-native.s
+ - Provide shortcut cc_knight.py
 
-0.6
- - Implement enough instructions to execute stage0/stage2/lisp.s
- (load stage0/stage3/ascension.scm)
-[instruction TODO list here]
+0.5.5
+ - Implement and test instructions needed to execute cc_knight-posix.s
+ - Add --posix support to shortcut cc_knight.py
 
-0.7
- - Implement all knightvm instructions used by stage2/cc_x86.s
- use it to build all stage0/stage3 c programs
-ADD
-ADDI
-AND
-CALL
-CMPJUMPI.E
-CMPJUMPI.L
-CMPSKIP.E
-CMPSKIP.LE
-CMPSKIP.NE
-DIV
-DIVIDE
-JUMP.NP
-JUMP.P
-LOADR
-LOADR32
-MULU
-NOP
-PUSH8
-STORER32
-STOREX8
+0.6.0
+ - Implement and test all Knight instructions emmited by M2 Planet, including
+   when it compiles itself to Knight, use its test suite
+ - Add bootstrap_M2_planet_knight.py and shortcut M2_planet_knight.py
+
+0.7.0
+ - Implement and test hex1, hex2 and M1.py support for (32 bit) x86
+
+0.7.5
+ - Implement and test instructions needed to execute stage2/cc_x86.s
+ - Provide shortcuts cc_x86.py, bootstrap_M2_planet_x86.py
 
 0.8
- - Implement all knightvm instructions emitted by M2 planet (and make full use of its test suite)
-[instruction TODO list here]
+ - Implement and test instructed needed to execute other cc_*.s
+ - Provide cc_* and bootstrap_M2_planet_*.py shorcuts for other archs
 
-0.8.5
- - Test by compiling M2-Planet to Knight ISA and then see if M2-knight binary can compile M2-Planet
+0.9
+ - Support any remaining instructions used by other stage0 .s files
 
 1.0
- - Implement all knightvm instructions found in stage0/vm_instructions.c
+ - Implement and test all knightvm instructions found in
+   stage0/vm_instructions.c
 
-Other TODOS prior to 1.0
+Other TODOS sometime prior to 1.0
  * Adding substantial comments, especially for the meta-programming
  * Convert further to a pseudo functional style so get_args_for_*OP functions can go away
  * Separate directly executable Python files from the rest, move library modules to a knightpy package
  * Adopting a compliant file system layout that could make this mergable with stage0
  * Performance test premature optimizations
+ * Test Python compatibility
 
 Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
