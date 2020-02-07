@@ -20,6 +20,16 @@ Takes a hex1 file (first argument), encodes the parts in hex into binary output,
 $ ./hex2tobin.py
 Takes a hex2 file (first argument), encodes the parts in hex into binary output, identifies multi-character labels marked with colon ":",  replaces references to those labels prefixed with @ with relative 16 bit addresses, references prefixed with $ as 16 bit pointers, referenced prefixed with & as 32 bit addresses, and ignores comments (";" and "#")
 
+$ ./M1.py
+Takes knight assembler (.s) files and outputs hex2 to either standard out or to a file if you have '-o' or '--output' followed by space and an output file name. Unless your have your assembler macro definitions concatenated into your .s file, you would normally put stage0/High_level_prototypes/defs as a first argument to get Knight instruction defenitions. The hex2 output is not currently whitespace compatible with M0-macro.s / M0-macro.c / M1-macro.c, but after conversion to a binary you'll end up with the same result.
+For example
+$ ./M1.py stage0/High_level_prototypes/defs stage0/stage0/stage0_monitor.s \
+  -o stage0/stage0/stage0_monitor.hex2
+$ mkdir -p stage0/roms
+$ ./hex2tobin stage0/stage0/stage0_monitor.hex2 stage0/roms/stage0_monitor
+$ sha256sum stage0/roms/stage0_monitor
+$ grep stage0_monitor stage0/test/SHA256SUMS
+
 $ ./knightvm_minimal.py
 This is largely compatible with stage0/vm_minimal.c, accepting a Knight rom binary file as its first argument and acting upon tape_01 and tape_02 files in the current working directory. The only difference is that an additional --rom-hex argument (after the file name, not before) can be provided if the rom is in the hex0 format of the stage0 project.
 Example invocations:
