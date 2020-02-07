@@ -30,6 +30,14 @@ $ ./hex2tobin stage0/stage0/stage0_monitor.hex2 stage0/roms/stage0_monitor
 $ sha256sum stage0/roms/stage0_monitor
 $ grep stage0_monitor stage0/test/SHA256SUMS
 
+$ ./M1tobin.py
+Combines knight assembly, linking and hex encoding (hex2) into one command. If you have all your knight definitions and code in one file you can us a simple two argument version
+$ ./M1tobin.py input_file output_file
+Often that won't be the case if you're going to use the definitions in stage0/High_level_prototypes/defs first and other .s files second, so you'll need -o or --output for the output file. For example:
+$ ./M1tobin.py stage0/High_level_prototypes/defs stage0/stage0/stage0_monitor.s -o stage0/roms/stage0_monitor
+$ sha256sum stage0/roms/stage0_monitor
+$ grep stage0_monitor stage0/test/SHA256SUMS
+
 $ ./knightvm_minimal.py
 This is largely compatible with stage0/vm_minimal.c, accepting a Knight rom binary file as its first argument and acting upon tape_01 and tape_02 files in the current working directory. The only difference is that an additional --rom-hex argument (after the file name, not before) can be provided if the rom is in the hex0 format of the stage0 project.
 Example invocations:
