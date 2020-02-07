@@ -1,27 +1,5 @@
 * items are implemented, but under tested by the current test suite 
 
-0.3.5
- - Implement and test M1.py and M1tobin.py to assemble .s M1 files from all architechures
-
-0.4
- - Implement enough instructions to execute stage1/M0-macro.hex2
-   (use it to assemble all .s files)
-STORE32
-*CMP
-LOAD32
-LOAD8
-LOADU8
-SR0I
-CMPJUMPI.NE
-CMPSKIPI.E
-CMPSKIPI.L
-CMPSKIPI.LE
-CMPSKIPI.NE
-HALT
-MUL
-SUBI
-ADDU
-
 0.4.5
  - Test by assembling and executing stage0/stage1/CAT.s
 
