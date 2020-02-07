@@ -26,10 +26,27 @@
 0.6.0
  - Implement and test all Knight instructions emmited by M2 Planet, including
    when it compiles itself to Knight, use its test suite
+
+0.6.1
  - Add bootstrap_M2_planet_knight.py and shortcut M2_planet_knight.py
 
+0.6.2
+ - Add bootstrap_hex2_linker_knight.py (build M2-Planet/test/test22/hex2_linker)
+ - Add shortcut hex2_linker_knight.py
+
+0.6.3
+ - Add bootstrap_M1_knight.py (build M2-Planet/test/test23/M1-macro.c)
+ - Add shortcut M1_knight.py (runs M2-Planet/test/test23/M1-macro.c)
+
 0.7.0
- - Implement and test hex1, hex2 and M1.py support for (32 bit) x86
+ - Implement and test support in hex1tobin.py and hex2tobin.py
+   when architechure is x86 (32 bit), compare with behavior of
+   hex2_linker_knight.py (wrapper for M2-Planet/test/test22/hex2_linker)
+
+0.7.1
+ - Implement and test support in M1.py when architechure is
+   x86 (32 bit), compare with behavior of
+   M1_knight.py (wrapper for M2-Planet/test/test23/M1-macro.c)
 
 0.7.5
  - Implement and test instructions needed to execute stage2/cc_x86.s
