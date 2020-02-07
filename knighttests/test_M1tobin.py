@@ -19,11 +19,6 @@ from io import BytesIO
 from hashlib import sha256
 from tempfile import NamedTemporaryFile
 
-from .hexcommon import (
-    Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
-    CommonStage1HexEncode,
-    )
-
 from knightdecode import create_vm
 from knightvm_minimal import grow_memory, execute_vm
 from constants import MEM
@@ -35,6 +30,11 @@ from hex2tobin import (
     )
 from M1tobin import M1_files_objs_to_bin
 from pythoncompat import open_ascii
+
+from .hexcommon import (
+    Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
+    CommonStage1HexEncode,
+    )
 
 from .test_hex2tobin import (
     get_sha256sum_of_file_after_hex2_encode,
