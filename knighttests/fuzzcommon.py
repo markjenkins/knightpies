@@ -46,6 +46,7 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
     test_size = 1024*256
 
     def setUp(self):
+        # TestHexKnightExecuteCommonSetup does not provide setUp()
         self.setup_stack_and_tmp_files()
 
         self.random_source = copy(self.random_source_orig)
@@ -60,6 +61,7 @@ class CommonHexFuzzTest(TestHexKnightExecuteCommonSetup):
         self.input_bytes.seek(0)
 
     def tearDown(self):
+        # TestHexKnightExecuteCommonSetup does not provide tearDown()
         self.remove_tmp_files()
 
     def get_end_of_memory(self):

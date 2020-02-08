@@ -33,6 +33,7 @@ from pythoncompat import open_ascii
 
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
+    TestHexKnightExecuteCommon,
     CommonStage1HexEncode,
     )
 
@@ -43,9 +44,6 @@ from .test_hex2tobin import (
 
 from .util import sha256hexoffile
 
-from .test_hex1tobin import (
-    TestHex1KnightExecuteCommon,
-    )
 from .stage0 import (
     STAGE_0_HEX2_ASSEMBLER_FILEPATH,
     STAGE_0_M0_ASSEMBLER_RELATIVE_PATH,
@@ -188,17 +186,19 @@ class Test_M1AssemblerToBin_stage1_assembler_2(
         output_binfile.close()
         return hexdigest
 
-class TestStage1M0Assemble(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
+class TestStage1M0Assemble(CommonStage1HexEncode, TestHexKnightExecuteCommon):
     encoding_rom_filename = STAGE_0_M0_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex2_filefd)
     int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex2_fd)
 
-    def setUp(self, *args, **kargs):
-        super(TestStage1M0Assemble, self).setUp(*args, **kargs)
+    def setUp(self):
+        # TestHexKnightExecuteCommon is the only superclass with setUp()
+        TestHexKnightExecuteCommon.setUp(self)
         self.concat_input_file_fd = NamedTemporaryFile('wb', delete=True)
 
-    def tearDown(self, *args, **kargs):
-        super(TestStage1M0Assemble, self).tearDown(*args, **kargs)
+    def tearDown(self):
+        # TestHexKnightExecuteCommon is the only superclass with tearDown()
+        TestHexKnightExecuteCommon.tearDown(self)
         self.concat_input_file_fd.close()
 
     def get_end_of_memory(self):

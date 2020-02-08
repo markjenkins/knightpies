@@ -93,7 +93,15 @@ class TestHexKnightExecuteCommonSetup:
                     encoding_rom_file):
                 vm[MEM].append(input_byte)
 
-class TestHexKnightExecuteCommon(TestHexKnightExecuteCommonSetup):
+class TestHexKnightExecuteCommon(HexCommon, TestHexKnightExecuteCommonSetup):
+    def setUp(self):
+        HexCommon.setUp(self)
+        self.setup_stack_and_tmp_files()
+
+    def tearDown(self):
+        HexCommon.tearDown(self)
+        self.remove_tmp_files()
+
     def get_end_of_memory(self):
         return self.stack_end
 

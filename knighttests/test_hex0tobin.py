@@ -66,13 +66,21 @@ class Test_dehex_256Sum(
     sha256_compare_filename = get_stage0_file('stage1/dehex.hex0')
 
 class TestHex0KnightExecuteCommon(Hex0Common, TestHexKnightExecuteCommon):
+    # necessary disambiguation because both Hex0Common and
+    # TestHexKnightExecuteCommon subclass HexCommon
     def setUp(self):
-        Hex0Common.setUp(self)
-        self.setup_stack_and_tmp_files()
+        # this does:
+        #   HexCommon.setUp(self)
+        #   self.setup_stack_and_tmp_files()
+        TestHexKnightExecuteCommon.setUp(self)
 
+    # necessary disambiguation because both Hex0Common and
+    # TestHexKnightExecuteCommon subclass HexCommon
     def tearDown(self):
-        Hex0Common.tearDown(self)
-        self.remove_tmp_files()
+        # this does
+        #   HexCommon.tearDown(self)
+        #   self.remove_tmp_files()
+        TestHexKnightExecuteCommon.tearDown(self)
 
     def load_encoding_rom(self, vm):
         load_hex_program(vm, self.encoding_rom_filename )

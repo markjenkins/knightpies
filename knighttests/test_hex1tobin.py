@@ -47,19 +47,27 @@ class Hex1Common(HexCommon):
 class Test_hex_assembler0_256Sum(Hex1Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage1_assembler-0'
 
-class TestHex1KnightExecuteCommon(Hex1Common, TestHexKnightExecuteCommon):
-    def setUp(self):
-        Hex1Common.setUp(self)
-        self.setup_stack_and_tmp_files()
-
-    def tearDown(self):
-        Hex1Common.tearDown(self)
-        self.remove_tmp_files()
-
+class TestStage1Hex1Encode(
+        CommonStage1HexEncode, Hex1Common, TestHexKnightExecuteCommon):
+    encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
     int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex1_fd)
 
-class TestStage1Hex1Encode(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
-    encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
+    # necessary disambiguation because both Hex1Common and
+    # TestHexKnightExecuteCommon subclass HexCommon
+    def setUp(self):
+        # this does:
+        #   HexCommon.setUp(self)
+        #   self.setup_stack_and_tmp_files()
+        TestHexKnightExecuteCommon.setUp(self)
+
+    # necessary disambiguation because both Hex1Common and
+    # TestHexKnightExecuteCommon subclass HexCommon
+    def tearDown(self):
+        # this does
+        #   HexCommon.tearDown(self)
+        #   self.remove_tmp_files()
+        TestHexKnightExecuteCommon.tearDown(self)
+
     def test_encode_stage1_hex2_with_stage1_hex1(self):
         self.execute_test_hex_load_published_sha256(
             STAGE_0_HEX2_ASSEMBLER_RELATIVE_PATH,

@@ -18,17 +18,20 @@ from unittest import skipIf
 
 from stage0dir import get_stage0_file
 from hex0tobin import write_binary_filefd_from_hex0_filefd
-from hex1tobin import write_binary_filefd_from_hex1_filefd
+from hex1tobin import (
+    write_binary_filefd_from_hex1_filefd,
+    int_bytes_from_hex1_fd,
+    )
 from hex2tobin import write_binary_filefd_from_hex2_filefd
 
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
     make_get_sha256sum_of_file_after_encode,
     CommonStage1HexEncode,
+    TestHexKnightExecuteCommon,
     )
 from .test_hex1tobin import (
     get_sha256sum_of_file_after_hex1_encode,
-    TestHex1KnightExecuteCommon,
     )
 from .stage0 import (
     STAGE_0_HEX1_ASSEMBLER_FILEPATH,
@@ -61,9 +64,12 @@ class Test_SET_256Sum(Hex2Common, Hex256SumMatch):
         return get_sha256sum_of_file_after_hex2_encode(
             get_stage0_file('stage1/SET.hex2') )
 
-class TestStage1Hex2Encode(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
+class TestStage1Hex2Encode(CommonStage1HexEncode, TestHexKnightExecuteCommon):
     encoding_rom_filename = STAGE_0_HEX2_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex1_filefd)
+    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex1_fd)
+
+    #  setUp and tearDown come from TestHexKnightExecuteCommon
 
     def get_end_of_memory(self):
         return 0x700+1024*4
