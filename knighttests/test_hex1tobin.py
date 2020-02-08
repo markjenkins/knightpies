@@ -54,26 +54,12 @@ class Test_hex_assembler1_ROM_256Sum(HexCommon, Encoding_rom_256_Common):
     rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
     sha256sumfilename = 'roms/stage1_assembler-1'
 
-class TestStage1Hex1Encode(
-        CommonStage1HexEncode, Hex1Common, TestHexKnightExecuteCommon):
+class TestStage1Hex1Encode(CommonStage1HexEncode, TestHexKnightExecuteCommon):
     encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
+    rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
     int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex0_fd)
 
-    # necessary disambiguation because both Hex1Common and
-    # TestHexKnightExecuteCommon subclass HexCommon
-    def setUp(self):
-        # this does:
-        #   HexCommon.setUp(self)
-        #   self.setup_stack_and_tmp_files()
-        TestHexKnightExecuteCommon.setUp(self)
-
-    # necessary disambiguation because both Hex1Common and
-    # TestHexKnightExecuteCommon subclass HexCommon
-    def tearDown(self):
-        # this does
-        #   HexCommon.tearDown(self)
-        #   self.remove_tmp_files()
-        TestHexKnightExecuteCommon.tearDown(self)
+    #  setUp and tearDown come from TestHexKnightExecuteCommon
 
     def test_encode_stage1_hex2_with_stage1_hex1(self):
         self.execute_test_hex_load_published_sha256(
