@@ -45,7 +45,7 @@ def make_get_sha256sum_of_file_after_encode(encode_func):
 
 class HexCommon(TestCase):
     # subclasses must define
-    # encoding_rom_filename
+    # encoding_rom_filename and rom_encoding_func
     def setUp(self):
         self.encoding_rom_binary = BytesIO()
         with open( self.encoding_rom_filename ) as encoding_rom_file:
