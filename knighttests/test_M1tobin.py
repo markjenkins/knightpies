@@ -73,7 +73,7 @@ class M1Common(HexCommon):
 class Test_hex_assembler2_256Sum(M1Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage1_assembler-2'
 
-class Test_M0_256Sum(M1Common, Hex256SumMatch):
+class Test_M0_ROM_256Sum(TestCase, Hex256SumMatch):
     sha256sumfilename = 'roms/M0'
 
     def compute_sha256_digest(self):
