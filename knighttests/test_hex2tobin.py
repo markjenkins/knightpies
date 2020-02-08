@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import skipIf
+from unittest import TestCase, skipIf
 
 from stage0dir import get_stage0_file
 from hex0tobin import write_binary_filefd_from_hex0_filefd
@@ -50,7 +50,7 @@ class Hex2Common(HexCommon):
 class Test_hex_assembler1_256Sum(Hex2Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage1_assembler-1'
 
-class Test_hex_assember2_256Sum(Hex2Common, Hex256SumMatch):
+class Test_hex_assember2_ROM_256Sum(TestCase, Hex256SumMatch):
     sha256sumfilename = 'roms/stage1_assembler-2'
 
     def compute_sha256_digest(self):
