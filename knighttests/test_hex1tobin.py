@@ -16,10 +16,12 @@
 
 from unittest import skipIf
 
-from hex0tobin import write_binary_filefd_from_hex0_filefd
+from hex0tobin import (
+    write_binary_filefd_from_hex0_filefd,
+    int_bytes_from_hex0_fd,
+    )
 from hex1tobin import (
     write_binary_filefd_from_hex1_filefd,
-    int_bytes_from_hex1_fd,
     )
 
 from .hexcommon import (
@@ -55,7 +57,7 @@ class Test_hex_assembler1_ROM_256Sum(HexCommon, Encoding_rom_256_Common):
 class TestStage1Hex1Encode(
         CommonStage1HexEncode, Hex1Common, TestHexKnightExecuteCommon):
     encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
-    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex1_fd)
+    int_bytes_from_rom_encode_file = staticmethod(int_bytes_from_hex0_fd)
 
     # necessary disambiguation because both Hex1Common and
     # TestHexKnightExecuteCommon subclass HexCommon
