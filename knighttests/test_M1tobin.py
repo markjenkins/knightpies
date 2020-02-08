@@ -215,38 +215,45 @@ class TestStage1M0Assemble(CommonStage1HexEncode, TestHex1KnightExecuteCommon):
     def get_tape1_file_path(self, input_file_fd):
         return self.concat_input_file_fd.name
 
-    def execute_test_hex_load(self, stage0hexfile, sha256hex):
-        output_mem_buffer = BytesIO()
-
+    def generate_input_fd(self, primary_input_file_path):
         with open(KNIGHT_DEFS_FILE, 'rb') as kdf:
             self.concat_input_file_fd.write( kdf.read() )
 
-        with open(get_stage0_file(stage0hexfile), 'rb') as input_file_fd:
+        with open(primary_input_file_path, 'rb') as input_file_fd:
             self.concat_input_file_fd.write( input_file_fd.read() )
             self.concat_input_file_fd.seek(0)
+        return self.concat_input_file_fd
 
-            vm = create_vm(
-                size=0, registersize=self.registersize,
-                tapefile1=self.get_tape1_file_path(self.concat_input_file_fd),
-                tapefile2=self.tape_02_temp_file_path,
-                stdin=self.get_stdin_for_vm(input_file_fd),
-                stdout=output_mem_buffer,
-            )
-            self.load_encoding_rom(vm)
-            self.assertEqual( self.encoding_rom_binary.getbuffer(),
-                              vm[MEM].tobytes() )
-            grow_memory(vm, self.get_end_of_memory())
-            execute_vm(vm, optimize=self.optimize, halt_print=False)
-
+    def generate_bytes_from_output(self):
+        outputbin = BytesIO()
         with open(self.get_output_file_path(), 'r') as tape_file:
-            with BytesIO() as outputbin:
-                write_binary_filefd_from_hex2_filefd(tape_file,
-                                                     outputbin)
-                outputbin.flush()
-                checksum = sha256(outputbin.getbuffer())
+            write_binary_filefd_from_hex2_filefd(tape_file,
+                                                 outputbin)
+            outputbin.flush()
+        return outputbin.getbuffer()
+
+    def execute_test_hex_load(self, stage0hexfile, sha256hex):
+        output_mem_buffer = BytesIO()
+        input_file_fd = self.generate_input_fd(get_stage0_file(stage0hexfile) )
+
+        vm = create_vm(
+            size=0, registersize=self.registersize,
+            tapefile1=self.get_tape1_file_path(input_file_fd),
+            tapefile2=self.tape_02_temp_file_path,
+            stdin=self.get_stdin_for_vm(input_file_fd),
+            stdout=output_mem_buffer,
+        )
+        self.load_encoding_rom(vm)
+        self.assertEqual( self.encoding_rom_binary.getbuffer(),
+                          vm[MEM].tobytes() )
+        grow_memory(vm, self.get_end_of_memory())
+        execute_vm(vm, optimize=self.optimize, halt_print=False)
+
+        checksum_hex = sha256(
+            self.generate_bytes_from_output() ).hexdigest()
 
         self.assertEqual(
-            checksum.hexdigest(),
+            checksum_hex,
             sha256hex,
             stage0hexfile
         )
