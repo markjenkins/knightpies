@@ -66,7 +66,7 @@ def get_sha256sum_of_file_after_files_are_M1_assembled_and_hex2_linked(
     outputmemfile.close()
     return hexdigest
 
-class Test_hex_assembler2_256Sum(HexCommon, Encoding_rom_256_Common):
+class Test_hex_assembler2_ROM_256Sum(HexCommon, Encoding_rom_256_Common):
     encoding_rom_filename = STAGE_0_HEX2_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex1_filefd)
     sha256sumfilename = 'roms/stage1_assembler-2'
