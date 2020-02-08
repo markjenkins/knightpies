@@ -42,7 +42,7 @@ get_sha256sum_of_file_after_hex1_encode = \
     make_get_sha256sum_of_file_after_encode(
         write_binary_filefd_from_hex1_filefd)
 
-class Test_hex_assembler0_256Sum(HexCommon, Encoding_rom_256_Common):
+class Test_hex_assembler0_ROM_256Sum(HexCommon, Encoding_rom_256_Common):
     encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
     sha256sumfilename = 'roms/stage1_assembler-0'
