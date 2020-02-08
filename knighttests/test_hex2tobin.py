@@ -43,11 +43,9 @@ get_sha256sum_of_file_after_hex2_encode = \
     make_get_sha256sum_of_file_after_encode(
         write_binary_filefd_from_hex2_filefd)
 
-class Hex2Common(HexCommon):
+class Test_hex_assembler1_256Sum(HexCommon, Encoding_rom_256_Common):
     encoding_rom_filename = STAGE_0_HEX1_ASSEMBLER_FILEPATH
     rom_encode_func = staticmethod(write_binary_filefd_from_hex0_filefd)
-
-class Test_hex_assembler1_256Sum(Hex2Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage1_assembler-1'
 
 class Test_hex_assember2_ROM_256Sum(TestCase, Hex256SumMatch):
@@ -57,7 +55,7 @@ class Test_hex_assember2_ROM_256Sum(TestCase, Hex256SumMatch):
         return get_sha256sum_of_file_after_hex1_encode(
             STAGE_0_HEX2_ASSEMBLER_FILEPATH)
 
-class Test_SET_256Sum(Hex2Common, Hex256SumMatch):
+class Test_SET_256Sum(TestCase, Hex256SumMatch):
     sha256sumfilename = 'roms/SET'
 
     def compute_sha256_digest(self):
