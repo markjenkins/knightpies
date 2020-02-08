@@ -22,7 +22,8 @@ from tempfile import NamedTemporaryFile
 from knightdecode import create_vm
 from knightvm_minimal import grow_memory, execute_vm
 from constants import MEM
-from stage0dir import get_stage0_file, KNIGHT_DEFS_FILE
+from stage0dir import \
+    get_stage0_file, KNIGHT_DEFS_FILE, KNIGHT_DEFS_FILE_RELATIVE
 from hex1tobin import write_binary_filefd_from_hex1_filefd
 from hex2tobin import (
     write_binary_filefd_from_hex2_filefd,
@@ -90,7 +91,7 @@ class Test_M0_ROM_from_assembler_256Sum(
 
 class M1AssembleToBin_Common_256Sum(object):
     def compute_sha256_digest(self):
-        input_filelist = ['High_level_prototypes/defs'] + self.input_filelist
+        input_filelist = [KNIGHT_DEFS_FILE_RELATIVE] + self.input_filelist
         return \
             get_sha256sum_of_file_after_files_are_M1_assembled_and_hex2_linked(
                 *[get_stage0_file(filename) for filename in input_filelist ]
@@ -174,7 +175,7 @@ class Test_M1AssemblerToBin_stage1_assembler_2(
             *args, **kargs)
 
     def compute_sha256_digest(self):
-        input_filelist = ['High_level_prototypes/defs'] + self.input_filelist
+        input_filelist = [KNIGHT_DEFS_FILE_RELATIVE] + self.input_filelist
         output_binfile = binfile_obj_after_M1_and_hex2(
             *[get_stage0_file(filename)
               for filename in input_filelist ] )
