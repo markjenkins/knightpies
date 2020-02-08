@@ -71,12 +71,22 @@ class Test_hex_assembler2_ROM_256Sum(HexCommon, Encoding_rom_256_Common):
     rom_encode_func = staticmethod(write_binary_filefd_from_hex1_filefd)
     sha256sumfilename = 'roms/stage1_assembler-2'
 
-class Test_M0_ROM_256Sum(TestCase, Hex256SumMatch):
+class M0_ROM_SHA256_Common_Ref:
     sha256sumfilename = 'roms/M0'
 
+class Test_M0_ROM_256Sum(TestCase, M0_ROM_SHA256_Common_Ref, Hex256SumMatch):
     def compute_sha256_digest(self):
         return get_sha256sum_of_file_after_hex2_encode(
             get_stage0_file('stage1/M0-macro.hex2'))
+
+class Test_M0_ROM_from_assembler_256Sum(
+        TestCase, M0_ROM_SHA256_Common_Ref, Hex256SumMatch):
+    def compute_sha256_digest(self):
+        return sha256(
+            binfile_obj_after_M1_and_hex2(
+                KNIGHT_DEFS_FILE,
+                get_stage0_file('stage1/M0-macro.s')
+            ).getbuffer()).hexdigest()
 
 class M1AssembleToBin_Common_256Sum(object):
     def compute_sha256_digest(self):
