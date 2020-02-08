@@ -55,6 +55,10 @@ class Hex0Common(HexCommon):
 class Test_monitor_256Sum(Hex0Common, Encoding_rom_256_Common):
     sha256sumfilename = 'roms/stage0_monitor'
 
+class Test_hex_assembler0_ROM_256Sum(Hex0Common, Encoding_rom_256_Common):
+    encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
+    sha256sumfilename = 'roms/stage1_assembler-0'
+
 class Hex0EncodeSpecificFile(TestCase):
     def compute_sha256_digest(self):
         return get_sha256sum_of_file_after_hex0_encode(
