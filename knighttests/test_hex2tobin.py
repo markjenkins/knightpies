@@ -23,11 +23,12 @@ from hex2tobin import write_binary_filefd_from_hex2_filefd
 
 from .hexcommon import (
     Hex256SumMatch, HexCommon, Encoding_rom_256_Common,
-    make_get_sha256sum_of_file_after_encode
+    make_get_sha256sum_of_file_after_encode,
+    CommonStage1HexEncode,
     )
 from .test_hex1tobin import (
     get_sha256sum_of_file_after_hex1_encode,
-    CommonStage1HexEncode, TestHex1KnightExecuteCommon,
+    TestHex1KnightExecuteCommon,
     )
 from .stage0 import (
     STAGE_0_HEX1_ASSEMBLER_FILEPATH,
