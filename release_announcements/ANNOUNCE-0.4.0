@@ -1,0 +1,20 @@
+Announcing the release of knightpies 0.4.0.
+https://github.com/markjenkins/knightpies/tree/knightpies-0.4.0
+
+knightpies is a Python implementation of the knight instruction set seen in Jeremiah Orians' stage0 project. (https://github.com/oriansj/stage0)
+
+I've quietly tagged 0.2.5 and 0.3.0 releases since the 0.2.0 announcement.
+See the CHANGELOG.
+https://raw.githubusercontent.com/markjenkins/knightpies/knightpies-0.4.0/CHANGELOG
+
+I'm motivated to announce this release because it implements the instructions used by the stage0 macro assembler M0-macro.s and also includes a pure Python M1.py and M1tobin.py compatible with the knight architecture. Compatibility with other architectures as found in oriansj/mescc-tools/hex2_linker.c and mescc-tools/M1-macro.c is in the ROADMAP.
+
+The test suite demonstrates knight assembler (.s) programs from stage0 correspond to their known stage0/test/SHA256SUMS and correspond to the hexadecimal (hex0, hex1, hex2) versions.
+
+Relying on Python and your operating system for this isn't the highest standard you could take for a serious bootstrap, (hand auditing the hex0/1/2 files early in a bootstrap would be called for), but it provides empirical evidence if you're looking for that. The longstanding availability and inclusion of Python across many diverse platforms can add evidentiary weight if utilized. For that reason, I am trying to maintain Python 2.2 and later compatibility and consider any violation of that a bug.
+
+Much of the end-user accessible new functionality is documented in the README
+https://raw.githubusercontent.com/markjenkins/knightpies/knightpies-0.4.0/README
+
+
+Mark Jenkins
