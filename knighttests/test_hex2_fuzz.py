@@ -24,7 +24,7 @@ from pythoncompat import random_multi_choices
 from .fuzzcommon import CommonStage1Fuzz
 
 from .stage0 import STAGE_0_HEX2_ASSEMBLER_FILEPATH
-from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 printable_less_colon_at = ''.join(
     c for c in printable
@@ -113,32 +113,9 @@ class Hex2FuzzTest(CommonStage1Fuzz, TestCase):
             self.get_representative_character_byte()
             for i in range(n) )
 
-class Hex2FuzzTestOptimize(Hex2FuzzTest):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex2FuzzTestOptimize, self).setUp(*args, **kargs)
-
-class Hex2FuzzTest64(Hex2FuzzTest):
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex2FuzzTest64, self).setUp(*args, **kargs)
-
-class Hex2FuzzTest64Optimize(Hex2FuzzTest64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex2FuzzTest64Optimize, self).setUp(*args, **kargs)
-
-class Hex2FuzzTest16(Hex2FuzzTest):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex2FuzzTest16, self).setUp(*args, **kargs)
-
-class Hex2FuzzTest16Optimize(Hex2FuzzTest16):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex2FuzzTest16Optimize, self).setUp(*args, **kargs)
+(Hex2FuzzTest32Optimize,
+ Hex2FuzzTest64,
+ Hex2FuzzTest64Optimize,
+ Hex2FuzzTest16,
+ Hex2FuzzTest16Optimize,
+) = make_optimize_and_register_size_variations(Hex2FuzzTest)
