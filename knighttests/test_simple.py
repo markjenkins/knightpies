@@ -20,7 +20,7 @@ from unittest import TestCase, skipIf
 
 from constants import MEM, REG
 from knightdecode import create_vm, grow_memory, read_and_eval
-from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 class SimpleInstructionTests(TestCase):
     registersize = 32
@@ -96,37 +96,13 @@ class SimpleInstructionTests(TestCase):
         self.vm[MEM].frombytes( bytes.fromhex('0F010001') ) # ADDUI r0 r1 1
         read_and_eval(self.vm)
         self.assertEqual( self.vm[REG][0], 1)
-        
-class SimpleInstructionTests32Optimize(SimpleInstructionTests):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SimpleInstructionTests32Optimize, self).setUp(
-            *args, **kargs)
 
-class SimpleInstructionTests64(SimpleInstructionTests):
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SimpleInstructionTests64, self).setUp(*args, **kargs)
-
-class SimpleInstructionTests64Optimize(SimpleInstructionTests64):
-    optimize = True
-    def setUp(self, *args, **kargs):
-        return super(SimpleInstructionTests64Optimize, self).setUp(
-            *args, **kargs)
-
-class SimpleInstructionTests16(SimpleInstructionTests):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SimpleInstructionTests16, self).setUp(*args, **kargs)
-
-class SimpleInstructionTests16Optimize(SimpleInstructionTests16):
-    optimize = True
-    def setUp(self, *args, **kargs):
-        return super(SimpleInstructionTests16Optimize, self).setUp(
-            *args, **kargs)
+(SimpleInstructionTests32Optimize,
+ SimpleInstructionTests64,
+ SimpleInstructionTests64Optimize,
+ SimpleInstructionTests16,
+ SimpleInstructionTests16Optimize,
+) = make_optimize_and_register_size_variations(SimpleInstructionTests)
 
 if __name__ == '__main__':
     # to invoke, run
