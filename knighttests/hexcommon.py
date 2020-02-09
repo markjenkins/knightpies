@@ -105,10 +105,19 @@ class TestHexKnightExecuteCommon(HexCommon, TestHexKnightExecuteCommonSetup):
     def get_end_of_memory(self):
         return self.stack_end
 
+    def generate_input_fd(self, primary_input_file_path):
+        return open(primary_input_file_path, 'rb')
+
+    def generate_bytes_from_output(self):
+        with open(self.get_output_file_path(), 'rb') as output_file_fd:
+            output_bytes = output_file_fd.read()
+        return output_bytes
+
     def execute_test_hex_load(self, stage0hexfile, sha256hex):
         output_mem_buffer = BytesIO()
+        with self.generate_input_fd(get_stage0_file(stage0hexfile) ) as \
+             input_file_fd:
 
-        with open(get_stage0_file(stage0hexfile), 'rb') as input_file_fd:
             vm = create_vm(
                 size=0, registersize=self.registersize,
                 tapefile1=self.get_tape1_file_path(input_file_fd),
@@ -122,11 +131,11 @@ class TestHexKnightExecuteCommon(HexCommon, TestHexKnightExecuteCommonSetup):
             grow_memory(vm, self.get_end_of_memory())
             execute_vm(vm, optimize=self.optimize, halt_print=False)
 
-        with open(self.get_output_file_path(), 'rb') as tape_file:
-            checksum = sha256(tape_file.read())
+        checksum_hex = sha256(
+            self.generate_bytes_from_output() ).hexdigest()
 
         self.assertEqual(
-            checksum.hexdigest(),
+            checksum_hex,
             sha256hex,
             stage0hexfile
         )

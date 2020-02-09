@@ -241,32 +241,6 @@ class TestStage1M0Assemble(CommonStage1HexEncode, TestHexKnightExecuteCommon):
             outputbin.flush()
         return outputbin.getbuffer()
 
-    def execute_test_hex_load(self, stage0hexfile, sha256hex):
-        output_mem_buffer = BytesIO()
-        input_file_fd = self.generate_input_fd(get_stage0_file(stage0hexfile) )
-
-        vm = create_vm(
-            size=0, registersize=self.registersize,
-            tapefile1=self.get_tape1_file_path(input_file_fd),
-            tapefile2=self.tape_02_temp_file_path,
-            stdin=self.get_stdin_for_vm(input_file_fd),
-            stdout=output_mem_buffer,
-        )
-        self.load_encoding_rom(vm)
-        self.assertEqual( self.encoding_rom_binary.getbuffer(),
-                          vm[MEM].tobytes() )
-        grow_memory(vm, self.get_end_of_memory())
-        execute_vm(vm, optimize=self.optimize, halt_print=False)
-
-        checksum_hex = sha256(
-            self.generate_bytes_from_output() ).hexdigest()
-
-        self.assertEqual(
-            checksum_hex,
-            sha256hex,
-            stage0hexfile
-        )
-
 class TestSmallMemoryStage1M0Assemble(TestStage1M0Assemble):
     pass
 
