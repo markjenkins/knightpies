@@ -34,7 +34,6 @@ from .stage0 import (
     STAGE_0_HEX1_ASSEMBLER_FILEPATH,
     STAGE_0_HEX2_ASSEMBLER_RELATIVE_PATH,
     )
-from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
 from .util import make_optimize_and_register_size_variations
 
 from constants import MEM
