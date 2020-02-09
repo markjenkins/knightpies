@@ -329,6 +329,9 @@ for testname, assemblerfile, SHA256_rom_file in (
     ('forth',
      'stage2/forth.s',
      "roms/forth"),
+    ( 'm0self',
+      'stage1/M0-macro.s',
+      "roms/M0"),
 ):
     setattr( TestBigMemoryStage1M0Assemble,
              "test_M0_assembler_%s" % testname,
