@@ -23,7 +23,7 @@ from hex1tobin import write_binary_filefd_from_hex1_filefd
 from .fuzzcommon import CommonStage1Fuzz
 
 from .stage0 import STAGE_0_HEX1_ASSEMBLER_FILEPATH
-from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 printable_less_colon_at = ''.join(
     c for c in printable
@@ -95,32 +95,10 @@ class Hex1FuzzTest(CommonStage1Fuzz, TestCase):
             self.get_representative_character_byte()
             for i in range(n) )
 
-class Hex1FuzzTestOptimize(Hex1FuzzTest):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTestOptimize, self).setUp(*args, **kargs)
+(Hex1FuzzTest32Optimize,
+ Hex1FuzzTest64,
+ Hex1FuzzTest64Optimize,
+ Hex1FuzzTest16,
+ Hex1FuzzTest16Optimize,
+) = make_optimize_and_register_size_variations(Hex1FuzzTest)
 
-class Hex1FuzzTest64(Hex1FuzzTest):
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest64, self).setUp(*args, **kargs)
-
-class Hex1FuzzTest64Optimize(Hex1FuzzTest64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest64Optimize, self).setUp(*args, **kargs)
-
-class Hex1FuzzTest16(Hex1FuzzTest):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest16, self).setUp(*args, **kargs)
-
-class Hex1FuzzTest16Optimize(Hex1FuzzTest16):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex1FuzzTest16Optimize, self).setUp(*args, **kargs)
