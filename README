@@ -56,7 +56,7 @@ https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
 You can also supply your own copy of the stage0 code instead of using the submodule feature. If you want to use stage0 from another directory, you could make a symlink or stage0dir.py allows you to specify another location.
 
-The test suite mostly works with stage0 revision 09536c775df8bee4952c4a09eba97079d083adea (Release_0.4.0), the exceptions are knighttests/test_parallel_execution.py and test_parallel_execution_stage1.py which need some further work to be compatible. These tests can be skipped, see below.
+The test suite mostly works with stage0 revision 09536c775df8bee4952c4a09eba97079d083adea (Release_0.4.0), the exceptions are knighttests/test_parallel_execution.py, test_parallel_execution_stage1.py and test_parallel_execution_stage1_M0.py which need some further work to be compatible. These tests can be skipped, see below.
 
 You can run individual test cases with
 $ python3 -m knighttests.test_module_name
