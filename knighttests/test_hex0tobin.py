@@ -34,6 +34,7 @@ from .stage0 import (
     STAGE_0_HEX1_ASSEMBLER_RELATIVE_PATH,
     )
 from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 get_sha256sum_of_file_after_hex0_encode = \
     make_get_sha256sum_of_file_after_encode(
@@ -133,39 +134,15 @@ class TestStage0Monitorexecute(TestHex0KnightExecuteCommon):
         self.execute_test_hex0_load_against_computed_SHA256SUM(
             'stage1/dehex.hex0')
 
-class TestStage0Monitorexecute32Optimize(TestStage0Monitorexecute):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage0Monitorexecute32Optimize, self).setUp(
-            *args, **kargs)
+(TestHex0ToBinOptimize,
+ TestHex0ToBin64,
+ TestHex0ToBin64Optimize,
+ TestHex0ToBin16,
+ TestHex0ToBin16Optimize) = \
+make_optimize_and_register_size_variations(TestStage0Monitorexecute)
 
-class TestHex0ToBin64(TestStage0Monitorexecute):
-    stack_size_multiplier = 2
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestHex0ToBin64, self).setUp(*args, **kargs)
-
-class TestHex0ToBin64Optimize(TestHex0ToBin64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestHex0ToBin64Optimize, self).setUp(
-            *args, **kargs)
-
-class TestHex0ToBin16(TestStage0Monitorexecute):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestHex0ToBin16, self).setUp(*args, **kargs)
-
-class TestHex0ToBin16Optimize(TestHex0ToBin16):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestHex0ToBin16Optimize, self).setUp(
-            *args, **kargs)
+TestHex0ToBin64.stack_size_multiplier = 2
+assert( TestHex0ToBin64Optimize.stack_size_multiplier == 2 )
 
 class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
     def test_encode_stage1_hex0_encodes_self(self):
