@@ -176,36 +176,15 @@ class TestStage1Hex0Encode(CommonStage1HexEncode, TestHex0KnightExecuteCommon):
             ADDITIONAL_SHA256SUMS[filename]
             )
 
-class TestStage1Hex0Encode32Optimize(TestStage1Hex0Encode):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex0Encode32Optimize, self).setUp(*args, **kargs)
+(TestStage1Hex0ToBin32Optimize,
+ TestStage1Hex0ToBin64,
+ TestStage1Hex0ToBin64Optimize,
+ TestStage1Hex0ToBin16,
+ TestStage1Hex0ToBin16Optimize,
+) = make_optimize_and_register_size_variations(TestStage1Hex0Encode)
 
-class TestStage1Hex0ToBin64(TestStage1Hex0Encode):
-    stack_size_multiplier = 2
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex0ToBin64, self).setUp(*args, **kargs)
-
-class TestStage1Hex0ToBin64Optimize(TestStage1Hex0ToBin64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex0ToBin64Optimize, self).setUp(*args, **kargs)
-
-class TestStage1Hex0ToBin16(TestStage1Hex0Encode):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex0ToBin16, self).setUp(*args, **kargs)
-
-class TestStage1Hex0ToBin16Optimize(TestStage1Hex0ToBin16):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex0ToBin16Optimize, self).setUp(*args, **kargs)
+TestStage1Hex0ToBin64.stack_size_multiplier = 2
+assert( TestStage1Hex0ToBin64Optimize.stack_size_multiplier == 2 )
 
 if __name__ == '__main__':
     # to invoke, run
