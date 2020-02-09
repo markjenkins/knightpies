@@ -21,7 +21,7 @@ from unittest import TestCase, skipIf
 from constants import MEM, REG
 from knightdecode import create_vm, grow_memory, read_and_eval
 from knightinstructions import readin_bytes
-from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 testcases = (
     '0000',
@@ -85,40 +85,17 @@ for sixteenbits_bigendian_hex_str in testcases:
             "test_%s" % sixteenbits_bigendian_hex_str,
             make_LOADI_test_case(sixteenbits_bigendian_hex_str) )
 
-class ThirtyTwoBitRegistersOptimize(EdgeCaseSignedIntegerTests):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(ThirtyTwoBitRegistersOptimize, self).setUp(*args, **kargs)
-
-class SixteenBitRegistersNoOptimize(EdgeCaseSignedIntegerTests):
-    registersize=16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SixteenBitRegistersNoOptimize, self).setUp(*args, **kargs)
-    
-class SixteenBitRegistersOptimize(SixteenBitRegistersNoOptimize):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SixteenBitRegistersOptimize, self).setUp(*args, **kargs)
+(ThirtyTwoBitRegistersOptimize,
+ SixtyFourBitRegisters,
+ SixtyFourBitRegistersOptimize,
+ SixteenBitRegistersNoOptimize,
+ SixteenBitRegistersOptimize,
+) = make_optimize_and_register_size_variations(EdgeCaseSignedIntegerTests)
 
 for sixteenbits_bigendian_hex_str in testcases:
     setattr(SixteenBitRegistersOptimize,
             "test_readin_%s" % sixteenbits_bigendian_hex_str,
             make_readin_bytes_test_case(sixteenbits_bigendian_hex_str) )
-
-class SixtyFourBitRegisters(EdgeCaseSignedIntegerTests):
-    registersize=64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SixtyFourBitRegisters, self).setUp(*args, **kargs)
-
-class SixtyFourBitRegistersOptimize(SixtyFourBitRegisters):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(SixtyFourBitRegistersOptimize, self).setUp(*args, **kargs)
 
 if __name__ == '__main__':
     # to invoke, run
