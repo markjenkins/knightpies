@@ -43,7 +43,7 @@ from .test_hex2tobin import (
     write_binary_filefd_from_hex2_filefd,
 )
 
-from .util import sha256hexoffile
+from .util import sha256hexoffile, make_optimize_and_register_size_variations
 
 from .stage0 import (
     STAGE_0_HEX2_ASSEMBLER_FILEPATH,
@@ -269,6 +269,16 @@ for testname, assemblerfile, SHA256_rom_file in (
              "test_M0_assembler_%s" % testname,
              make_M0_test(testname, assemblerfile, SHA256_rom_file) )
 
+# Make a 32 bit optimized version of the above test
+# Don't do 16 bit and 64 bit variations
+# As of 0.4.0 release:
+#  - 16 bit variations hit illegal instruction or produces wrong result
+#    depending on test run
+#  - Some 64 bit variations run out of memory regardless of how much is added
+TestSmallMemoryStage1M0Assemble32Optimize = \
+    make_optimize_and_register_size_variations(
+        TestSmallMemoryStage1M0Assemble)[0]
+
 class TestSmallMemoryStage1M0Assemble_hex2(TestStage1M0Assemble):
     # skip unless the upstream patched version of stage1_assembler-2.s
     # is present, we're not going to bother patching the binary for
@@ -286,6 +296,16 @@ class TestSmallMemoryStage1M0Assemble_hex2(TestStage1M0Assemble):
             'stage1/stage1_assembler-2.s',
             'roms/stage1_assembler-2'
         )
+
+# Make a 32 bit optimized version of the above test
+# Don't do 16 bit and 64 bit variations
+# As of 0.4.0 release:
+#  - 16 bit variations hit illegal instruction or produces wrong result
+#    depending on test run
+#  - Some 64 bit variations run out of memory regardless of how much is added
+TestSmallMemM0Assemblerhex2_32Optimize = \
+    make_optimize_and_register_size_variations(
+        TestSmallMemoryStage1M0Assemble_hex2)[0]
 
 class TestBigMemoryStage1M0Assemble(TestStage1M0Assemble):
     def get_end_of_memory(self):
@@ -313,3 +333,13 @@ for testname, assemblerfile, SHA256_rom_file in (
     setattr( TestBigMemoryStage1M0Assemble,
              "test_M0_assembler_%s" % testname,
              make_M0_test(testname, assemblerfile, SHA256_rom_file) )
+
+# Make a 32 bit optimized version of the above test
+# Don't do 16 bit and 64 bit variations
+# As of 0.4.0 release:
+#  - 16 bit variations hit illegal instruction or produces wrong result
+#    depending on test run
+#  - Some 64 bit variations run out of memory regardless of how much is added
+TestBigMemoryStage1M0Assemble32Optimize = \
+    make_optimize_and_register_size_variations(
+        TestBigMemoryStage1M0Assemble)[0]
