@@ -29,6 +29,7 @@ from .stage0 import (
 
 from .fuzzcommon import CommonHexFuzzTest, CommonStage1Fuzz
 from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 hexdigits_as_ascii_bytes = hexdigits # bytes(hexdigits, encoding='ascii')
 printable_as_ascii_bytes = printable # bytes(printable, encoding='ascii')
@@ -83,35 +84,12 @@ class Hex0FuzzTest(Hex0FuzzCommon, CommonHexFuzzTest, TestCase):
     def get_top_level_char_set():
         return hex_or_printable
 
-class Hex0FuzzTestOptimize(Hex0FuzzTest):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex0FuzzTestOptimize, self).setUp(*args, **kargs)
-
-class Hex0FuzzTest64(Hex0FuzzTest):
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex0FuzzTest64, self).setUp(*args, **kargs)
-
-class Hex0FuzzTest64Optimize(Hex0FuzzTest64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex0FuzzTest64Optimize, self).setUp(*args, **kargs)
-
-class Hex0FuzzTest16(Hex0FuzzTest):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex0FuzzTest16, self).setUp(*args, **kargs)
-
-class Hex0FuzzTest16Optimize(Hex0FuzzTest16):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(Hex0FuzzTest16Optimize, self).setUp(*args, **kargs)
+(Hex0FuzzTest32Optimize,
+ Hex0FuzzTest64,
+ Hex0FuzzTest64Optimize,
+ Hex0FuzzTest16,
+ Hex0FuzzTest16Optimize,
+ ) = make_optimize_and_register_size_variations(Hex0FuzzTest)
 
 class Hex0FuzzTestAssembler1(CommonStage1Fuzz, Hex0FuzzCommon, TestCase):
     encoding_rom_filename = STAGE_0_HEX0_ASSEMBLER_FILEPATH
