@@ -38,6 +38,7 @@ from .stage0 import (
     STAGE_0_HEX2_ASSEMBLER_FILEPATH,
     )
 from .testflags import OPTIMIZE_SKIP, DIFF_REG_SIZE_SKIP
+from .util import make_optimize_and_register_size_variations
 
 get_sha256sum_of_file_after_hex2_encode = \
     make_get_sha256sum_of_file_after_encode(
@@ -79,32 +80,10 @@ class TestStage1Hex2Encode(CommonStage1HexEncode, TestHexKnightExecuteCommon):
             "roms/M0",
     )
 
-class TestStage1Hex2EncodeOptimise(TestStage1Hex2Encode):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex2EncodeOptimise, self).setUp(*args, **kargs)
+(TestStage1Hex2Encode32Optimise,
+ TestStage1Hex2Encode64,
+ TestStage1Hex2Encode64Optimise,
+ TestStage1Hex2Encode16,
+ TestStage1Hex2Encode16Optimise,
+ ) = make_optimize_and_register_size_variations(TestStage1Hex2Encode)
 
-class TestStage1Hex2Encode64(TestStage1Hex2Encode):
-    registersize = 64
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex2Encode64, self).setUp(*args, **kargs)
-
-class TestStage1Hex2Encode64Optimise(TestStage1Hex2Encode64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex2Encode64Optimise, self).setUp(*args, **kargs)
-
-class TestStage1Hex2Encode16(TestStage1Hex2Encode):
-    registersize = 16
-    @skipIf(DIFF_REG_SIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex2Encode16, self).setUp(*args, **kargs)
-
-class TestStage1Hex2Encode16Optimise(TestStage1Hex2Encode64):
-    optimize = True
-    @skipIf(OPTIMIZE_SKIP, 'requested')
-    def setUp(self, *args, **kargs):
-        return super(TestStage1Hex2Encode16Optimise, self).setUp(*args, **kargs)
