@@ -20,8 +20,7 @@ from hashlib import sha256
 from os import unlink
 
 from knightdecode import create_vm
-from knightvm_minimal import grow_memory, execute_vm
-from knightvm_minimal import load_hex_program
+from knightvm_minimal import load_hex_program, grow_memory, execute_vm
 from stage0dir import get_stage0_file, get_stage0_test_sha256sum
 from constants import MEM
 
