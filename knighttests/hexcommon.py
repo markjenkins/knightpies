@@ -20,7 +20,8 @@ from hashlib import sha256
 from os import unlink
 
 from knightdecode import create_vm
-from knightvm_minimal import load_hex_program, grow_memory, execute_vm
+from knightvm_minimal import \
+    set_top_of_prog_mem, load_hex_program, grow_memory, execute_vm
 from stage0dir import get_stage0_file, get_stage0_test_sha256sum
 from constants import MEM
 
@@ -77,8 +78,31 @@ class TestHexKnightExecuteCommonSetup:
     stack_size_multiplier = 1
     optimize = False
 
+    def get_stack_start(self):
+        # By default returning None will telling a caller that a stack_start
+        # isn't defined. This will spare us from having to implement
+        # in all sub-classes/tests right away.
+        # where this becomes relevant is
+        # TestHexKnightExecuteCommon.execute_test_hex_load
+        # which calls get_program_end() to figure out where the program
+        # ends so it can lock down memory address m that are
+        # 0 <= m < get_program_end() using knightvm_minimal.set_top_of_prog_mem
+        return None
+
+    def get_program_end(self):
+        # assume the program ends where the stack starts, which assumes
+        # all read/write memory use by the program is on the stack or
+        # heap (after the stack), e.g. no globals defined between where the
+        # program is loaded and where the stack starts
+        #
+        # see TestHexKnightExecuteCommonSetup.get_program_end() comment
+        return self.get_stack_start()
+
     def setup_stack_and_tmp_files(self):
-        self.stack_end = STACK_START+STACK_SIZE*self.stack_size_multiplier
+        stack_start = self.get_stack_start()
+        if stack_start==None:
+            stack_start = STACK_START
+        self.stack_end = stack_start+STACK_SIZE*self.stack_size_multiplier
         self.tape_01_temp_file_path = get_closed_named_temp_file()
         self.tape_02_temp_file_path = get_closed_named_temp_file()
 
@@ -125,6 +149,14 @@ class TestHexKnightExecuteCommon(HexCommon, TestHexKnightExecuteCommonSetup):
                 stdout=output_mem_buffer,
             )
             self.load_encoding_rom(vm)
+
+            # protect code address from writes, only allow after where it
+            # ends. We can only do this if get_program_end() returns a useful
+            # value
+            prog_end = self.get_program_end()
+            if prog_end!=None:
+                vm = set_top_of_prog_mem(vm, prog_end)
+
             self.assertEqual( self.encoding_rom_binary.getbuffer(),
                               vm[MEM].tobytes() )
             grow_memory(vm, self.get_end_of_memory())
