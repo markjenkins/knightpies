@@ -22,7 +22,7 @@ from os.path import exists
 from sys import stderr, exit
 
 from constants import \
-    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, \
+    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TOP_OF_PROG_MEM, \
     TAPE1FILENAME, TAPE2FILENAME, TAPEFD, TAPEFD_I_STDIN, TAPEFD_I_STDOUT, \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
@@ -31,7 +31,8 @@ from constants import \
     HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER, HAL_IO_DEVICE_STDIO
 
 from pythoncompat import write_byte, COMPAT_TRUE, COMPAT_FALSE
-from knightdecodeutil import outside_of_world
+from knightdecodeutil import outside_of_world, inside_of_world
+from knightdecodeutil import InsideOfWorldException
 
 BITS_PER_BYTE = 8
 def prove_8_bits_per_array_byte():
@@ -171,13 +172,31 @@ def register_negative(register_file, reg0):
 def register_positive(register_file, reg0):
     return not register_negative(register_file, reg0)
 
-def writeout_bytes(mem, pointer, value, byte_count):
+def validate_instruction_range(vm,
+                               first_place, second_place,
+                               message1, message2, insidemessage):
+    mem = vm[MEM]
     outside_of_world(
-        mem, pointer,
-        "Writeout bytes Address_1 is outside of World")
+        mem, first_place, message1)
     outside_of_world(
-        mem, pointer+byte_count-1,
-        "Writeout bytes Address_2 is outside of World")
+        mem, second_place, message2)
+    top_of_prog_mem = vm[TOP_OF_PROG_MEM]
+    if top_of_prog_mem > 0:
+        inside_of_world(top_of_prog_mem, first_place, insidemessage)
+        inside_of_world(top_of_prog_mem, second_place, insidemessage)
+
+WRITEOUT_BYTES_OUTSIDE_ERROR_1 = "Writeout bytes Address_1 is outside of World"
+WRITEOUT_BYTES_OUTSIDE_ERROR_2 = "Writeout bytes Address_2 is outside of World"
+WRITEOUT_BYTES_INSIDE_ERROR="Writeout bytes is hitting an instruction address!"
+
+def writeout_bytes(vm, pointer, value, byte_count):
+    validate_instruction_range(
+        vm, pointer, pointer+byte_count-1,
+        WRITEOUT_BYTES_OUTSIDE_ERROR_1,
+        WRITEOUT_BYTES_OUTSIDE_ERROR_2,
+        WRITEOUT_BYTES_INSIDE_ERROR,
+        )
+    mem = vm[MEM]
     # example invocation of range, byte_count=4 (32 bits)
     # range(24, -8, -8) = [24, 16, 8, 0]
     for i, x in enumerate(range( 8*(byte_count-1), -8, -8)):
@@ -463,7 +482,7 @@ def LOADXU32(vm, c):
 
 def STOREX(vm, c):
     mem, register_file, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
-    writeout_bytes(mem,
+    writeout_bytes(vm,
                    register_file[reg1]+register_file[reg2],
                    register_file[reg0],
                    register_file.itemsize)
@@ -474,7 +493,7 @@ def STOREX8(vm, c):
 
 def STOREX16(vm, c):
     mem, register_file, reg0, reg1, reg2, next_ip = get_args_for_3OP(vm, c)
-    writeout_bytes(mem,
+    writeout_bytes(vm,
                    register_file[reg1]+register_file[reg2],
                    register_file[reg0],
                    2)
@@ -567,7 +586,7 @@ def CALL(vm, c):
 def PUSHR(vm, c):
     mem, register_file, reg0, reg1, next_ip = get_args_for_2OP(vm, c)
     reg_size = register_file.itemsize
-    writeout_bytes(mem, register_file[reg1], register_file[reg0], reg_size)
+    writeout_bytes(vm, register_file[reg1], register_file[reg0], reg_size)
     register_file[reg1] += reg_size
     return next_ip
 
@@ -585,7 +604,7 @@ def POPR(vm, c):
     reg_size = register_file.itemsize
     register_file[reg1] -= reg_size
     tmp = readin_bytes(mem, register_file[reg1], COMPAT_FALSE, reg_size)
-    writeout_bytes(mem, register_file[reg1], 0, reg_size)
+    writeout_bytes(vm, register_file[reg1], 0, reg_size)
     register_file[reg0] = tmp
     return next_ip
 
@@ -689,7 +708,7 @@ def RET(vm, c):
     next_ip = readin_bytes(mem, address_of_pc_on_stack, COMPAT_FALSE, reg_size)
 
     # Clear Stack Values
-    writeout_bytes(mem, address_of_pc_on_stack, 0, reg_size)
+    writeout_bytes(vm, address_of_pc_on_stack, 0, reg_size)
 
     return next_ip
 
@@ -810,7 +829,7 @@ def CMPUI(vm, c):
 def STORE(vm, c):
     mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    writeout_bytes(mem,
+    writeout_bytes(vm,
                    register_file[reg1]+signed_immediate,
                    register_file[reg0],
                    register_file.itemsize)
@@ -819,7 +838,7 @@ def STORE(vm, c):
 def STORE8(vm, c):
     mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    writeout_bytes(mem, register_file[reg1] + signed_immediate,
+    writeout_bytes(vm, register_file[reg1] + signed_immediate,
                    register_file[reg0], 1);
     return next_ip
 
@@ -829,7 +848,7 @@ def STORE16(vm, c):
 def STORE32(vm, c):
     mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    writeout_bytes(mem, register_file[reg1] + signed_immediate,
+    writeout_bytes(vm, register_file[reg1] + signed_immediate,
                    register_file[reg0], 4)
     return next_ip
 
@@ -1026,7 +1045,7 @@ def CALLI(vm, c):
         get_args_for_1OPI(vm, c)
     reg_size = register_file.itemsize
     # Write out the PC
-    writeout_bytes(mem, register_file[reg0], next_ip, reg_size)
+    writeout_bytes(vm, register_file[reg0], next_ip, reg_size)
 
     register_file[reg0] += reg_size # Update our index
 

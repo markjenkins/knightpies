@@ -30,7 +30,8 @@ from pythoncompat import print_func, init_array_itemsize_8, \
     get_binary_mode_stdout, COMPAT_FALSE, COMPAT_TRUE
 from constants import \
     EXIT_FAILURE, \
-    IP, REG, MEM, HALTED, EXCEPT, PERF_COUNT, TAPE1FILENAME, TAPE2FILENAME, \
+    IP, REG, MEM, TOP_OF_PROG_MEM, HALTED, EXCEPT, PERF_COUNT, \
+    TAPE1FILENAME, TAPE2FILENAME, \
     OP, RAW, CURIP, NEXTIP, RESTOF, INVALID, \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
     ARRAY_TYPE_UNSIGNED_CHAR, ARRAY_TYPE_UNSIGNED_SHORT, \
@@ -39,7 +40,9 @@ from constants import \
     HALT_OP, HAL_CODE_OP, \
     HAL_CODE_FGETC, HAL_CODE_FPUTC, HAL_CODE_FOPEN_WRITE, HAL_CODE_FCLOSE
 
-from knightdecodeutil import outside_of_world, OutsideOfWorldException
+from knightdecodeutil import \
+    outside_of_world, OutsideOfWorldException, \
+    inside_of_world, InsideOfWorldException
 
 NUM_REGISTERS = 16
 
@@ -52,6 +55,9 @@ MIN_INSTRUCTION_LEN = 4
 DEBUG = COMPAT_FALSE
 
 OUTSIDE_WORLD_ERROR = "READ Instruction outside of World"
+NOT_INSIDE_INSTRUCTION_WORLD_ERROR = \
+    "Attempt to load end of instruction outside of where we expect " \
+    "instructions to be found"
 
 class InstructionNotImplemented(Exception):
     pass
@@ -98,6 +104,7 @@ def create_vm(size, registersize=32,
     performance_counter = 0
 
     vm = (instruction_pointer, registers, memory,
+          0, # TOP_OF_PROG_MEM until a program is loaded
           halted, exception, performance_counter,
           tapefile1, tapefile2, [None,None, stdin, stdout])
     grow_memory(vm, size)
@@ -112,11 +119,21 @@ def unpack_byte(a):
 def read_instruction(vm):
     current_ip = vm[IP]
     next_ip = current_ip+MIN_INSTRUCTION_LEN
+    possible_end_of_next_instruction = next_ip-1
 
     # Why current_ip+MIN_INSTRUCTION_LEN-1 and not just current_ip ?
     # If the end of memory isn't MIN_INSTRUCTION_LEN byte aligned, than
     # current_ip may be in bounds but the last byte of it might not be
-    outside_of_world(vm[MEM], next_ip-1, OUTSIDE_WORLD_ERROR)
+    outside_of_world(
+        vm[MEM], possible_end_of_next_instruction, OUTSIDE_WORLD_ERROR)
+    top_of_prog_mem = vm[TOP_OF_PROG_MEM]
+    # if we're even checking for instructions outside of where we expect them
+    if top_of_prog_mem>0:
+        inside_of_world(
+            top_of_prog_mem,
+            possible_end_of_next_instruction,
+            NOT_INSIDE_INSTRUCTION_WORLD_ERROR,
+            logic_inversion=True)
     
     instruction_bytes = vm[MEM][current_ip:current_ip+MIN_INSTRUCTION_LEN]
     opcode = unpack_byte(instruction_bytes[0])
@@ -165,7 +182,18 @@ def string_unpacked_instruction(i):
             ''.join(''.join(rpair)
                     for rpair in i[RESTOF]) )
 
+NEW_IP_NOT_WITHIN_PROGRAM_MEM_ERROR = \
+    "After instruction eval, new instruction pointer is bad as it is not " \
+    "within expected instruction memory"
 def vm_with_new_ip(vm, new_ip):
+    top_of_program_mem = vm[TOP_OF_PROG_MEM]
+    if top_of_program_mem > 0:
+        inside_of_world(
+            top_of_program_mem,
+            new_ip,
+            NEW_IP_NOT_WITHIN_PROGRAM_MEM_ERROR,
+            logic_inversion=True,
+            )
     return vm[0:IP] + (new_ip,) + vm[IP+1:]
 
 def make_eval_instruction_for_registersize(registersizebits):

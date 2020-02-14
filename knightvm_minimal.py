@@ -23,7 +23,7 @@ from sys import stderr, exit
 from string import hexdigits
 
 from pythoncompat import print_func, COMPAT_FALSE, COMPAT_TRUE
-from constants import REG, EXIT_SUCCESS, EXIT_FAILURE
+from constants import REG, TOP_OF_PROG_MEM, EXIT_SUCCESS, EXIT_FAILURE
 from knightdecode import \
     MEM, HALTED, \
     create_vm, grow_memory, \
@@ -31,7 +31,10 @@ from knightdecode import \
 
 from hex0tobin import int_bytes_from_hex0_fd
 
-def load_program(vm, romfilename):
+def set_top_of_prog_mem(vm, topm):
+    return vm[0:TOP_OF_PROG_MEM] + (topm,) + vm[TOP_OF_PROG_MEM+1:]
+
+def load_program(vm, romfilename, top_of_program_mem=0):
     # binary mode because we don't want python's opinion of encoding, newlines
     f = open(romfilename, 'rb')
     f.seek(0,2) # seek to end so we can find filesize
@@ -41,6 +44,14 @@ def load_program(vm, romfilename):
     assert len(vm[MEM])==0
     vm[MEM].fromfile(f, filesize)
     f.close()
+    assert top_of_program_mem <= filesize
+    # technically this if/else isn't needed, top_of_program_mem=0 is default
+    # anyway from create_vm, but we do this for clarity
+    if top_of_program_mem==0:
+        return vm
+    else:
+        return set_top_of_prog_mem(vm, top_of_program_mem)
+
 
 def load_hex_program(vm, hexromfilename):
     # this is intended to operate at the start of memory before allocation

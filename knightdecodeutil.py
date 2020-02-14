@@ -18,7 +18,15 @@
 # along with knightpies.  If not, see <http://www.gnu.org/licenses/>.
 
 class OutsideOfWorldException(Exception): pass
+class InsideOfWorldException(Exception): pass
 
 def outside_of_world(mem, place, message):
     if len(mem) <= place:
         raise OutsideOfWorldException(message, place)
+
+def inside_of_world(boundary, place, message, logic_inversion=False):
+    inside_test = place < boundary
+    if logic_inversion:
+        inside_test = not inside_test
+    if inside_test:
+        raise InsideOfWorldException(message, place)
