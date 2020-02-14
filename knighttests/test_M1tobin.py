@@ -19,7 +19,6 @@ from io import BytesIO
 from hashlib import sha256
 from tempfile import NamedTemporaryFile
 
-from knightdecode import create_vm
 from knightvm_minimal import grow_memory, execute_vm
 from constants import MEM
 from stage0dir import \
