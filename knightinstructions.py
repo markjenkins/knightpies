@@ -848,8 +848,13 @@ def STORE16(vm, c):
 def STORE32(vm, c):
     mem, register_file, reg0, reg1, signed_immediate, next_ip = \
         get_args_for_2OPI(vm, c)
-    writeout_bytes(vm, register_file[reg1] + signed_immediate,
-                   register_file[reg0], 4)
+    try:
+        writeout_bytes(vm, register_file[reg1] + signed_immediate,
+                       register_file[reg0], 4)
+    except InsideOfWorldException:
+        raise InsideOfWorldException(
+            "instruction memory write by store32 at %x" % c[CURIP]
+        )
     return next_ip
 
 def ANDI(vm, c):
