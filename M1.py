@@ -236,11 +236,11 @@ def filter_line_pieces_to_empty_if_just_label(pieces):
 def output_file_from_tokens_with_macros_sub_and_string_sub(
         input_tokens, output_file, symbols, big_endian=COMPAT_TRUE,
         comments=False):
-    piece_seen_on_line = []
+    pieces_seen_on_line = []
     first_macro_outputted = False
     for tok_type, tok_expr, tok_filename, tok_linenum in input_tokens:
         if tok_type == TOK_TYPE_ATOM:
-            piece_seen_on_line.append(tok_expr)
+            pieces_seen_on_line.append(tok_expr)
             if tok_expr in symbols: # exact match only
 
                 macro_value_token = symbols[tok_expr]
@@ -256,7 +256,7 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
                 output_regular_atom(output_file, tok_expr, big_endian)
         elif tok_type == TOK_TYPE_NEWLINE:
             pieces_filtered = filter_line_pieces_to_empty_if_just_label(
-                        piece_seen_on_line)
+                        pieces_seen_on_line)
             if (not first_macro_outputted and
                 len(pieces_filtered)>0 and
                 comments):
@@ -264,7 +264,7 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
                 output_file.write(' '.join(pieces_filtered))
             output_file.write('\n')
             first_macro_outputted = False
-            piece_seen_on_line = []
+            pieces_seen_on_line = []
         elif tok_type == TOK_TYPE_DATA:
             output_file.write(tok_expr)
         elif tok_type == TOK_TYPE_STR:
@@ -279,11 +279,11 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
                 )
         elif tok_type == TOK_TYPE_COMMENT:
             if comments:
-                if len(piece_seen_on_line) == 0:
+                if len(pieces_seen_on_line) == 0:
                     output_file.write(';')
                 else:
                     output_file.write(' # ')
-                    output_file.write(' '.join(piece_seen_on_line))
+                    output_file.write(' '.join(pieces_seen_on_line))
                     output_file.write(' ; ')
                 output_file.write(tok_expr)
             first_macro_outputted = True
