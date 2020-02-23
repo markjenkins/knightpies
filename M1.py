@@ -228,11 +228,16 @@ def output_regular_atom(output_file, atomstr, big_endian=COMPAT_TRUE):
             int_as_hex(a, 2, big_endian=big_endian, signed=COMPAT_TRUE) )
         
 def output_file_from_tokens_with_macros_sub_and_string_sub(
-        input_tokens, output_file, symbols, big_endian=COMPAT_TRUE):
-
+        input_tokens, output_file, symbols, big_endian=COMPAT_TRUE,
+        comments=False):
+    first_macro_seen_on_line = None
+    first_macro_outputted = False
     for tok_type, tok_expr, tok_filename, tok_linenum in input_tokens:
         if tok_type == TOK_TYPE_ATOM:
             if tok_expr in symbols: # exact match only
+                if first_macro_seen_on_line==None:
+                    first_macro_seen_on_line = tok_expr
+
                 macro_value_token = symbols[tok_expr]
                 if (macro_value_token[TOK_TYPE] == TOK_TYPE_ATOM or
                     macro_value_token[TOK_TYPE] == TOK_TYPE_DATA ):
@@ -245,7 +250,14 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
             else:
                 output_regular_atom(output_file, tok_expr, big_endian)
         elif tok_type == TOK_TYPE_NEWLINE:
+            if (not first_macro_outputted and
+                first_macro_seen_on_line!=None and
+                comments):
+                output_file.write( ' # ')
+                output_file.write(first_macro_seen_on_line)
             output_file.write('\n')
+            first_macro_outputted = False
+            first_macro_seen_on_line = None
         elif tok_type == TOK_TYPE_DATA:
             output_file.write(tok_expr)
         elif tok_type == TOK_TYPE_STR:
@@ -253,7 +265,15 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
                 output_file, tok_expr
                 )
         elif tok_type == TOK_TYPE_COMMENT:
-            output_file.write(' ; ' + tok_expr)
+            if comments:
+                if first_macro_seen_on_line == None:
+                    output_file.write(';')
+                else:
+                    output_file.write(' # ')
+                    output_file.write(first_macro_seen_on_line)
+                    output_file.write(' ; ')
+                output_file.write(tok_expr)
+            first_macro_outputted = True
         else:
             assert tok_type == TOK_TYPE_MACRO
 
@@ -267,7 +287,8 @@ def get_symbols_from_M1_file_objs(file_objs, rewind_after=COMPAT_TRUE):
     return symbols
 
 def M1_file_objs_to_hex2_file(
-        M1_file_objs, hex2_file_obj, symbols=None, big_endian=COMPAT_TRUE):
+        M1_file_objs, hex2_file_obj, symbols=None, big_endian=COMPAT_TRUE,
+        comments=False):
     if symbols == None:
         symbols = get_symbols_from_M1_file_objs(
             M1_file_objs, rewind_after=COMPAT_TRUE)
@@ -275,7 +296,7 @@ def M1_file_objs_to_hex2_file(
     for f in M1_file_objs:
         output_file_from_tokens_with_macros_sub_and_string_sub(
             upgrade_token_stream_to_include_macro(tokenize_file(f)),
-            hex2_file_obj, symbols, big_endian)
+            hex2_file_obj, symbols, big_endian, comments)
 
 def main():
     from sys import argv, stdout
@@ -285,6 +306,7 @@ def main():
     arg_iter = iter(argv[1:])
     big_endian = COMPAT_TRUE
     endian_flag_seen = COMPAT_FALSE
+    comment_flag_seen = False
     while COMPAT_TRUE:
         try:
             arg = next(arg_iter)
@@ -315,6 +337,8 @@ def main():
                     "Johnathan Swift says you can't have it both ways")
             endian_flag_seen = COMPAT_TRUE
             big_endian = COMPAT_FALSE
+        elif arg == '--comment':
+            comment_flag_seen = True
         else:
             arguments.append(arg)
 
@@ -336,7 +360,8 @@ def main():
             output_file_obj = open(output_filename, 'w')
 
         M1_file_objs_to_hex2_file(M1_file_objs, output_file_obj,
-                                  symbols=symbols, big_endian=big_endian)
+                                  symbols=symbols, big_endian=big_endian,
+                                  comments=comment_flag_seen)
 
     for f in M1_file_objs:
         f.close()
