@@ -226,6 +226,12 @@ def output_regular_atom(output_file, atomstr, big_endian=COMPAT_TRUE):
             raise Exception("%s can't be parsed to decimal" % atomstr)
         output_file.write(
             int_as_hex(a, 2, big_endian=big_endian, signed=COMPAT_TRUE) )
+
+def filter_line_pieces_to_empty_if_just_label(pieces):
+    if len(pieces)==1 and pieces[0].startswith(':'):
+        return ()
+    else:
+        return pieces
         
 def output_file_from_tokens_with_macros_sub_and_string_sub(
         input_tokens, output_file, symbols, big_endian=COMPAT_TRUE,
@@ -249,11 +255,13 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
             else:
                 output_regular_atom(output_file, tok_expr, big_endian)
         elif tok_type == TOK_TYPE_NEWLINE:
+            pieces_filtered = filter_line_pieces_to_empty_if_just_label(
+                        piece_seen_on_line)
             if (not first_macro_outputted and
-                len(piece_seen_on_line)>0 and
+                len(pieces_filtered)>0 and
                 comments):
                 output_file.write( ' # ')
-                output_file.write(' '.join(piece_seen_on_line))
+                output_file.write(' '.join(pieces_filtered))
             output_file.write('\n')
             first_macro_outputted = False
             piece_seen_on_line = []
