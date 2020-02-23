@@ -268,6 +268,12 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
         elif tok_type == TOK_TYPE_DATA:
             output_file.write(tok_expr)
         elif tok_type == TOK_TYPE_STR:
+            if comments:
+                output_file.write( '# "')
+                # [1:] to get rid of leading quote from repr
+                # [:-1] to get rid of trailing quote from repr
+                output_file.write( repr(tok_expr)[1:][:-1] )
+                output_file.write('"\n')
             output_string_as_hex(
                 output_file, tok_expr
                 )
