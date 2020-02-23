@@ -26,8 +26,8 @@ from __future__ import generators # for yield keyword in python 2.2
 from pythoncompat import \
     open_ascii, print_func, COMPAT_TRUE, COMPAT_FALSE, int_as_hex
 
-TOK_TYPE_MACRO, TOK_TYPE_ATOM, TOK_TYPE_STR, TOK_TYPE_DATA, TOK_TYPE_NEWLINE \
-    = range(5)
+TOK_TYPE_MACRO, TOK_TYPE_ATOM, TOK_TYPE_STR, TOK_TYPE_DATA, \
+    TOK_TYPE_COMMENT, TOK_TYPE_NEWLINE = range(6)
 TOK_TYPE, TOK_EXPR, TOK_FILENAME, TOK_LINENUM = range(4)
 MACRO_NAME, MACRO_VALUE = 0, 1
 
@@ -45,10 +45,13 @@ def read_atom(first_char, f):
     return buf, c
 
 def read_until_newline_or_EOF(f):
+    comment_buffer = ''
     while COMPAT_TRUE:
         c = f.read(1)
         if c == '' or c=='\n' or c=='\r':
-            return c
+            return c, comment_buffer
+        else:
+            comment_buffer += c
 
 def tokenize_file(f):
     line_num = 1
@@ -74,7 +77,8 @@ def tokenize_file(f):
             else:
                 string_buf += c
         elif c == '#' or c == ';':
-            c = read_until_newline_or_EOF(f)
+            c, comment = read_until_newline_or_EOF(f)
+            yield (TOK_TYPE_COMMENT, comment, f.name, line_num)
             if c!= '':
                 yield (TOK_TYPE_NEWLINE, '\n', f.name, line_num)
                 line_num+=1
@@ -248,6 +252,8 @@ def output_file_from_tokens_with_macros_sub_and_string_sub(
             output_string_as_hex(
                 output_file, tok_expr
                 )
+        elif tok_type == TOK_TYPE_COMMENT:
+            output_file.write(' ; ' + tok_expr)
         else:
             assert tok_type == TOK_TYPE_MACRO
 
