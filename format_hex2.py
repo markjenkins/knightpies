@@ -26,7 +26,7 @@ for line in stdin:
         content, comment_section = line.split('#', maxsplit=1 )
         print( "\t%s # %s" % (
             content.strip().ljust(justify_content),
-            first_comment.strip()
+            comment_section.strip()
             )
         )
     else:
