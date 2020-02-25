@@ -2,7 +2,7 @@
 
 # Read a .s M1 file, identify macros used and print both the sym 
 
-# You can then pipe the output to this ask script to get sed invocations
+# You can then pipe the output to this awk script to get sed invocations
 # to undo the macros in the original .s file
 # awk "{print \"sed -i -e s/\" \$1 \"/\" \$2 \"/ filetochange.hex2\"}"
 
