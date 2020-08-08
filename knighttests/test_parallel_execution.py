@@ -59,7 +59,7 @@ class ParallelExecutionTests(TestCase):
         self.c_vm = User_Interface.vm
 
         self.vm_size = self.get_vm_size()
-        self.c_vm.initialize_lilith(self.vm_size)
+        self.c_vm.initialize_lilith(self.vm_size, False)
         self.output_mem_buffer = BytesIO()
         self.skipped_instructions = 0
 
