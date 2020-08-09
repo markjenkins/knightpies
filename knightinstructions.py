@@ -28,7 +28,8 @@ from constants import \
     RAW_XOP, XOP, RAW_IMMEDIATE, IMMEDIATE, I_REGISTERS, HAL_CODE, \
     CONDITION_BIT_C, CONDITION_BIT_B, CONDITION_BIT_O, \
     CONDITION_BIT_GT, CONDITION_BIT_EQ, CONDITION_BIT_LT, \
-    HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER, HAL_IO_DEVICE_STDIO
+    HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER, \
+    HAL_IO_DEVICE_STDIO, HAL_IO_DEVICE_TAPE1, HAL_IO_DEVICE_TAPE2
 
 from pythoncompat import write_byte, COMPAT_TRUE, COMPAT_FALSE
 from knightdecodeutil import outside_of_world
@@ -1196,9 +1197,9 @@ def JUMP(vm, c):
 
 def lookup_tapeindex_and_filename(vm, io_device_register=0):
     io_device = vm[REG][io_device_register]
-    if 0x00001100 == io_device:
+    if HAL_IO_DEVICE_TAPE1 == io_device:
         return 0, TAPE1FILENAME, io_device
-    elif 0x00001101 == io_device:
+    elif HAL_IO_DEVICE_TAPE2 == io_device:
         return 1, TAPE2FILENAME, io_device
     elif HAL_IO_DEVICE_STDIO == io_device:
         return None, None, io_device
