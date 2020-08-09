@@ -241,17 +241,6 @@ class ParallelExecutionTests(TestCase):
                     break # don't bother with state checks after HALT
                 self.do_state_checks(debug_tuple)
 
-        #self.assertTrue(
-        #    file_compare(self.tape_01_filename, LILITH_TAPE_NAME_01,
-        #                 shallow=False),
-        #    "%s vs %s" % (self.tape_01_filename, LILITH_TAPE_NAME_01)
-        #)
-        #self.assertTrue(
-        #    file_compare(self.tape_02_filename, LILITH_TAPE_NAME_02,
-        #                 shallow=False),
-        #    "%s vs %s" % (self.tape_02_filename, LILITH_TAPE_NAME_02)
-        #)
-
 class Stage0MonitorTests(ParallelExecutionTests):
     stack_start = 0x600
     stack_size = 8
