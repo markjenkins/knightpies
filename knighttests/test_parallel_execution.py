@@ -202,6 +202,12 @@ class ParallelExecutionTests(TestCase):
         elif py_instruction[RAW][0] == HALT_OP:
             # skip halt to avoid print output
             self.skipped_instructions+=1
+        elif py_instruction[RAW][0] == HAL_CODE_OP:
+            raise Exception(
+                "hal code %s with io register %s "
+                "is not a supported instruction for parallel test" %
+                (hex(get_hal_code_from_raw(py_instruction) ),
+                 hex(self.c_vm.get_register(HAL_IO_DEVICE_REGISTER) ) ) )
         else: # read and execute all other instructions
             self.c_vm.step_lilith()
 
