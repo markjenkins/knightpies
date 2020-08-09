@@ -33,7 +33,7 @@ from constants import (
     IP, REG, MEM, HALTED, PERF_COUNT, # vm tuple indexes
     RAW, HAL_CODE, # intruction tuple indexes
     HALT_OP, HAL_CODE_OP, HAL_CODE_FGETC, HAL_CODE_FPUTC,
-    HAL_CODE_FOPEN_WRITE, HAL_CODE_FCLOSE,
+    HAL_CODE_FOPEN_READ, HAL_CODE_FOPEN_WRITE, HAL_CODE_FCLOSE,
     HAL_IO_DATA_REGISTER, HAL_IO_DEVICE_REGISTER,
     HAL_IO_DEVICE_STDIO,
     HAL_IO_DEVICE_TAPE1, HAL_IO_DEVICE_TAPE2,
@@ -151,6 +151,7 @@ class ParallelExecutionTests(TestCase):
     def lilith_hal_code_run(self, py_instruction, py_vm_new):
         if ( get_hal_code_from_raw(py_instruction) in
             (HAL_CODE_FGETC, HAL_CODE_FPUTC,
+             HAL_CODE_FOPEN_READ,
              HAL_CODE_FOPEN_WRITE, HAL_CODE_FCLOSE) and
             self.c_vm.get_register(HAL_IO_DEVICE_REGISTER) in
             (HAL_IO_DEVICE_STDIO, HAL_IO_DEVICE_TAPE1, HAL_IO_DEVICE_TAPE2) ):
@@ -159,7 +160,8 @@ class ParallelExecutionTests(TestCase):
                     self.c_vm.set_register(
                         HAL_IO_DATA_REGISTER,
                         py_vm_new[REG][HAL_IO_DATA_REGISTER] )
-            # no need to simulate FPUTC, FOPEN_WRITE, FCLOSE, just do nothing
+            # no need to simulate FPUTC, FOPEN_WRITE, FCLOSE, FOPEN_READ
+            # just do nothing
             # else: # HAL_CODE_FPUTC
             #    self.assertEqual(py_instruction[HAL_CODE],
             #                     HAL_CODE_FPUTC)
