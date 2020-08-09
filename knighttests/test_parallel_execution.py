@@ -148,30 +148,8 @@ class ParallelExecutionTests(TestCase):
     def halted(self):
         return self.py_vm[HALTED]
 
-    def advance_both_vms(self):
-        old_ip = self.py_vm[IP]
-        
-        py_instruction = read_instruction(self.py_vm)
-        py_vm_new = eval_instruction(
-            self.py_vm, py_instruction,
-            optimize=self.optimize, halt_print=False)
-
-        self.assertIsNotNone(
-            py_vm_new[IP],
-            "instruction at %.2X did ip None %s" % (
-                old_ip, repr(py_instruction) )
-            )
-
-        self.assertTrue(
-            0<= py_vm_new[IP] < self.program_size,
-            "instruction at %.2X put us out of program %s" % (
-                old_ip, repr(py_instruction) ) )
-        
-        # intercept io from stdin / to stdout and force emulation by
-        # copying the result of our python interpreter doing the io
-        # into the c based VM
-        if (py_instruction[RAW][0] == HAL_CODE_OP and
-            get_hal_code_from_raw(py_instruction) in 
+    def lilith_hal_code_run(self, py_instruction, py_vm_new):
+        if ( get_hal_code_from_raw(py_instruction) in
             (HAL_CODE_FGETC, HAL_CODE_FPUTC,
              HAL_CODE_FOPEN_WRITE, HAL_CODE_FCLOSE) and
             self.c_vm.get_register(HAL_IO_DEVICE_REGISTER) in
@@ -199,15 +177,37 @@ class ParallelExecutionTests(TestCase):
             self.c_vm.set_register(LILITH_IP_REGISTER_INDEX, new_c_vm_ip)
 
             self.skipped_instructions+=1
-        elif py_instruction[RAW][0] == HALT_OP:
-            # skip halt to avoid print output
-            self.skipped_instructions+=1
-        elif py_instruction[RAW][0] == HAL_CODE_OP:
+        else:
             raise Exception(
                 "hal code %s with io register %s "
                 "is not a supported instruction for parallel test" %
                 (hex(get_hal_code_from_raw(py_instruction) ),
                  hex(self.c_vm.get_register(HAL_IO_DEVICE_REGISTER) ) ) )
+
+    def advance_both_vms(self):
+        old_ip = self.py_vm[IP]
+
+        py_instruction = read_instruction(self.py_vm)
+        py_vm_new = eval_instruction(
+            self.py_vm, py_instruction,
+            optimize=self.optimize, halt_print=False)
+
+        self.assertIsNotNone(
+            py_vm_new[IP],
+            "instruction at %.2X did ip None %s" % (
+                old_ip, repr(py_instruction) )
+            )
+
+        self.assertTrue(
+            0<= py_vm_new[IP] < self.program_size,
+            "instruction at %.2X put us out of program %s" % (
+                old_ip, repr(py_instruction) ) )
+
+        if py_instruction[RAW][0] == HAL_CODE_OP:
+            self.lilith_hal_code_run(py_instruction, py_vm_new)
+        elif py_instruction[RAW][0] == HALT_OP:
+            # skip halt to avoid print output
+            self.skipped_instructions+=1
         else: # read and execute all other instructions
             self.c_vm.step_lilith()
 
